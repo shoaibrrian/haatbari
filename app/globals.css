@@ -795,6 +795,18 @@ h2 {
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+.checkout-error {
+  margin: 0 0 18px;
+  color: #b54135;
+  font:
+    12px Arial,
+    sans-serif;
+  line-height: 1.5;
+}
+.submit-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
 .quantity-row,
 .summary-total {
   display: flex;

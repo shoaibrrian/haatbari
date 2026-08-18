@@ -9,6 +9,8 @@ const deliveryFee = 70;
 export default function CheckoutPage() {
   const [cart, setCart] = useState([]);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const syncCart = window.setTimeout(() => setCart(readCart()), 0);
@@ -76,9 +78,59 @@ export default function CheckoutPage() {
       <div className="checkout-grid">
         <form
           className="checkout-form"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
-            setSubmitted(true);
+            if (!cart.length) {
+              setError(
+                "Your basket is empty. Add a product before placing the order.",
+              );
+              return;
+            }
+
+            setSubmitting(true);
+            setError("");
+            const formData = new FormData(event.currentTarget);
+
+            try {
+              const response = await fetch("/api/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  customer: {
+                    firstName: formData.get("firstName"),
+                    lastName: formData.get("lastName"),
+                    phone: formData.get("phone"),
+                    address: formData.get("address"),
+                  },
+                  items: cart.map((item) => ({
+                    productId: item.id,
+                    title: item.title,
+                    price: item.price,
+                    quantity: item.quantity,
+                    image: item.image,
+                  })),
+                  subtotal,
+                  deliveryFee,
+                  total,
+                  paymentMethod: formData.get("payment"),
+                }),
+              });
+
+              const result = await response.json();
+              if (!response.ok)
+                throw new Error(result.error || "Unable to place order.");
+
+              writeCart([]);
+              setCart([]);
+              window.alert(
+                "Thank you! Your order has been placed successfully.",
+              );
+              setSubmitted(true);
+            } catch (submitError) {
+              setError(submitError.message);
+            } finally {
+              setSubmitting(false);
+            }
           }}
         >
           <fieldset>
@@ -115,22 +167,41 @@ export default function CheckoutPage() {
           <fieldset>
             <legend>Payment</legend>
             <label className="payment-choice">
-              <input type="radio" name="payment" defaultChecked />{" "}
+              <input
+                type="radio"
+                name="payment"
+                value="cash_on_delivery"
+                defaultChecked
+              />{" "}
               <span>
                 <strong>Cash on delivery</strong>
                 <small>Pay when your order arrives</small>
               </span>
             </label>
             <label className="payment-choice muted">
-              <input type="radio" name="payment" />{" "}
+              <input
+                type="radio"
+                name="payment"
+                value="card_or_mobile_wallet"
+              />{" "}
               <span>
                 <strong>Card or mobile wallet</strong>
                 <small>Coming soon</small>
               </span>
             </label>
           </fieldset>
-          <button className="button button-dark submit-button" type="submit">
-            Place order <span>↗</span>
+          {error && (
+            <p className="checkout-error" role="alert">
+              {error}
+            </p>
+          )}
+          <button
+            className="button button-dark submit-button"
+            type="submit"
+            disabled={submitting}
+          >
+            {submitting ? "Placing order..." : "Place order"}{" "}
+            <span>{submitting ? "…" : "↗"}</span>
           </button>
         </form>
         <aside className="order-summary">
