@@ -3,24 +3,43 @@ import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 
 const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_KEY,
 });
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 export async function POST(request) {
   const { query } = await request.json();
+  if (!query?.trim()) {
+    return Response.json({ error: "Search query is required" }, { status: 400 });
+  }
+
   const aiRes = await client.chat.completions.create({
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini",
     messages: [
       {
         role: "user",
-        content: "Convert this into a short product keyword" + query,
+        content:
+          "Generate exactly 10 relevant product search keywords for this query. Return only the keywords as a comma-separated list, with no numbering or extra text: " +
+          query,
       },
     ],
   });
-  const keyword = aiRes.choices[0].message.content.trim();
+  const keywords = aiRes.choices[0].message.content
+    .split(",")
+    .map((keyword) => keyword.replace(/^\s*\d+[.)-]?\s*/, "").trim())
+    .map((keyword) => keyword.replace(/^['"`]|['"`]$/g, "").trim())
+    .filter(Boolean)
+    .slice(0, 10);
+
   await connectDB();
   const products = await Product.find({
-    title: { $regex: keyword, $options: "i" },
+    $or: keywords.flatMap((keyword) => {
+      const regex = { $regex: escapeRegex(keyword), $options: "i" };
+      return [{ title: regex }, { description: regex }, { category: regex }];
+    }),
   });
 
   return Response.json(products);
