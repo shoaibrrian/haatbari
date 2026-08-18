@@ -28,8 +28,14 @@ export default function Home() {
     };
   }, []);
 
-  const handleSearch = () => {
-    alert("Searching");
+  const handleSearch = async () => {
+    const res = await fetch("/api/ai-search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+    });
+    const data = await res.json();
+    setProducts(data);
   };
 
   return (
@@ -45,7 +51,7 @@ export default function Home() {
           onChange={(e) => setQuery(e.target.value)}
         />
         <button
-          className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded mb-6"
+          className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded mb-6 cursor-pointer"
           onClick={handleSearch}
         >
           Search
@@ -71,7 +77,9 @@ export default function Home() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h2 className="font-semibold text-lg mb-1">{p.name}</h2>
+                <h2 className="font-semibold text-lg mb-1 text-black">
+                  {p.title}
+                </h2>
                 <p className="text-gray-600 text-sm flex-1">{p.description}</p>
                 <div className="mt-4 flex items-center justify-between">
                   <span className="text-lg font-bold text-gray-800">
