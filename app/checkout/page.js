@@ -1,13 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { readCart, writeCart } from "@/lib/cart";
+
+const deliveryFee = 70;
 
 export default function CheckoutPage() {
-  const [quantity, setQuantity] = useState(1);
+  const [cart, setCart] = useState([]);
   const [submitted, setSubmitted] = useState(false);
-  const itemPrice = 850;
-  const delivery = 70;
+
+  useEffect(() => {
+    const syncCart = window.setTimeout(() => setCart(readCart()), 0);
+    return () => window.clearTimeout(syncCart);
+  }, []);
+
+  function updateCart(nextCart) {
+    setCart(nextCart);
+    writeCart(nextCart);
+  }
+
+  function changeQuantity(id, change) {
+    updateCart(
+      cart.map((item) =>
+        item.id === id
+          ? { ...item, quantity: Math.max(1, item.quantity + change) }
+          : item,
+      ),
+    );
+  }
+
+  function removeItem(id) {
+    updateCart(cart.filter((item) => item.id !== id));
+  }
+
+  const subtotal = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0,
+  );
+  const total = subtotal ? subtotal + deliveryFee : 0;
 
   if (submitted) {
     return (
@@ -104,39 +135,59 @@ export default function CheckoutPage() {
         </form>
         <aside className="order-summary">
           <p className="eyebrow">Your basket</p>
-          <div className="summary-item">
-            <div className="summary-art">HB</div>
-            <div>
-              <strong>Community favourite</strong>
-              <small>Handpicked from Bangladesh</small>
+          {cart.length === 0 ? (
+            <div className="checkout-empty">
+              <p>Your basket is empty.</p>
+              <Link href="/#market">Return to the market →</Link>
             </div>
-            <span>৳{itemPrice * quantity}</span>
-          </div>
-          <div className="quantity-row">
-            <span>Quantity</span>
-            <div>
-              <button
-                type="button"
-                aria-label="Decrease quantity"
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              >
-                −
-              </button>
-              <span>{quantity}</span>
-              <button
-                type="button"
-                aria-label="Increase quantity"
-                onClick={() => setQuantity(quantity + 1)}
-              >
-                +
-              </button>
-            </div>
-          </div>
+          ) : (
+            cart.map((item) => (
+              <div className="summary-item" key={item.id}>
+                <div className="summary-art">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.image || "/placeholder.png"} alt="" />
+                </div>
+                <div>
+                  <strong>{item.title}</strong>
+                  <small>
+                    ৳{item.price} × {item.quantity}
+                  </small>
+                  <button
+                    type="button"
+                    className="summary-remove"
+                    onClick={() => removeItem(item.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+                <span>৳{item.price * item.quantity}</span>
+                <div className="summary-quantity">
+                  <button
+                    type="button"
+                    aria-label={`Decrease ${item.title} quantity`}
+                    onClick={() => changeQuantity(item.id, -1)}
+                  >
+                    −
+                  </button>
+                  <span>{item.quantity}</span>
+                  <button
+                    type="button"
+                    aria-label={`Increase ${item.title} quantity`}
+                    onClick={() => changeQuantity(item.id, 1)}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
           <div className="summary-total">
+            <span>Subtotal</span>
+            <span>৳{subtotal}</span>
             <span>Delivery</span>
-            <span>৳{delivery}</span>
+            <span>৳{cart.length ? deliveryFee : 0}</span>
             <strong>Total</strong>
-            <strong>৳{itemPrice * quantity + delivery}</strong>
+            <strong>৳{total}</strong>
           </div>
         </aside>
       </div>

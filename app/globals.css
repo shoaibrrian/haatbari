@@ -715,9 +715,15 @@ h2 {
   height: 65px;
   background: var(--green);
   color: #e9b56e;
+  overflow: hidden;
   font:
     700 12px Arial,
     sans-serif;
+}
+.summary-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .summary-item strong,
 .summary-item small {
@@ -738,6 +744,56 @@ h2 {
   font:
     13px Arial,
     sans-serif;
+}
+.summary-remove {
+  margin-top: 7px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #69736b;
+  cursor: pointer;
+  font:
+    10px Arial,
+    sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.summary-remove:hover {
+  color: var(--coral);
+}
+.summary-quantity {
+  display: flex;
+  grid-column: 2;
+  align-items: center;
+  gap: 12px;
+  color: #69736b;
+  font:
+    12px Arial,
+    sans-serif;
+}
+.summary-quantity button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+}
+.checkout-empty {
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+  color: #69736b;
+  font-size: 14px;
+}
+.checkout-empty p {
+  margin-bottom: 8px;
+}
+.checkout-empty a {
+  color: var(--coral);
+  font:
+    11px Arial,
+    sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 .quantity-row,
 .summary-total {

@@ -18,7 +18,11 @@ export default function AboutPage() {
       </section>
       <section className="about-story page-width">
         <div className="story-graphic">
-          <span>আমাদের</span>
+          <span>
+            আমাদের
+            <br />
+            বাজার
+          </span>
           <strong>
             OUR
             <br />
