@@ -1,12 +1,25 @@
 import connectDB from "@/lib/db";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_KEY,
+});
+
+async function generateVector(text) {
+  const response = await openai.embeddings.create({
+    model: "text-embedding-3-small",
+    input: text,
+  });
+  return response.data[0].embedding;
+}
+
 import Product from "@/models/Product";
 
 export async function GET() {
   await connectDB();
-  const products = await Product.find();
   await Product.deleteMany();
 
-  await Product.insertMany([
+  const products = [
     {
       title: "Blue Sneakers",
       description: "Comfortable blue sneakers for everyday wear",
@@ -395,7 +408,18 @@ export async function GET() {
       category: "Accessories",
       image: "https://picsum.photos/200/300?random=52",
     },
-  ]);
+  ];
+
+  const productsWithVectors = await Promise.all(
+    products.map(async (product) => {
+      const embedding = await generateVector(
+        `${product.title} ${product.description} ${product.category}`,
+      );
+      return { ...product, vector: embedding };
+    }),
+  );
+
+  await Product.insertMany(productsWithVectors);
 
   return Response.json({ message: "Database seeded successfully" });
 }
