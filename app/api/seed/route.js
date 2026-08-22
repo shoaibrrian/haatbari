@@ -1,17 +1,18 @@
 import connectDB from "@/lib/db";
-import OpenAI from "openai";
+// import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_KEY,
-});
+// const openai = new OpenAI({
+//   apiKey: process.env.GEMINI_API_KEY,
+//   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+// });
 
-async function generateVector(text) {
-  const response = await openai.embeddings.create({
-    model: "text-embedding-3-small",
-    input: text,
-  });
-  return response.data[0].embedding;
-}
+// async function generateVector(text) {
+//   const response = await openai.embeddings.create({
+//     model: "text-embedding-3-small",
+//     input: text,
+//   });
+//   return response.data[0].embedding;
+// }
 
 import Product from "@/models/Product";
 
@@ -410,16 +411,18 @@ export async function GET() {
     },
   ];
 
-  const productsWithVectors = await Promise.all(
-    products.map(async (product) => {
-      const embedding = await generateVector(
-        `${product.title} ${product.description} ${product.category}`,
-      );
-      return { ...product, vector: embedding };
-    }),
-  );
+  // const productsWithVectors = await Promise.all(
+  //   products.map(async (product) => {
+  //     const embedding = await generateVector(
+  //       `${product.title} ${product.description} ${product.category}`,
+  //     );
+  //     return { ...product, vector: embedding };
+  //   }),
+  // );
 
-  await Product.insertMany(productsWithVectors);
+  // await Product.insertMany(productsWithVectors);
+
+  await Product.insertMany(products);
 
   return Response.json({ message: "Database seeded successfully" });
 }

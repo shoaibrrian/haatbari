@@ -3,7 +3,8 @@ import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 
 const client = new OpenAI({
-  apiKey: process.env.OPENAI_KEY,
+  apiKey: process.env.GEMINI_API_KEY,
+  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
 });
 
 function escapeRegex(value) {
@@ -13,11 +14,14 @@ function escapeRegex(value) {
 export async function POST(request) {
   const { query } = await request.json();
   if (!query?.trim()) {
-    return Response.json({ error: "Search query is required" }, { status: 400 });
+    return Response.json(
+      { error: "Search query is required" },
+      { status: 400 },
+    );
   }
 
   const aiRes = await client.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gemini-3.6-flash",
     messages: [
       {
         role: "user",
@@ -35,6 +39,9 @@ export async function POST(request) {
     .slice(0, 10);
 
   await connectDB();
+
+  console.log("AI Keywords:", keywords);
+
   const products = await Product.find({
     $or: keywords.flatMap((keyword) => {
       const regex = { $regex: escapeRegex(keyword), $options: "i" };
