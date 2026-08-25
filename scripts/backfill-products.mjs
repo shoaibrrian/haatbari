@@ -39,7 +39,15 @@ for (const doc of undated) {
   await Product.updateOne(
     { _id: doc._id },
     { $set: { createdAt: at, updatedAt: at } },
-    { timestamps: false },
+    {
+      // `timestamps: false` stops mongoose stamping updatedAt with "now".
+      // `overwriteImmutable` is the one that matters: timestamps:true marks
+      // createdAt immutable, and mongoose strips immutable fields from updates
+      // silently — no error, and modifiedCount still counts the document. This
+      // is the only way to backdate it.
+      timestamps: false,
+      overwriteImmutable: true,
+    },
   );
 }
 console.log(`timestamps recovered: ${undated.length}`);
