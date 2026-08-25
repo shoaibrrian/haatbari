@@ -1,6 +1,10 @@
 import connectDB from "../../lib/db/connect.js";
 import Product from "./product.model.js";
 
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function buildFilter({ category, q, minPrice, maxPrice, includeInactive }) {
   const filter = {};
 
@@ -80,6 +84,39 @@ export async function findProductBySlug(slug) {
 export async function findProductsByIds(ids, options = {}) {
   await connectDB();
   return Product.find({ _id: { $in: ids } }, null, options).lean();
+}
+
+export async function searchProductsByText(q, limit) {
+  await connectDB();
+
+  return Product.find({ isActive: true, $text: { $search: q } })
+    .sort({ score: { $meta: "textScore" } })
+    .limit(limit)
+    .lean();
+}
+
+export async function searchProductsLoosely(q, limit) {
+  await connectDB();
+
+  const tokens = q.split(/\s+/).filter(Boolean).slice(0, 5);
+  if (tokens.length === 0) return [];
+
+  return Product.find({
+    isActive: true,
+    $and: tokens.map((token) => {
+      const pattern = { $regex: escapeRegex(token), $options: "i" };
+      return {
+        $or: [
+          { title: pattern },
+          { category: pattern },
+          { description: pattern },
+        ],
+      };
+    }),
+  })
+    .sort({ createdAt: -1, _id: -1 })
+    .limit(limit)
+    .lean();
 }
 
 export async function createProduct(data) {

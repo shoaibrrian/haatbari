@@ -4,20 +4,22 @@ import {
   isObjectId,
   listProductsQuerySchema,
   productIdentifierSchema,
+  searchQuerySchema,
   toPublicProduct,
   updateProductSchema,
 } from "./product.dto.js";
 import * as repository from "./product.repository.js";
 
-/**
- * Business rules live here. Two things this layer deliberately does NOT do:
- * it never builds a `Response` (a CLI script calls these same functions), and
- * it never touches the Mongoose model directly (that is the repository's job).
- *
- * Validation runs here rather than in the route so that every caller gets it,
- * not just HTTP ones. zod's thrown ZodError is translated into a 400 by
- * `withRoute`, so nothing here needs a try/catch.
- */
+const SEARCH_STRATEGIES = [
+  {
+    name: "text",
+    run: (q, limit) => repository.searchProductsByText(q, limit),
+  },
+  {
+    name: "loose",
+    run: (q, limit) => repository.searchProductsLoosely(q, limit),
+  },
+];
 
 export async function listProducts(rawQuery = {}) {
   const query = listProductsQuerySchema.parse(rawQuery);
@@ -35,11 +37,24 @@ export async function listProducts(rawQuery = {}) {
   };
 }
 
-/**
- * Accepts "68a1..." or "wireless-headphones" so the URL can be readable.
- * A 24-hex string is tried as an id first, then as a slug — a slug that happens
- * to be 24 hex characters is vanishingly unlikely, and falling through covers it.
- */
+export async function searchProducts(rawQuery = {}) {
+  const { q, limit } = searchQuerySchema.parse(rawQuery);
+
+  for (const strategy of SEARCH_STRATEGIES) {
+    const items = await strategy.run(q, limit);
+
+    if (items.length > 0) {
+      return {
+        items: items.map(toPublicProduct),
+        strategy: strategy.name,
+        query: q,
+      };
+    }
+  }
+
+  return { items: [], strategy: "none", query: q };
+}
+
 export async function getProduct(rawIdentifier) {
   const identifier = productIdentifierSchema.parse(rawIdentifier);
 
@@ -49,8 +64,6 @@ export async function getProduct(rawIdentifier) {
 
   product ??= await repository.findProductBySlug(identifier);
 
-  // The repository returned null, which is just a fact. Turning that fact into
-  // a 404 is a policy decision, and policy belongs in the service.
   if (!product || !product.isActive) throw new NotFoundError("Product");
 
   return toPublicProduct(product);

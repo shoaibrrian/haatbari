@@ -1,43 +1,89 @@
 "use client";
-import { useState, useEffect } from "react";
+
 import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { addToCart } from "@/lib/cart";
 import { apiFetch } from "@/lib/api-client";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
+  const [results, setResults] = useState(null);
+  const [searchMeta, setSearchMeta] = useState(null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [error, setError] = useState(null);
+  const inFlight = useRef(null);
 
   useEffect(() => {
-    let mounted = true;
-    async function load() {
+    const controller = new AbortController();
+    let active = true;
+
+    async function loadCatalogue() {
       try {
-        const { data } = await apiFetch("/api/products?limit=60");
-        if (mounted) setProducts(data);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-        if (mounted) setError(err.message);
+        const { data } = await apiFetch("/api/products?limit=60", {
+          signal: controller.signal,
+        });
+        if (active) setProducts(data);
+      } catch (loadError) {
+        if (active && loadError.name !== "AbortError") {
+          setError(loadError.message);
+        }
       } finally {
-        if (mounted) setLoading(false);
+        if (active) setLoading(false);
       }
     }
-    load();
+
+    loadCatalogue();
+
     return () => {
-      mounted = false;
+      active = false;
+      controller.abort();
     };
   }, []);
 
-  const handleSearch = async () => {
-    const res = await fetch("/api/ai-search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query }),
-    });
-    const data = await res.json();
-    setProducts(data);
+  const runSearch = useCallback(async (rawQuery) => {
+    const term = rawQuery.trim();
+
+    inFlight.current?.abort();
+
+    if (!term) {
+      inFlight.current = null;
+      setResults(null);
+      setSearchMeta(null);
+      setSearching(false);
+      setError(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    inFlight.current = controller;
+    setSearching(true);
+    setError(null);
+
+    try {
+      const { data, meta } = await apiFetch(
+        `/api/search?q=${encodeURIComponent(term)}`,
+        { signal: controller.signal },
+      );
+      setResults(data);
+      setSearchMeta(meta);
+    } catch (searchError) {
+      if (searchError.name === "AbortError") return;
+      setResults([]);
+      setSearchMeta(null);
+      setError(searchError.message);
+    } finally {
+      if (inFlight.current === controller) setSearching(false);
+    }
+  }, []);
+
+  const clearSearch = () => {
+    setQuery("");
+    runSearch("");
   };
+
+  const visible = results ?? products;
 
   return (
     <main>
@@ -78,39 +124,67 @@ export default function Home() {
             <p className="eyebrow">The weekly edit</p>
             <h2>Good things, gathered.</h2>
           </div>
-          <div className="search-box">
+          <form
+            className="search-box"
+            role="search"
+            onSubmit={(event) => {
+              event.preventDefault();
+              runSearch(query);
+            }}
+          >
             <input
               value={query}
               type="search"
               placeholder="Search the market"
               aria-label="Search the market"
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(event) => setQuery(event.target.value)}
             />
-            <button aria-label="Search products" onClick={handleSearch}>
+            <button type="submit" aria-label="Search products">
               ↗
             </button>
-          </div>
+          </form>
         </div>
+
+        {results !== null && !searching && !error && (
+          <p className="mb-6 flex flex-wrap items-center gap-3 text-sm text-neutral-600">
+            <span>
+              {results.length === 0
+                ? `Nothing matched “${searchMeta?.query ?? query}”.`
+                : `${results.length} ${
+                    results.length === 1 ? "find" : "finds"
+                  } for “${searchMeta?.query ?? query}”`}
+              {searchMeta?.strategy === "loose" && results.length > 0
+                ? " — closest matches"
+                : ""}
+            </span>
+            <button type="button" className="underline" onClick={clearSearch}>
+              Show everything
+            </button>
+          </p>
+        )}
 
         {loading ? (
           <div className="empty-state">Gathering the market...</div>
+        ) : searching ? (
+          <div className="empty-state">Looking through the market...</div>
         ) : error ? (
           <div className="empty-state">
             We couldn&apos;t reach the market just now: {error}
           </div>
-        ) : products.length === 0 ? (
+        ) : visible.length === 0 ? (
           <div className="empty-state">
-            No finds yet. Try a different search.
+            {results !== null
+              ? "Try a different word, or browse everything above."
+              : "No finds yet."}
           </div>
         ) : (
           <div className="product-grid">
-            {products.map((p) => (
-              <article key={p._id || p.id} className="product-card">
+            {visible.map((p) => (
+              <article key={p.id} className="product-card">
                 <Link
-                  href={`/products/${p._id || p.id}`}
+                  href={`/products/${p.slug || p.id}`}
                   className="product-image"
                 >
-                  {/* Product image hosts are user-configurable, so keep native image loading. */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={p.image || "/placeholder.png"} alt={p.title} />
                 </Link>
@@ -121,14 +195,19 @@ export default function Home() {
                   <h2>{p.title}</h2>
                   <p className="product-description">{p.description}</p>
                   <div className="product-bottom">
-                    <span className="price">৳{p.price}</span>
+                    <span className="price">৳{p.price.toFixed(2)}</span>
                     <button
                       type="button"
                       className="add-button"
-                      aria-label={`Add ${p.title} to cart`}
+                      disabled={!p.inStock}
+                      aria-label={
+                        p.inStock
+                          ? `Add ${p.title} to cart`
+                          : `${p.title} is out of stock`
+                      }
                       onClick={() =>
                         addToCart({
-                          id: p._id || p.id,
+                          id: p.id,
                           title: p.title,
                           description: p.description,
                           price: p.price,
@@ -137,7 +216,7 @@ export default function Home() {
                         })
                       }
                     >
-                      + Add
+                      {p.inStock ? "+ Add" : "Sold out"}
                     </button>
                   </div>
                 </div>
