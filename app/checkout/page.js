@@ -2,15 +2,41 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { apiFetch } from "@/lib/api-client";
 import { readCart, writeCart } from "@/lib/cart";
+import {
+  DELIVERY_FEE,
+  MAX_QUANTITY_PER_ITEM,
+} from "@/modules/order/order.constants";
 
-const deliveryFee = 70;
+function describeStockProblem(problem) {
+  const name = problem.title || "An item in your basket";
+
+  if (problem.reason === "insufficient_stock") {
+    return `${name} — only ${problem.available} left, you asked for ${problem.requested}.`;
+  }
+
+  return `${name} is no longer available.`;
+}
+
+function extractMessages(apiError) {
+  if (!Array.isArray(apiError.details)) return [];
+
+  if (apiError.code === "UNPROCESSABLE") {
+    return apiError.details.map(describeStockProblem);
+  }
+
+  return apiError.details
+    .map((issue) => issue?.message)
+    .filter((message) => typeof message === "string");
+}
 
 export default function CheckoutPage() {
   const [cart, setCart] = useState([]);
-  const [submitted, setSubmitted] = useState(false);
+  const [placedOrder, setPlacedOrder] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     const syncCart = window.setTimeout(() => setCart(readCart()), 0);
@@ -26,7 +52,13 @@ export default function CheckoutPage() {
     updateCart(
       cart.map((item) =>
         item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
+          ? {
+              ...item,
+              quantity: Math.min(
+                MAX_QUANTITY_PER_ITEM,
+                Math.max(1, item.quantity + change),
+              ),
+            }
           : item,
       ),
     );
@@ -40,9 +72,53 @@ export default function CheckoutPage() {
     (total, item) => total + item.price * item.quantity,
     0,
   );
-  const total = subtotal ? subtotal + deliveryFee : 0;
+  const total = cart.length ? subtotal + DELIVERY_FEE : 0;
 
-  if (submitted) {
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    if (!cart.length) {
+      setError("Your basket is empty. Add a product before placing the order.");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+    setMessages([]);
+
+    const formData = new FormData(event.currentTarget);
+
+    try {
+      const { data } = await apiFetch("/api/orders", {
+        method: "POST",
+        body: {
+          customer: {
+            firstName: formData.get("firstName"),
+            lastName: formData.get("lastName"),
+            phone: formData.get("phone"),
+            address: formData.get("address"),
+          },
+          items: cart.map((item) => ({
+            productId: item.id,
+            quantity: item.quantity,
+          })),
+          paymentMethod: formData.get("payment"),
+        },
+      });
+
+      writeCart([]);
+      setCart([]);
+      setPlacedOrder(data);
+    } catch (submitError) {
+      const detailed = extractMessages(submitError);
+      setMessages(detailed);
+      setError(detailed.length ? "" : submitError.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (placedOrder) {
     return (
       <main className="checkout-page page-width confirmation">
         <p className="eyebrow">Order received</p>
@@ -54,6 +130,11 @@ export default function CheckoutPage() {
         <p>
           Your order is being prepared with care. We&apos;ll send delivery
           details to your phone shortly.
+        </p>
+        <p>
+          <strong>Order reference:</strong> {placedOrder.id}
+          <br />
+          <strong>Amount due on delivery:</strong> ৳{placedOrder.total}
         </p>
         <Link href="/" className="button button-dark">
           Back to the market <span>↗</span>
@@ -76,63 +157,7 @@ export default function CheckoutPage() {
         <span className="step-count">01 — 02</span>
       </div>
       <div className="checkout-grid">
-        <form
-          className="checkout-form"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            if (!cart.length) {
-              setError(
-                "Your basket is empty. Add a product before placing the order.",
-              );
-              return;
-            }
-
-            setSubmitting(true);
-            setError("");
-            const formData = new FormData(event.currentTarget);
-
-            try {
-              const response = await fetch("/api/orders", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  customer: {
-                    firstName: formData.get("firstName"),
-                    lastName: formData.get("lastName"),
-                    phone: formData.get("phone"),
-                    address: formData.get("address"),
-                  },
-                  items: cart.map((item) => ({
-                    productId: item.id,
-                    title: item.title,
-                    price: item.price,
-                    quantity: item.quantity,
-                    image: item.image,
-                  })),
-                  subtotal,
-                  deliveryFee,
-                  total,
-                  paymentMethod: formData.get("payment"),
-                }),
-              });
-
-              const result = await response.json();
-              if (!response.ok)
-                throw new Error(result.error || "Unable to place order.");
-
-              writeCart([]);
-              setCart([]);
-              window.alert(
-                "Thank you! Your order has been placed successfully.",
-              );
-              setSubmitted(true);
-            } catch (submitError) {
-              setError(submitError.message);
-            } finally {
-              setSubmitting(false);
-            }
-          }}
-        >
+        <form className="checkout-form" onSubmit={handleSubmit}>
           <fieldset>
             <legend>Where should we deliver?</legend>
             <div className="form-row">
@@ -160,6 +185,7 @@ export default function CheckoutPage() {
                 required
                 name="address"
                 rows="3"
+                minLength={15}
                 placeholder="House, road, area, city"
               />
             </label>
@@ -183,6 +209,7 @@ export default function CheckoutPage() {
                 type="radio"
                 name="payment"
                 value="card_or_mobile_wallet"
+                disabled
               />{" "}
               <span>
                 <strong>Card or mobile wallet</strong>
@@ -194,6 +221,13 @@ export default function CheckoutPage() {
             <p className="checkout-error" role="alert">
               {error}
             </p>
+          )}
+          {messages.length > 0 && (
+            <ul className="checkout-error" role="alert">
+              {messages.map((message, index) => (
+                <li key={`${index}-${message}`}>{message}</li>
+              ))}
+            </ul>
           )}
           <button
             className="button button-dark submit-button"
@@ -231,7 +265,7 @@ export default function CheckoutPage() {
                     Remove
                   </button>
                 </div>
-                <span>৳{item.price * item.quantity}</span>
+                <span>৳{(item.price * item.quantity).toFixed(2)}</span>
                 <div className="summary-quantity">
                   <button
                     type="button"
@@ -254,11 +288,11 @@ export default function CheckoutPage() {
           )}
           <div className="summary-total">
             <span>Subtotal</span>
-            <span>৳{subtotal}</span>
+            <span>৳{subtotal.toFixed(2)}</span>
             <span>Delivery</span>
-            <span>৳{cart.length ? deliveryFee : 0}</span>
+            <span>৳{cart.length ? DELIVERY_FEE : 0}</span>
             <strong>Total</strong>
-            <strong>৳{total}</strong>
+            <strong>৳{total.toFixed(2)}</strong>
           </div>
         </aside>
       </div>

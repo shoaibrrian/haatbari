@@ -7,13 +7,22 @@ import {
 } from "./order.constants.js";
 
 const OBJECT_ID = /^[0-9a-fA-F]{24}$/;
-
-// Bangladeshi mobile: optional +880 or 880 or leading 0, then 1[3-9] + 8 digits.
 const BD_PHONE = /^(?:\+?880|0)1[3-9]\d{8}$/;
+const NAME_PATTERN = /^[\p{L}\p{M}][\p{L}\p{M}\s.'-]*$/u;
 
 const customerSchema = z.object({
-  firstName: z.string().trim().min(1, "First name is required").max(60),
-  lastName: z.string().trim().min(1, "Last name is required").max(60),
+  firstName: z
+    .string()
+    .trim()
+    .min(2, "First name must be at least 2 characters")
+    .max(60, "First name is too long")
+    .regex(NAME_PATTERN, "First name should contain letters only"),
+  lastName: z
+    .string()
+    .trim()
+    .min(2, "Last name must be at least 2 characters")
+    .max(60, "Last name is too long")
+    .regex(NAME_PATTERN, "Last name should contain letters only"),
   phone: z
     .string()
     .trim()
@@ -21,8 +30,12 @@ const customerSchema = z.object({
   address: z
     .string()
     .trim()
-    .min(10, "Please give a full delivery address")
-    .max(500),
+    .min(15, "Please give a full delivery address")
+    .max(500, "Address is too long")
+    .refine(
+      (value) => value.split(/\s+/).filter(Boolean).length >= 3,
+      "Write the address in full — house, road, area and city",
+    ),
 });
 
 /**
