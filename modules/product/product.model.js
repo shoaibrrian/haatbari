@@ -4,7 +4,7 @@ import mongoose from "mongoose";
  * "Blue Sneakers" -> "blue-sneakers". Kept local to this module because slugs
  * are a product concern; nothing else in the app needs them yet.
  */
-function slugify(text) {
+export function slugify(text) {
   return text
     .toLowerCase()
     .trim()
