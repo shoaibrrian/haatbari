@@ -54,8 +54,13 @@ const productSchema = new mongoose.Schema(
       required: [true, "Price is required"],
       min: [0, "Price cannot be negative"],
       validate: {
+        // Not `Number.isInteger(value * 100)`. That fails on 16.99, because
+        // 16.99 * 100 === 1698.9999999999998 — the exact floating point trap
+        // this validator exists to warn about. Round-tripping through
+        // Math.round is the check that actually works.
         validator: (value) =>
-          Number.isFinite(value) && Number.isInteger(value * 100),
+          Number.isFinite(value) &&
+          Math.abs(value * 100 - Math.round(value * 100)) < 1e-9,
         message: "Price cannot have more than 2 decimal places",
       },
     },

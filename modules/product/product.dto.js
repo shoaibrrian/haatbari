@@ -25,7 +25,9 @@ const priceField = z
   .number()
   .min(0, "Price cannot be negative")
   .refine(
-    (value) => Number.isInteger(value * 100),
+    // Same trap as the model: 16.99 * 100 is not an integer in binary floating
+    // point. Compare against the rounded value instead of testing integerness.
+    (value) => Math.abs(value * 100 - Math.round(value * 100)) < 1e-9,
     "Price cannot have more than 2 decimal places",
   );
 

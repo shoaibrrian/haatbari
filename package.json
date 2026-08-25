@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "db:backfill": "node --env-file=.env scripts/backfill-products.mjs",
-    "db:indexes": "node --env-file=.env scripts/sync-indexes.mjs"
+    "db:indexes": "node --env-file=.env scripts/sync-indexes.mjs",
+    "db:export": "node --env-file=.env scripts/export-products.mjs",
+    "db:seed": "node --env-file=.env scripts/seed.mjs"
   },
   "dependencies": {
     "axios": "^1.19.0",
