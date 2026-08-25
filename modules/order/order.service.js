@@ -7,6 +7,7 @@ import {
 import {
   decrementProductStock,
   findProductsByIds,
+  incrementProductStock,
 } from "../product/product.repository.js";
 import { DELIVERY_FEE, ORDER_STATUS_TRANSITIONS } from "./order.constants.js";
 import {
@@ -155,6 +156,32 @@ export async function updateOrderStatus(id, input) {
     );
   }
 
-  const updated = await updateOrderStatusById(orderId, status);
-  return toPublicOrder(updated);
+  if (status !== "cancelled") {
+    const updated = await updateOrderStatusById(orderId, status, {
+      expectedStatus: current.status,
+    });
+
+    if (!updated) {
+      throw new ConflictError("This order was just updated by someone else.");
+    }
+
+    return toPublicOrder(updated);
+  }
+
+  return withTransaction(async (session) => {
+    const updated = await updateOrderStatusById(orderId, status, {
+      expectedStatus: current.status,
+      session,
+    });
+
+    if (!updated) {
+      throw new ConflictError("This order was just updated by someone else.");
+    }
+
+    for (const item of current.items) {
+      await incrementProductStock(item.productId, item.quantity, { session });
+    }
+
+    return toPublicOrder(updated);
+  });
 }

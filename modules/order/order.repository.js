@@ -33,10 +33,18 @@ export async function findOrders({ status, phone, page = 1, limit = 20 } = {}) {
   return { items, total };
 }
 
-export async function updateOrderStatusById(id, status, options = {}) {
+export async function updateOrderStatusById(
+  id,
+  status,
+  { expectedStatus, ...options } = {},
+) {
   await connectDB();
-  return Order.findByIdAndUpdate(
-    id,
+
+  const filter = { _id: id };
+  if (expectedStatus) filter.status = expectedStatus;
+
+  return Order.findOneAndUpdate(
+    filter,
     { status },
     { returnDocument: "after", runValidators: true, ...options },
   ).lean();
