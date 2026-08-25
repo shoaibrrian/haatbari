@@ -416,7 +416,7 @@ export async function GET() {
   //     const embedding = await generateVector(
   //       `${product.title} ${product.description} ${product.category}`,
   //     );
-  //     return { ...product, vector: embedding };
+  //     return { ...product, embedding };
   //   }),
   // );
 
