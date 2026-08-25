@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { addToCart } from "@/lib/cart";
+import { apiFetch } from "@/lib/api-client";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -13,13 +14,11 @@ export default function Home() {
     let mounted = true;
     async function load() {
       try {
-        const res = await fetch("/api/products");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        const { data } = await apiFetch("/api/products?limit=60");
         if (mounted) setProducts(data);
       } catch (err) {
         console.error("Error fetching products:", err);
-        if (mounted) setError(err.message || "Failed to load products");
+        if (mounted) setError(err.message);
       } finally {
         if (mounted) setLoading(false);
       }

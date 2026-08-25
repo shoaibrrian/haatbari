@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import { addToCart } from "@/lib/cart";
+import { apiFetch } from "@/lib/api-client";
 
 export default function ProductPage({ params }) {
   const { id } = use(params);
@@ -11,18 +12,26 @@ export default function ProductPage({ params }) {
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+
     async function loadProduct() {
       try {
-        const response = await fetch("/api/products");
-        const products = await response.json();
-        const match = products.find((item) => (item._id || item.id) === id);
-        setProduct(match || null);
+        // One request for one product. This page used to download all 52 and
+        // filter in the browser — a page that got slower with every product
+        // added, and that would have shipped every embedding array too.
+        const { data } = await apiFetch(`/api/products/${id}`);
+        if (mounted) setProduct(data);
+      } catch {
+        if (mounted) setProduct(null);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     }
 
     loadProduct();
+    return () => {
+      mounted = false;
+    };
   }, [id]);
 
   if (loading)
