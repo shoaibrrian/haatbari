@@ -1,17 +1,6 @@
 import connectDB from "../../lib/db/connect.js";
 import Product from "./product.model.js";
 
-/**
- * Data access only. No business rules, no HTTP, no thrown 404s — a repository
- * returning `null` is a fact, and deciding whether that fact is an error is the
- * service's job.
- *
- * `connectDB()` is called here rather than in the route because the connection
- * is a database concern, and because these functions are also called by CLI
- * scripts that have no route to hook into. It resolves a cached promise after
- * the first call, so the repeated await costs nothing.
- */
-
 function buildFilter({ category, q, minPrice, maxPrice, includeInactive }) {
   const filter = {};
 
@@ -24,8 +13,6 @@ function buildFilter({ category, q, minPrice, maxPrice, includeInactive }) {
     if (maxPrice !== undefined) filter.price.$lte = maxPrice;
   }
 
-  // Uses the { title: 'text', description: 'text' } index. Whole words only —
-  // real substring/semantic search arrives in the vector search phase.
   if (q) filter.$text = { $search: q };
 
   return filter;
@@ -42,8 +29,6 @@ function buildSort(sort, hasQuery) {
     case "relevance":
       return hasQuery ? { score: { $meta: "textScore" } } : { createdAt: -1 };
     default:
-      // Tie-break on _id so page 2 never repeats a row from page 1 when several
-      // products share a createdAt timestamp.
       return { createdAt: -1, _id: -1 };
   }
 }
@@ -74,8 +59,6 @@ export async function findManyProducts({
     query = query.select({ score: { $meta: "textScore" } });
   }
 
-  // Both queries at once — they are independent, so waiting serially would
-  // double the latency of every product page.
   const [items, total] = await Promise.all([
     query.skip(skip).limit(limit).lean(),
     Product.countDocuments(filter),
@@ -94,10 +77,9 @@ export async function findProductBySlug(slug) {
   return Product.findOne({ slug }).lean();
 }
 
-/** Used by the order flow to price a cart from the database, never the client. */
-export async function findProductsByIds(ids) {
+export async function findProductsByIds(ids, options = {}) {
   await connectDB();
-  return Product.find({ _id: { $in: ids } }).lean();
+  return Product.find({ _id: { $in: ids } }, null, options).lean();
 }
 
 export async function createProduct(data) {
@@ -109,19 +91,35 @@ export async function createProduct(data) {
 export async function updateProductById(id, patch) {
   await connectDB();
   return Product.findByIdAndUpdate(id, patch, {
-    new: true,
+    returnDocument: "after",
     runValidators: true,
-    // Without this, validators that read other fields see an empty `this`.
     context: "query",
   }).lean();
 }
 
-/** Soft delete. Hard-deleting a product referenced by past orders loses history. */
 export async function deactivateProductById(id) {
   await connectDB();
   return Product.findByIdAndUpdate(
     id,
     { isActive: false },
-    { new: true },
+    { returnDocument: "after" },
   ).lean();
+}
+
+export async function decrementProductStock(id, quantity, options = {}) {
+  await connectDB();
+
+  const result = await Product.updateOne(
+    { _id: id, isActive: true, stock: { $gte: quantity } },
+    { $inc: { stock: -quantity } },
+    options,
+  );
+
+  return result.modifiedCount === 1;
+}
+
+export async function incrementProductStock(id, quantity, options = {}) {
+  await connectDB();
+
+  await Product.updateOne({ _id: id }, { $inc: { stock: quantity } }, options);
 }
