@@ -1,6 +1,6 @@
 import OpenAI from "openai";
-import connectDB from "@/lib/db";
-import Product from "@/models/Product";
+import connectDB from "@/lib/db/connect";
+import Product from "@/modules/product/product.model";
 
 const client = new OpenAI({
   apiKey: process.env.GEMINI_API_KEY,

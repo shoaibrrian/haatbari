@@ -1,5 +1,5 @@
-import connectDB from "@/lib/db";
-import Order from "@/models/Order";
+import connectDB from "@/lib/db/connect";
+import Order from "@/modules/order/order.model";
 
 export async function POST(request) {
   try {

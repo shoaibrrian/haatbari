@@ -1,4 +1,4 @@
-import connectDB from "@/lib/db";
+import connectDB from "@/lib/db/connect";
 // import OpenAI from "openai";
 
 // const openai = new OpenAI({
@@ -14,7 +14,7 @@ import connectDB from "@/lib/db";
 //   return response.data[0].embedding;
 // }
 
-import Product from "@/models/Product";
+import Product from "@/modules/product/product.model";
 
 export async function GET() {
   await connectDB();
