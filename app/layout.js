@@ -1,29 +1,37 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { Hind_Siliguri, Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
+import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const sans = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const bangla = Hind_Siliguri({
+  variable: "--font-bangla",
+  subsets: ["latin", "bengali"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata = {
-  title: "HaatBari | Bangladesh's community marketplace",
-  description: "Thoughtfully made goods from the people and places around us.",
+  title: {
+    default: "HaatBari — everyday goods, delivered",
+    template: "%s · HaatBari",
+  },
+  description:
+    "Electronics, apparel, footwear and accessories from sellers across Bangladesh. Cash on delivery, ৳70 flat.",
+};
+
+export const viewport = {
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className={`${sans.variable} ${bangla.variable}`}>
+      <body>
         <Navbar />
         {children}
       </body>
