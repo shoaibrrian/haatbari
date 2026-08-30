@@ -193,6 +193,12 @@ button {
   color: var(--on-dark);
 }
 
+.logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
 .nav {
   position: sticky;
   top: 0;
@@ -240,14 +246,16 @@ button {
 .mark {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  background: var(--ink);
-  color: var(--on-dark);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  overflow: hidden;
+}
+
+.mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .menu {
