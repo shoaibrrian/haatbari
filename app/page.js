@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { EASE, rise } from "@/components/Motion";
 import { addToCart } from "@/lib/cart";
+import { getProducts } from "@/lib/products-cache";
 import { apiFetch } from "@/lib/api-client";
 
 const MotionLink = motion.create(Link);
@@ -107,21 +108,23 @@ export default function Home() {
   const rail = useRef(null);
 
   useEffect(() => {
-    const controller = new AbortController();
     let active = true;
 
     async function loadCatalogue() {
       try {
-        const { data } = await apiFetch("/api/products?limit=60", {
-          signal: controller.signal,
-        });
-        if (active) setProducts(data);
+        const data = await getProducts();
+
+        if (active) {
+          setProducts(data);
+        }
       } catch (loadError) {
-        if (active && loadError.name !== "AbortError") {
+        if (active) {
           setError(loadError.message);
         }
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
@@ -129,7 +132,6 @@ export default function Home() {
 
     return () => {
       active = false;
-      controller.abort();
     };
   }, []);
 
