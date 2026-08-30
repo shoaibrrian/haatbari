@@ -7,6 +7,7 @@ import { EASE, rise } from "@/components/Motion";
 import { addToCart } from "@/lib/cart";
 import { getProducts } from "@/lib/products-cache";
 import { apiFetch } from "@/lib/api-client";
+import { readWishlist, toggleWishlist } from "@/lib/wishlist";
 
 const AMBIENTS = [
   "var(--amb-3)",
@@ -76,6 +77,20 @@ export default function ShopPage() {
   const [addedId, setAddedId] = useState(null);
   const [saved, setSaved] = useState([]);
   const [quickView, setQuickView] = useState(null);
+
+  useEffect(() => {
+    const updateWishlist = () => {
+      setSaved(readWishlist());
+    };
+
+    updateWishlist();
+
+    window.addEventListener("wishlist-updated", updateWishlist);
+
+    return () => {
+      window.removeEventListener("wishlist-updated", updateWishlist);
+    };
+  }, []);
 
   const [filterOpen, setFilterOpen] = useState(false);
 
@@ -431,9 +446,8 @@ export default function ShopPage() {
   --------------------------------- */
 
   const toggleSave = (id) => {
-    setSaved((list) =>
-      list.includes(id) ? list.filter((item) => item !== id) : [...list, id],
-    );
+    const updated = toggleWishlist(id);
+    setSaved(updated);
   };
 
   /* ---------------------------------

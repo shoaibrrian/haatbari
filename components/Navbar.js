@@ -3,16 +3,28 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { cartCount, readCart } from "@/lib/cart";
+import { wishlistCount } from "@/lib/wishlist";
 
 export default function Navbar() {
   const [count, setCount] = useState(0);
+  const [wishCount, setWishCount] = useState(0);
   const [stuck, setStuck] = useState(false);
 
   useEffect(() => {
-    const updateCount = () => setCount(cartCount(readCart()));
-    updateCount();
-    window.addEventListener("cart-updated", updateCount);
-    return () => window.removeEventListener("cart-updated", updateCount);
+    const updateCounts = () => {
+      setCount(cartCount(readCart()));
+      setWishCount(wishlistCount());
+    };
+
+    updateCounts();
+
+    window.addEventListener("cart-updated", updateCounts);
+    window.addEventListener("wishlist-updated", updateCounts);
+
+    return () => {
+      window.removeEventListener("cart-updated", updateCounts);
+      window.removeEventListener("wishlist-updated", updateCounts);
+    };
   }, []);
 
   useEffect(() => {
@@ -81,6 +93,14 @@ export default function Navbar() {
                 />
               </svg>
             </a>
+            <Link
+              className="icon-btn wishlist-btn"
+              href="/wishlist"
+              aria-label={`Wishlist ${wishCount} items`}
+            >
+              Wishlist
+              {wishCount > 0 && <i>{wishCount}</i>}
+            </Link>
             <Link className="icon-btn cart-btn" href="/cart">
               Cart <i>{count}</i>
             </Link>
