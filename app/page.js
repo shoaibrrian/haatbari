@@ -306,7 +306,7 @@ export default function Home() {
               Bangladesh. Pay cash at your door.
             </motion.p>
             <motion.div className="hero-btns" {...load(0.24)}>
-              <a className="btn btn-ink" href="#new">
+              <a className="btn btn-ink" href="/shop">
                 Shop the catalogue <span>↓</span>
               </a>
               <Link className="btn btn-line" href="/about">
@@ -451,7 +451,7 @@ export default function Home() {
                 <p className="kicker">This week</p>
                 <h2>Picked for you</h2>
               </div>
-              <a href="#new">See the full catalogue</a>
+              <a href="/shop">See the full catalogue</a>
             </motion.div>
             <div className="pgrid">
               {featurePicks.map((p, i) =>
@@ -612,100 +612,6 @@ export default function Home() {
               </p>
             </motion.div>
           </div>
-        </div>
-      </section>
-
-      <section className="band" id="new">
-        <div className="shell">
-          <motion.div className="band-head" {...rise()}>
-            <div>
-              <p className="kicker">
-                {activeCat ? activeCat : "Everything in store"}
-              </p>
-              <h2>The full catalogue</h2>
-            </div>
-            <form
-              className="search-box"
-              role="search"
-              onSubmit={(event) => {
-                event.preventDefault();
-                runSearch(query);
-              }}
-            >
-              <input
-                value={query}
-                type="search"
-                placeholder="Search products"
-                aria-label="Search products"
-                onChange={(event) => setQuery(event.target.value)}
-              />
-              <button type="submit" aria-label="Search products">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-                  <circle
-                    cx="11"
-                    cy="11"
-                    r="6.5"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <path
-                    d="M16 16l4.5 4.5"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                </svg>
-              </button>
-            </form>
-          </motion.div>
-
-          {(activeCat || (results !== null && !searching && !error)) && (
-            <p className="result-line">
-              <span>
-                {activeCat && results === null
-                  ? `${visible.length} in ${activeCat}`
-                  : results !== null && results.length === 0
-                    ? `Nothing matched “${searchMeta?.query ?? query}”.`
-                    : results !== null
-                      ? `${visible.length} ${
-                          visible.length === 1 ? "find" : "finds"
-                        } for “${searchMeta?.query ?? query}”${
-                          searchMeta?.strategy === "loose"
-                            ? " — closest matches"
-                            : ""
-                        }`
-                      : ""}
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveCat(null);
-                  clearSearch();
-                }}
-              >
-                Show everything
-              </button>
-            </p>
-          )}
-
-          {loading ? (
-            <div className="empty-state">Loading the catalogue…</div>
-          ) : searching ? (
-            <div className="empty-state">Searching…</div>
-          ) : error ? (
-            <div className="empty-state">
-              We couldn&apos;t reach the store just now: {error}
-            </div>
-          ) : visible.length === 0 ? (
-            <div className="empty-state">
-              {results !== null || activeCat
-                ? "Try a different word, or show everything."
-                : "No products yet."}
-            </div>
-          ) : (
-            <div className="catalog">
-              {visible.map((p, i) => card(p, i, null, 0.04 * (i % 3)))}
-            </div>
-          )}
         </div>
       </section>
 

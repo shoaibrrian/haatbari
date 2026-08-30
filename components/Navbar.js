@@ -40,25 +40,25 @@ export default function Navbar() {
       <header className={stuck ? "nav stuck" : "nav"}>
         <div className="shell nav-in">
           <Link
-  className="brand"
-  href="/"
-  aria-label="HaatBari home"
-  onClick={(e) => {
-    if (window.location.pathname === "/") {
-      e.preventDefault();
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    }
-  }}
->
-  <img src="/logo.png" alt="HaatBari" className="logo" />
-  <b>HaatBari</b>
-</Link>
+            className="brand"
+            href="/"
+            aria-label="HaatBari home"
+            onClick={(e) => {
+              if (window.location.pathname === "/") {
+                e.preventDefault();
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
+              }
+            }}
+          >
+            <img src="/logo.png" alt="HaatBari" className="logo" />
+            <b>HaatBari</b>
+          </Link>
 
           <nav className="menu" aria-label="Main navigation">
-            <Link href="/#new">Shop</Link>
+            <Link href="/shop">Shop</Link>
             <Link href="/#cats">Categories</Link>
             <Link href="/#feature">Deals</Link>
             <Link href="/about">Our story</Link>
