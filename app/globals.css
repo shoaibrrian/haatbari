@@ -1367,6 +1367,28 @@ button {
   transform: translateY(-1px) scale(1.04);
 }
 
+.shop-search > button {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+
+  display: grid;
+  place-items: center;
+
+  background: var(--ink);
+  color: var(--on-dark);
+
+  flex-shrink: 0;
+}
+
+.shop-search input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
 .result-line {
   display: flex;
   flex-wrap: wrap;
