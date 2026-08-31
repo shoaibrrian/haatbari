@@ -3202,3 +3202,301 @@ ul.checkout-error {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* =========================================================
+   HAATBARI NAVBAR — CATEGORY MEGA MENU
+   ========================================================= */
+
+.nav-category {
+  position: static;
+}
+
+.category-nav-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.category-nav-btn:hover {
+  color: var(--ink);
+}
+
+.chevron {
+  display: inline-block;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--muted-2);
+  transition:
+    transform 0.3s var(--e),
+    color 0.2s ease;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+  color: var(--ink);
+}
+
+/* Mega menu */
+
+.category-mega-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 80;
+
+  padding: 14px 0 24px;
+
+  background: rgba(241, 242, 244, 0.96);
+  border-bottom: 1px solid var(--line);
+
+  box-shadow: 0 24px 50px -30px rgba(11, 12, 14, 0.35);
+
+  backdrop-filter: blur(18px) saturate(150%);
+
+  animation: categoryMenuIn 0.25s var(--e) both;
+}
+
+.category-mega-menu::before {
+  content: "";
+  position: absolute;
+  top: -18px;
+  left: 0;
+  right: 0;
+  height: 18px;
+}
+
+@keyframes categoryMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-mega-inner {
+  width: var(--shell);
+  margin-inline: auto;
+
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 58px);
+
+  padding: 26px 0 12px;
+}
+
+/* Left heading */
+
+.category-heading {
+  padding-right: 18px;
+  border-right: 1px solid var(--line);
+}
+
+.category-heading .kicker {
+  display: block;
+  margin-bottom: 9px;
+}
+
+.category-heading h2 {
+  font-size: 25px;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.category-heading p {
+  max-width: 24ch;
+  margin-top: 11px;
+
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.category-all-link {
+  display: inline-flex;
+  align-items: center;
+
+  margin-top: 19px;
+  padding-bottom: 3px;
+
+  border-bottom: 1px solid var(--line);
+
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 500;
+
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.25s var(--e);
+}
+
+.category-all-link:hover {
+  border-color: var(--ink);
+  transform: translateX(3px);
+}
+
+/* Category grid */
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: clamp(20px, 3vw, 42px);
+  row-gap: 28px;
+}
+
+.category-column {
+  min-width: 0;
+}
+
+.category-main {
+  display: inline-flex;
+  align-items: center;
+
+  margin-bottom: 10px;
+
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+
+  transition:
+    color 0.2s ease,
+    transform 0.25s var(--e);
+}
+
+.category-main::after {
+  content: "→";
+
+  margin-left: 7px;
+
+  color: var(--muted-2);
+  font-size: 11px;
+
+  opacity: 0;
+  transform: translateX(-4px);
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s var(--e);
+}
+
+.category-main:hover {
+  color: var(--cobalt);
+}
+
+.category-main:hover::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.category-items {
+  display: grid;
+  gap: 5px;
+}
+
+.category-items a {
+  width: fit-content;
+
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+
+  transition:
+    color 0.2s ease,
+    transform 0.25s var(--e);
+}
+
+.category-items a:hover {
+  color: var(--ink);
+  transform: translateX(3px);
+}
+
+/* Keep mega menu open when interacting with it */
+
+.nav-category:hover .category-nav-btn {
+  color: var(--ink);
+}
+
+/* =========================================================
+   NAVBAR RESPONSIVE — CATEGORY MENU
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .category-mega-inner {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 20px;
+  }
+}
+
+@media (max-width: 1000px) {
+  /*
+    Existing CSS hides .menu at this breakpoint,
+    so the desktop mega menu is not needed.
+  */
+  .category-mega-menu {
+    display: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .category-mega-menu {
+    display: none;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+.category-nav-btn:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 4px;
+  border-radius: 5px;
+}
+
+.category-main:focus-visible,
+.category-items a:focus-visible,
+.category-all-link:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .category-mega-menu {
+    animation: none;
+  }
+
+  .chevron,
+  .category-main,
+  .category-main::after,
+  .category-items a,
+  .category-all-link {
+    transition: none;
+  }
+}

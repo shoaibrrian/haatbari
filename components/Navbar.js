@@ -5,10 +5,46 @@ import { useEffect, useState } from "react";
 import { cartCount, readCart } from "@/lib/cart";
 import { wishlistCount } from "@/lib/wishlist";
 
+const CATEGORIES = [
+  {
+    name: "Electronics",
+    items: ["Mobiles", "Laptops", "Headphones", "Cameras", "Accessories"],
+  },
+  {
+    name: "Fashion",
+    items: ["Men's Clothing", "Women's Clothing", "Shoes", "Bags", "Watches"],
+  },
+  {
+    name: "Home & Living",
+    items: ["Furniture", "Kitchen", "Home Decor", "Lighting", "Appliances"],
+  },
+  {
+    name: "Beauty & Care",
+    items: ["Skincare", "Makeup", "Hair Care", "Fragrances", "Personal Care"],
+  },
+  {
+    name: "Sports & Fitness",
+    items: ["Sportswear", "Gym Equipment", "Outdoor", "Cycling", "Fitness"],
+  },
+  {
+    name: "Books & Stationery",
+    items: ["Books", "Notebooks", "Pens", "Office Supplies", "Art Supplies"],
+  },
+  {
+    name: "Grocery & Food",
+    items: ["Groceries", "Snacks", "Beverages", "Fresh Food", "Cooking"],
+  },
+  {
+    name: "Automotive",
+    items: ["Motorcycles", "Car Accessories", "Bike Accessories", "Tools"],
+  },
+];
+
 export default function Navbar() {
   const [count, setCount] = useState(0);
   const [wishCount, setWishCount] = useState(0);
   const [stuck, setStuck] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
 
   useEffect(() => {
     const updateCounts = () => {
@@ -29,8 +65,11 @@ export default function Navbar() {
 
   useEffect(() => {
     const onScroll = () => setStuck(window.scrollY > 30);
+
     onScroll();
+
     window.addEventListener("scroll", onScroll, { passive: true });
+
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -41,6 +80,7 @@ export default function Navbar() {
           <span>
             Free delivery over <b>৳2,000</b> · Cash on delivery everywhere
           </span>
+
           <nav>
             <Link href="/cart">Track order</Link>
             <Link href="/about">Help</Link>
@@ -51,6 +91,7 @@ export default function Navbar() {
 
       <header className={stuck ? "nav stuck" : "nav"}>
         <div className="shell nav-in">
+          {/* LOGO */}
           <Link
             className="brand"
             href="/"
@@ -58,6 +99,7 @@ export default function Navbar() {
             onClick={(e) => {
               if (window.location.pathname === "/") {
                 e.preventDefault();
+
                 window.scrollTo({
                   top: 0,
                   behavior: "smooth",
@@ -69,15 +111,90 @@ export default function Navbar() {
             <b>HaatBari</b>
           </Link>
 
+          {/* MAIN MENU */}
           <nav className="menu" aria-label="Main navigation">
             <Link href="/shop">Shop</Link>
-            <Link href="/#cats">Categories</Link>
+
+            {/* CATEGORIES */}
+            <div
+              className="nav-category"
+              onMouseEnter={() => setCategoryOpen(true)}
+              onMouseLeave={() => setCategoryOpen(false)}
+            >
+              <button
+                type="button"
+                className="category-nav-btn"
+                onClick={() => setCategoryOpen((open) => !open)}
+                aria-expanded={categoryOpen}
+              >
+                Categories
+                <span className={categoryOpen ? "chevron open" : "chevron"}>
+                  ↓
+                </span>
+              </button>
+
+              {categoryOpen && (
+                <div className="category-mega-menu">
+                  <div className="category-mega-inner">
+                    <div className="category-heading">
+                      <span className="kicker">Browse</span>
+                      <h2>Shop by category</h2>
+                      <p>Find everything you need from HaatBari sellers.</p>
+
+                      <Link
+                        href="/shop"
+                        className="category-all-link"
+                        onClick={() => setCategoryOpen(false)}
+                      >
+                        View all products →
+                      </Link>
+                    </div>
+
+                    <div className="category-grid">
+                      {CATEGORIES.map((category) => (
+                        <div className="category-column" key={category.name}>
+                          <Link
+                            href={`/shop?category=${encodeURIComponent(
+                              category.name,
+                            )}`}
+                            className="category-main"
+                            onClick={() => setCategoryOpen(false)}
+                          >
+                            {category.name}
+                          </Link>
+
+                          <div className="category-items">
+                            {category.items.map((item) => (
+                              <Link
+                                key={item}
+                                href={`/shop?category=${encodeURIComponent(
+                                  item,
+                                )}`}
+                                onClick={() => setCategoryOpen(false)}
+                              >
+                                {item}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <Link href="/#feature">Deals</Link>
             <Link href="/about">Our story</Link>
           </nav>
 
+          {/* RIGHT SIDE TOOLS */}
           <div className="tools">
-            <a className="icon-btn" href="/#new" aria-label="Search products">
+            <Link
+              className="icon-btn"
+              href="/#new"
+              aria-label="Search products"
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle
                   cx="11"
@@ -86,13 +203,15 @@ export default function Navbar() {
                   stroke="currentColor"
                   strokeWidth="1.6"
                 />
+
                 <path
                   d="M16 16l4.5 4.5"
                   stroke="currentColor"
                   strokeWidth="1.6"
                 />
               </svg>
-            </a>
+            </Link>
+
             <Link
               className="icon-btn wishlist-btn"
               href="/wishlist"
@@ -101,9 +220,11 @@ export default function Navbar() {
               Wishlist
               {wishCount > 0 && <i>{wishCount}</i>}
             </Link>
+
             <Link className="icon-btn cart-btn" href="/cart">
               Cart <i>{count}</i>
             </Link>
+
             <Link className="btn btn-ink btn-sm" href="/checkout">
               Checkout
             </Link>
