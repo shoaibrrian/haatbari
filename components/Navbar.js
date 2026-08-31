@@ -184,7 +184,54 @@ export default function Navbar() {
               )}
             </div>
 
-            <Link href="/#feature">Deals</Link>
+            <div className="nav-offers">
+              <button type="button" className="offers-nav-btn">
+                Offers
+                <span className="chevron">↓</span>
+              </button>
+
+              <div className="offers-mega-menu">
+                <div className="offers-mega-inner">
+                  <div className="offers-heading">
+                    <span className="kicker">Limited time</span>
+                    <h2>Offers & deals</h2>
+                    <p>
+                      Save more on your favorite products with our latest deals.
+                    </p>
+
+                    <Link href="/offers" className="offers-all-link">
+                      View all offers →
+                    </Link>
+                  </div>
+
+                  <div className="offers-grid">
+                    <Link href="/offers" className="offer-card">
+                      <span className="offer-label">UP TO</span>
+                      <strong>40% OFF</strong>
+                      <h3>Fashion</h3>
+                      <p>Fresh styles, shoes & accessories.</p>
+                      <span className="offer-arrow">Shop now →</span>
+                    </Link>
+
+                    <Link href="/offers" className="offer-card">
+                      <span className="offer-label">SAVE</span>
+                      <strong>৳500 OFF</strong>
+                      <h3>Electronics</h3>
+                      <p>Deals on gadgets & accessories.</p>
+                      <span className="offer-arrow">Explore →</span>
+                    </Link>
+
+                    <Link href="/offers" className="offer-card">
+                      <span className="offer-label">SPECIAL</span>
+                      <strong>25% OFF</strong>
+                      <h3>Home & Living</h3>
+                      <p>Upgrade your space for less.</p>
+                      <span className="offer-arrow">Shop now →</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
             <Link href="/about">Our story</Link>
           </nav>
 
