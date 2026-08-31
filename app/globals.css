@@ -4652,3 +4652,140 @@ ul.checkout-error {
     transition: none;
   }
 }
+
+/* ================================
+   ACCOUNT PAGES
+   ================================ */
+
+.account-page {
+  min-height: 75vh;
+  padding-top: 80px;
+  padding-bottom: 100px;
+}
+
+.account-card {
+  max-width: 980px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.account-intro {
+  padding-top: 25px;
+}
+
+.account-intro h1 {
+  margin: 14px 0 22px;
+}
+
+.account-intro > p:last-child {
+  max-width: 420px;
+  line-height: 1.7;
+  opacity: 0.7;
+}
+
+.account-form {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 36px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.account-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.account-form input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  background: #fff;
+  font: inherit;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.account-form input:focus {
+  border-color: #111;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+.account-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.account-submit {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 5px;
+  justify-content: center;
+}
+
+.account-error {
+  margin: 4px 0 18px;
+  padding: 12px 14px;
+  border: 1px solid rgba(180, 40, 40, 0.25);
+  background: rgba(180, 40, 40, 0.05);
+  color: #a32626;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.account-switch {
+  margin: 24px 0 0;
+  text-align: center;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.account-switch a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ================================
+   ACCOUNT — MOBILE
+   ================================ */
+
+@media (max-width: 760px) {
+  .account-page {
+    padding-top: 50px;
+    padding-bottom: 70px;
+  }
+
+  .account-card {
+    grid-template-columns: 1fr;
+    gap: 35px;
+    max-width: 560px;
+  }
+
+  .account-intro {
+    padding-top: 0;
+  }
+
+  .account-intro h1 {
+    font-size: clamp(42px, 12vw, 64px);
+  }
+
+  .account-form {
+    padding: 24px;
+  }
+
+  .account-form .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
