@@ -2,9 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function AccountPage() {
-  const [mode, setMode] = useState("login");
+  const searchParams = useSearchParams();
+
+  const [mode, setMode] = useState(
+    searchParams.get("mode") === "register" ? "register" : "login",
+  );
 
   return (
     <main className="account-page page-width">
