@@ -258,7 +258,6 @@ export default function Navbar() {
                 />
               </svg>
             </Link>
-
             <Link
               className="icon-btn wishlist-btn"
               href="/wishlist"
@@ -267,14 +266,41 @@ export default function Navbar() {
               Wishlist
               {wishCount > 0 && <i>{wishCount}</i>}
             </Link>
-
             <Link className="icon-btn cart-btn" href="/cart">
               Cart <i>{count}</i>
             </Link>
-
             <Link className="btn btn-ink btn-sm" href="/checkout">
               Checkout
             </Link>
+
+            <div className="account-menu">
+              <Link
+                className="icon-btn account-btn"
+                href="/account"
+                aria-label="Account"
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <circle
+                    cx="12"
+                    cy="8"
+                    r="4"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  />
+                  <path
+                    d="M4.5 21c.9-4.2 3.5-6.3 7.5-6.3s6.6 2.1 7.5 6.3"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </Link>
+
+              <div className="account-dropdown">
+                <Link href="/account">Sign in</Link>
+                <Link href="/account?mode=register">Create account</Link>
+              </div>
+            </div>
           </div>
         </div>
       </header>
