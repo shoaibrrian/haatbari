@@ -320,26 +320,50 @@ button {
   transform: translateY(-1px);
 }
 
-.cart-btn {
+.cart-btn,
+.wishlist-btn {
+  position: relative;
+
   width: auto;
+  min-width: fit-content;
+  height: 40px;
   padding: 0 14px;
-  gap: 8px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   font-size: 13.5px;
   font-weight: 500;
+  line-height: 1;
 }
 
-.cart-btn i {
+.cart-btn i,
+.wishlist-btn i {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+
   display: grid;
   place-items: center;
-  min-width: 19px;
-  height: 19px;
+
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+
   border-radius: 999px;
   background: var(--ink);
   color: var(--on-dark);
-  font-size: 10.5px;
+
+  font-size: 10px;
   font-weight: 600;
   font-style: normal;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
+
+  border: 2px solid var(--paper);
+  box-sizing: border-box;
+  z-index: 2;
 }
 
 .btn,
@@ -410,28 +434,6 @@ button {
   opacity: 0.45;
   cursor: not-allowed;
   transform: none;
-}
-
-.wishlist-btn {
-  width: auto;
-  padding: 0 14px;
-  gap: 8px;
-  font-size: 13.5px;
-  font-weight: 500;
-}
-
-.wishlist-btn i {
-  display: grid;
-  place-items: center;
-  min-width: 19px;
-  height: 19px;
-  border-radius: 999px;
-  background: var(--ink);
-  color: var(--on-dark);
-  font-size: 10.5px;
-  font-weight: 600;
-  font-style: normal;
-  font-variant-numeric: tabular-nums;
 }
 
 .hero {
