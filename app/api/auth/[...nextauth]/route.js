@@ -1,8 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
 import { findUserByEmail } from "@/modules/user/user.repository";
-
 import crypto from "node:crypto";
 
 function verifyPassword(password, storedHash) {
@@ -25,7 +23,7 @@ function verifyPassword(password, storedHash) {
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
-      name: "Buyer Login",
+      name: "HaatBari Login",
 
       credentials: {
         email: {
@@ -43,7 +41,28 @@ const handler = NextAuth({
           return null;
         }
 
-        const user = await findUserByEmail(credentials.email);
+        const email = credentials.email.trim().toLowerCase();
+
+        // =========================
+        // ADMIN LOGIN
+        // =========================
+        if (
+          email === process.env.ADMIN_EMAIL?.toLowerCase() &&
+          credentials.password === process.env.ADMIN_PASSWORD
+        ) {
+          return {
+            id: "admin",
+            firstName: "HaatBari",
+            lastName: "Admin",
+            email: process.env.ADMIN_EMAIL,
+            role: "admin",
+          };
+        }
+
+        // =========================
+        // BUYER LOGIN
+        // =========================
+        const user = await findUserByEmail(email);
 
         if (!user) return null;
 
@@ -57,7 +76,7 @@ const handler = NextAuth({
           lastName: user.lastName,
           email: user.email,
           phone: user.phone,
-          role: user.role,
+          role: "buyer",
         };
       },
     }),
@@ -90,6 +109,15 @@ const handler = NextAuth({
       }
 
       return session;
+    },
+
+    async redirect({ url, baseUrl }) {
+      // Admin → admin dashboard
+      if (url.includes("/admin")) {
+        return `${baseUrl}/admin`;
+      }
+
+      return `${baseUrl}/account`;
     },
   },
 
