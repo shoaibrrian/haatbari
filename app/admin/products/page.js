@@ -11,6 +11,78 @@ function taka(value) {
   });
 }
 
+function AdminDropdown({ value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+
+  const selected = options.find((option) => option.value === value);
+
+  useEffect(() => {
+    function closeDropdown(event) {
+      if (!event.target.closest(".admin-custom-dropdown")) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", closeDropdown);
+
+    return () => {
+      document.removeEventListener("mousedown", closeDropdown);
+    };
+  }, []);
+
+  return (
+    <div className="admin-custom-dropdown">
+      <button
+        type="button"
+        className={`admin-dropdown-trigger ${open ? "open" : ""}`}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span>{selected?.label}</span>
+
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path
+            d="m7 10 5 5 5-5"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="admin-dropdown-menu">
+          {options.map((option) => (
+            <button
+              type="button"
+              key={option.value}
+              className={option.value === value ? "selected" : ""}
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+            >
+              <span>{option.label}</span>
+
+              {option.value === value && (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="m5 12 4 4L19 6"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -228,25 +300,27 @@ export default function AdminProductsPage() {
         </div>
 
         <div className="admin-product-filter-group">
-          <select
+          <AdminDropdown
             value={category}
-            onChange={(event) => setCategory(event.target.value)}
-          >
-            {CATEGORIES.map((item) => (
-              <option value={item} key={item}>
-                {item === "All" ? "All categories" : item}
-              </option>
-            ))}
-          </select>
+            onChange={setCategory}
+            options={[
+              { value: "All", label: "All categories" },
+              { value: "Electronics", label: "Electronics" },
+              { value: "Apparel", label: "Apparel" },
+              { value: "Footwear", label: "Footwear" },
+              { value: "Accessories", label: "Accessories" },
+            ]}
+          />
 
-          <select
+          <AdminDropdown
             value={status}
-            onChange={(event) => setStatus(event.target.value)}
-          >
-            <option value="all">All status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+            onChange={setStatus}
+            options={[
+              { value: "all", label: "All status" },
+              { value: "active", label: "Active" },
+              { value: "inactive", label: "Inactive" },
+            ]}
+          />
         </div>
       </section>
 
