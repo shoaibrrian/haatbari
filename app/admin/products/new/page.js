@@ -3,8 +3,72 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { CATEGORIES, getSubcategories } from "@/lib/categories";
 
-const CATEGORIES = ["Electronics", "Apparel", "Footwear", "Accessories"];
+function AdminDropdown({ value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+
+  const selected = options.find((option) => option.value === value);
+
+  return (
+    <div
+      className="admin-custom-dropdown"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setOpen(false);
+        }
+      }}
+    >
+      <button
+        type="button"
+        className={`admin-dropdown-trigger ${open ? "open" : ""}`}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span>{selected?.label || "Select"}</span>
+
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path
+            d="m7 10 5 5 5-5"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="admin-dropdown-menu">
+          {options.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={option.value === value ? "selected" : ""}
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+            >
+              <span>{option.label}</span>
+
+              {option.value === value && (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="m5 12 4 4L19 6"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -13,7 +77,8 @@ export default function NewProductPage() {
     title: "",
     description: "",
     price: "",
-    category: "Electronics",
+    category: CATEGORIES[0].name,
+    subcategory: CATEGORIES[0].items[0],
     image: "",
     stock: "",
     isActive: true,
@@ -22,10 +87,22 @@ export default function NewProductPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const subcategories = getSubcategories(form.category);
+
   function updateField(field, value) {
     setForm((current) => ({
       ...current,
       [field]: value,
+    }));
+  }
+
+  function handleCategoryChange(category) {
+    const nextSubcategories = getSubcategories(category);
+
+    setForm((current) => ({
+      ...current,
+      category,
+      subcategory: nextSubcategories[0] || "",
     }));
   }
 
@@ -46,6 +123,7 @@ export default function NewProductPage() {
           description: form.description.trim(),
           price: Number(form.price),
           category: form.category,
+          subcategory: form.subcategory,
           image: form.image.trim(),
           stock: Number(form.stock),
           isActive: form.isActive,
@@ -129,22 +207,31 @@ export default function NewProductPage() {
               <small>{form.description.length}/2000</small>
             </label>
 
-            <label className="admin-field">
+            <div className="admin-field">
               <span>Category</span>
 
-              <select
+              <AdminDropdown
                 value={form.category}
-                onChange={(event) =>
-                  updateField("category", event.target.value)
-                }
-              >
-                {CATEGORIES.map((category) => (
-                  <option value={category} key={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </label>
+                onChange={handleCategoryChange}
+                options={CATEGORIES.map((item) => ({
+                  value: item.name,
+                  label: item.name,
+                }))}
+              />
+            </div>
+
+            <div className="admin-field">
+              <span>Subcategory</span>
+
+              <AdminDropdown
+                value={form.subcategory}
+                onChange={(value) => updateField("subcategory", value)}
+                options={subcategories.map((item) => ({
+                  value: item,
+                  label: item,
+                }))}
+              />
+            </div>
 
             <label className="admin-field">
               <span>Price</span>

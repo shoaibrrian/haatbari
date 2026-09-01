@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { CATEGORIES } from "@/lib/categories";
 
-const CATEGORIES = ["All", "Electronics", "Apparel", "Footwear", "Accessories"];
 
 function taka(value) {
   return Number(value || 0).toLocaleString("en-US", {
@@ -301,16 +301,16 @@ export default function AdminProductsPage() {
 
         <div className="admin-product-filter-group">
           <AdminDropdown
-            value={category}
-            onChange={setCategory}
-            options={[
-              { value: "All", label: "All categories" },
-              { value: "Electronics", label: "Electronics" },
-              { value: "Apparel", label: "Apparel" },
-              { value: "Footwear", label: "Footwear" },
-              { value: "Accessories", label: "Accessories" },
-            ]}
-          />
+  value={category}
+  onChange={setCategory}
+  options={[
+    { value: "All", label: "All categories" },
+    ...CATEGORIES.map((item) => ({
+      value: item.name,
+      label: item.name,
+    })),
+  ]}
+/>
 
           <AdminDropdown
             value={status}
