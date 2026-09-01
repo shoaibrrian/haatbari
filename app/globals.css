@@ -6539,3 +6539,149 @@ ul.checkout-error {
     min-width: 0;
   }
 }
+
+/* =========================================================
+   Admin Product Image Upload
+   ========================================================= */
+
+.admin-image-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-image-upload-box {
+  position: relative;
+  min-height: 180px;
+  border: 1px dashed var(--line);
+  border-radius: 18px;
+  background: var(--page);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 28px;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.admin-image-upload-box:hover {
+  border-color: var(--cobalt);
+  background: var(--card);
+}
+
+.admin-image-upload-box.uploading {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.admin-image-upload-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--on-dark);
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  font-weight: 300;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.admin-image-upload-box strong {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.admin-image-upload-box small {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.admin-image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-image-preview {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--page-2);
+  border: 1px solid var(--line);
+}
+
+.admin-image-preview img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.admin-image-primary {
+  position: absolute;
+  left: 9px;
+  bottom: 9px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(11, 12, 14, 0.82);
+  color: var(--on-dark);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+}
+
+.admin-image-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--sh-s);
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.admin-image-remove:hover {
+  background: var(--danger);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.admin-image-help {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .admin-image-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-image-upload-box {
+    min-height: 160px;
+  }
+}

@@ -101,6 +101,15 @@ const productSchema = new mongoose.Schema(
       },
     },
 
+    images: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: (values) => values.every((value) => URL.canParse(value)),
+        message: "Every product image must be a valid URL",
+      },
+    },
+
     /** Whole units only — you cannot hold 2.5 sneakers. */
     stock: {
       type: Number,

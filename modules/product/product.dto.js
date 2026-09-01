@@ -75,6 +75,11 @@ export const createProductSchema = z.object({
 
   image: z.url("Image must be a valid URL"),
 
+  images: z
+    .array(z.url("Every product image must be a valid URL"))
+    .max(8, "A product can have up to 8 images")
+    .default([]),
+
   stock: z.number().int().min(0).default(0),
 
   isActive: z.boolean().default(true),
@@ -114,6 +119,8 @@ export function toPublicProduct(doc) {
     subcategory: doc.subcategory,
 
     image: doc.image,
+
+    images: doc.images ?? [],
 
     stock: doc.stock,
 

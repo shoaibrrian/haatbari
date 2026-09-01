@@ -79,12 +79,13 @@ export default function NewProductPage() {
     price: "",
     category: CATEGORIES[0].name,
     subcategory: CATEGORIES[0].items[0],
-    image: "",
     stock: "",
     isActive: true,
   });
 
+  const [images, setImages] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
   const subcategories = getSubcategories(form.category);
@@ -106,10 +107,83 @@ export default function NewProductPage() {
     }));
   }
 
+  async function handleImageUpload(event) {
+    const files = Array.from(event.target.files || []);
+
+    if (!files.length) return;
+
+    setError("");
+
+    const availableSlots = 8 - images.length;
+
+    if (availableSlots <= 0) {
+      setError("You can upload up to 8 images.");
+      event.target.value = "";
+      return;
+    }
+
+    const selectedFiles = files.slice(0, availableSlots);
+
+    if (files.length > availableSlots) {
+      setError(`Only ${availableSlots} more image(s) can be added.`);
+    }
+
+    setUploading(true);
+
+    try {
+      const uploadedImages = [];
+
+      for (const file of selectedFiles) {
+        if (!file.type.startsWith("image/")) {
+          throw new Error("Only image files are allowed.");
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result?.message || "Image upload failed.");
+        }
+
+        uploadedImages.push({
+          url: result.data.url,
+          publicId: result.data.publicId,
+          name: file.name,
+        });
+      }
+
+      setImages((current) => [...current, ...uploadedImages]);
+    } catch (uploadError) {
+      setError(uploadError.message || "Image upload failed.");
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  }
+
+  function removeImage(index) {
+    setImages((current) =>
+      current.filter((_, imageIndex) => imageIndex !== index),
+    );
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
 
     setError("");
+
+    if (images.length === 0) {
+      setError("Please upload at least one product image.");
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -124,7 +198,8 @@ export default function NewProductPage() {
           price: Number(form.price),
           category: form.category,
           subcategory: form.subcategory,
-          image: form.image.trim(),
+          image: images[0].url,
+          images: images.map((item) => item.url),
           stock: Number(form.stock),
           isActive: form.isActive,
         }),
@@ -265,19 +340,76 @@ export default function NewProductPage() {
               />
             </label>
 
-            <label className="admin-field admin-field-full">
-              <span>Product image URL</span>
+            <div className="admin-field admin-field-full">
+              <span>Product images</span>
 
-              <input
-                type="url"
-                placeholder="https://example.com/product-image.jpg"
-                value={form.image}
-                onChange={(event) => updateField("image", event.target.value)}
-                required
-              />
+              <div className="admin-image-upload">
+                <label
+                  className={`admin-image-upload-box ${
+                    uploading ? "uploading" : ""
+                  }`}
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    disabled={uploading || images.length >= 8}
+                    hidden
+                  />
 
-              <small>Use a direct URL to the product image.</small>
-            </label>
+                  <span className="admin-image-upload-icon">
+                    {uploading ? "…" : "+"}
+                  </span>
+
+                  <strong>
+                    {uploading ? "Uploading images..." : "Upload images"}
+                  </strong>
+
+                  <small>
+                    {images.length >= 8
+                      ? "Maximum 8 images reached."
+                      : "Select one or multiple product images."}
+                  </small>
+                </label>
+
+                {images.length > 0 && (
+                  <div className="admin-image-preview-grid">
+                    {images.map((image, index) => (
+                      <div
+                        className="admin-image-preview"
+                        key={image.publicId || image.url}
+                      >
+                        <img
+                          src={image.url}
+                          alt={`Product image ${index + 1}`}
+                        />
+
+                        {index === 0 && (
+                          <span className="admin-image-primary">
+                            Main image
+                          </span>
+                        )}
+
+                        <button
+                          type="button"
+                          className="admin-image-remove"
+                          onClick={() => removeImage(index)}
+                          aria-label={`Remove image ${index + 1}`}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <small className="admin-image-help">
+                  The first image will be used as the main product image.
+                  Maximum 8 images.
+                </small>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -326,7 +458,7 @@ export default function NewProductPage() {
           <button
             type="submit"
             className="button button-dark admin-form-submit"
-            disabled={saving}
+            disabled={saving || uploading}
           >
             {saving ? "Creating..." : "Create product"}
             <span>{saving ? "…" : "↗"}</span>
