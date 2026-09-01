@@ -112,6 +112,32 @@ export default function AdminProductsPage() {
     }
   }
 
+  async function activateProduct(product) {
+    setDeletingId(product.id);
+
+    try {
+      const response = await fetch(`/api/admin/products/${product.id}`, {
+        method: "PUT",
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result?.message || "Could not activate product.");
+      }
+
+      setProducts((current) =>
+        current.map((item) =>
+          item.id === product.id ? { ...item, isActive: true } : item,
+        ),
+      );
+    } catch (activateError) {
+      window.alert(activateError.message || "Could not activate this product.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   return (
     <main className="admin-products page-width">
       {/* HEADER */}
@@ -374,16 +400,26 @@ export default function AdminProductsPage() {
                       <span>↗</span>
                     </Link>
 
-                    {active && (
-                      <button
-                        type="button"
-                        className="admin-product-delete"
-                        disabled={deletingId === product.id}
-                        onClick={() => deactivateProduct(product)}
-                      >
-                        {deletingId === product.id ? "..." : "Deactivate"}
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      className={
+                        active
+                          ? "admin-product-delete"
+                          : "admin-product-activate"
+                      }
+                      disabled={deletingId === product.id}
+                      onClick={() =>
+                        active
+                          ? deactivateProduct(product)
+                          : activateProduct(product)
+                      }
+                    >
+                      {deletingId === product.id
+                        ? "..."
+                        : active
+                          ? "Deactivate"
+                          : "Activate"}
+                    </button>
                   </div>
                 </article>
               );
