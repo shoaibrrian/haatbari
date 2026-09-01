@@ -1,163 +1,245 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { apiFetch } from "@/lib/api-client";
 
-export default function AdminDashboard() {
-  const { data: session, status } = useSession();
+const stats = [
+  {
+    label: "Total orders",
+    value: "128",
+    note: "+12.5% this month",
+    icon: "↗",
+  },
+  {
+    label: "Products",
+    value: "64",
+    note: "8 low in stock",
+    icon: "□",
+  },
+  {
+    label: "Customers",
+    value: "342",
+    note: "+24 this month",
+    icon: "◎",
+  },
+  {
+    label: "Revenue",
+    value: "৳84.6K",
+    note: "+8.2% this month",
+    icon: "৳",
+  },
+];
 
-  const [stats, setStats] = useState({
-    totalOrders: 0,
-    pendingOrders: 0,
-    products: 0,
-    revenue: 0,
-  });
+const operations = [
+  {
+    number: "01",
+    title: "Manage products",
+    description: "Add, edit and organize products in your store.",
+    href: "/admin/products",
+    action: "Open products",
+  },
+  {
+    number: "02",
+    title: "Manage orders",
+    description: "Review orders, update status and handle deliveries.",
+    href: "/admin/orders",
+    action: "View orders",
+  },
+  {
+    number: "03",
+    title: "Customers",
+    description: "View registered customers and their account details.",
+    href: "/admin/customers",
+    action: "View customers",
+  },
+];
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+const quickLinks = [
+  {
+    title: "Add product",
+    description: "Create a new product listing.",
+    href: "/admin/products/new",
+    symbol: "+",
+  },
+  {
+    title: "All products",
+    description: "Browse your complete catalog.",
+    href: "/admin/products",
+    symbol: "↗",
+  },
+  {
+    title: "Orders",
+    description: "Check recent customer orders.",
+    href: "/admin/orders",
+    symbol: "□",
+  },
+  {
+    title: "Storefront",
+    description: "Open the public HaatBari store.",
+    href: "/shop",
+    symbol: "◎",
+  },
+];
 
-  useEffect(() => {
-    if (status === "loading") return;
+export default function AdminPage() {
+  const { data: session } = useSession();
 
-    if (!session?.user) {
-      window.location.href = "/account";
-      return;
-    }
-
-    if (session.user.role !== "admin") {
-      window.location.href = "/account";
-      return;
-    }
-
-    async function loadStats() {
-      try {
-        const { data } = await apiFetch("/api/admin/stats");
-
-        setStats(data);
-      } catch (err) {
-        setError(err.message || "Failed to load dashboard data");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadStats();
-  }, [session, status]);
-
-  const statCards = [
-    {
-      label: "Total orders",
-      value: loading ? "—" : stats.totalOrders,
-      note: "All time",
-    },
-    {
-      label: "Pending orders",
-      value: loading ? "—" : stats.pendingOrders,
-      note: "Need attention",
-    },
-    {
-      label: "Products",
-      value: loading ? "—" : stats.products,
-      note: "In your catalog",
-    },
-    {
-      label: "Revenue",
-      value: loading ? "৳—" : `৳${stats.revenue.toFixed(2)}`,
-      note: "All time",
-    },
-  ];
+  const adminName = session?.user?.firstName || session?.user?.name || "Admin";
 
   return (
     <main className="admin-page page-width">
       <header className="admin-header">
         <div>
-          <p className="eyebrow">HaatBari administration</p>
+          <span className="eyebrow">HaatBari administration</span>
 
           <h1>
-            Good morning,
+            Good to see you,
             <br />
-            <em>Admin.</em>
+            <em>{adminName}.</em>
           </h1>
 
-          <p className="admin-subtitle">
-            Manage your marketplace, orders and products from one place.
+          <p className="admin-header-copy">
+            Manage your store, products, orders and customers from one place.
           </p>
         </div>
 
-        <Link href="/" className="admin-store-link">
-          View storefront <span>↗</span>
-        </Link>
+        <div className="admin-header-side">
+          <div className="admin-status">
+            <span className="admin-status-dot" />
+            Store is live
+          </div>
+
+          <Link href="/shop" className="admin-store-link">
+            View storefront
+            <span>↗</span>
+          </Link>
+        </div>
       </header>
 
-      {error && (
-        <p className="checkout-error" role="alert">
-          {error}
-        </p>
-      )}
-
       <section className="admin-stats" aria-label="Store overview">
-        {statCards.map((stat) => (
+        {stats.map((stat) => (
           <article className="admin-stat" key={stat.label}>
-            <p>{stat.label}</p>
+            <div className="admin-stat-top">
+              <span>{stat.label}</span>
+              <span className="admin-stat-icon">{stat.icon}</span>
+            </div>
+
             <strong>{stat.value}</strong>
-            <span>{stat.note}</span>
+
+            <p>{stat.note}</p>
           </article>
         ))}
       </section>
 
-      <section className="admin-content">
-        <div className="admin-section-heading">
-          <div>
-            <p className="eyebrow">Manage</p>
-            <h2>Store operations</h2>
+      <section className="admin-main-grid">
+        <div className="admin-primary">
+          <div className="admin-section-heading">
+            <div>
+              <span className="kicker">Store operations</span>
+              <h2>
+                Run the store.
+                <br />
+                <em>Keep things moving.</em>
+              </h2>
+            </div>
+
+            <span className="admin-section-count">03 areas</span>
+          </div>
+
+          <div className="admin-operation-list">
+            {operations.map((item) => (
+              <Link
+                href={item.href}
+                className="admin-operation"
+                key={item.number}
+              >
+                <span className="admin-operation-number">{item.number}</span>
+
+                <div className="admin-operation-content">
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                </div>
+
+                <span className="admin-operation-action">
+                  {item.action}
+                  <span>↗</span>
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
 
-        <div className="admin-actions">
-          <Link href="/admin/orders" className="admin-action-card">
-            <span className="admin-action-number">01</span>
+        <aside className="admin-side-card">
+          <div className="admin-side-card-top">
+            <span className="kicker">Today</span>
+            <span className="admin-live-dot" />
+          </div>
 
+          <h3>
+            Your store
+            <br />
+            <em>at a glance.</em>
+          </h3>
+
+          <div className="admin-today-list">
             <div>
-              <h3>Orders</h3>
-              <p>
-                Review customer orders, update delivery status and manage
-                fulfilment.
-              </p>
+              <span>Pending orders</span>
+              <strong>12</strong>
             </div>
 
-            <span className="admin-action-arrow">↗</span>
-          </Link>
-
-          <Link href="/admin/products" className="admin-action-card">
-            <span className="admin-action-number">02</span>
-
             <div>
-              <h3>Products</h3>
-              <p>
-                Add, edit and manage the products available on your storefront.
-              </p>
+              <span>Low stock items</span>
+              <strong>8</strong>
             </div>
 
-            <span className="admin-action-arrow">↗</span>
-          </Link>
-
-          <Link href="/admin/inventory" className="admin-action-card">
-            <span className="admin-action-number">03</span>
-
             <div>
-              <h3>Inventory</h3>
-              <p>
-                Keep track of stock levels and identify products that need
-                attention.
-              </p>
+              <span>New customers</span>
+              <strong>24</strong>
             </div>
+          </div>
 
-            <span className="admin-action-arrow">↗</span>
+          <Link
+            href="/admin/orders"
+            className="button button-dark admin-full-button"
+          >
+            Review orders
+            <span>↗</span>
           </Link>
+        </aside>
+      </section>
+
+      <section className="admin-quick-section">
+        <div className="admin-section-heading admin-section-heading-small">
+          <div>
+            <span className="kicker">Quick access</span>
+            <h2>Everything you need.</h2>
+          </div>
+        </div>
+
+        <div className="admin-quick-grid">
+          {quickLinks.map((item) => (
+            <Link
+              href={item.href}
+              className="admin-quick-card"
+              key={item.title}
+            >
+              <span className="admin-quick-symbol">{item.symbol}</span>
+
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
+
+              <span className="admin-quick-arrow">↗</span>
+            </Link>
+          ))}
         </div>
       </section>
+
+      <footer className="admin-footer">
+        <span>HaatBari Admin</span>
+        <span>Store management · Orders · Products · Customers</span>
+      </footer>
     </main>
   );
 }

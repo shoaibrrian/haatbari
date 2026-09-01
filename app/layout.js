@@ -2,6 +2,7 @@ import { Hind_Siliguri, Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MotionRoot from "@/components/Motion";
+import Providers from "./providers";
 import "./globals.css";
 
 const sans = Inter({
@@ -34,11 +35,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${sans.variable} ${bangla.variable}`}>
       <body>
-        <MotionRoot>
-          <Navbar />
-          {children}
-          <Footer />
-        </MotionRoot>
+        <Providers>
+          <MotionRoot>
+            <Navbar />
+            {children}
+            <Footer />
+          </MotionRoot>
+        </Providers>
       </body>
     </html>
   );
