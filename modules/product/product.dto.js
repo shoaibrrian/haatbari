@@ -27,6 +27,7 @@ export const listProductsQuerySchema = z
     minPrice: z.coerce.number().min(0).optional(),
     maxPrice: z.coerce.number().min(0).optional(),
     sort: z.enum(SORTS).default("newest"),
+    includeInactive: z.coerce.boolean().default(false),
   })
   .refine(
     (v) =>
