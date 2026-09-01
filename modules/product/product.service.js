@@ -6,6 +6,7 @@ import {
   productIdentifierSchema,
   searchQuerySchema,
   toPublicProduct,
+  toAdminProduct,
   updateProductSchema,
 } from "./product.dto.js";
 import * as repository from "./product.repository.js";
@@ -28,6 +29,25 @@ export async function listProducts(rawQuery = {}) {
 
   return {
     items: items.map(toPublicProduct),
+    meta: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: Math.ceil(total / query.limit),
+    },
+  };
+}
+
+export async function listAdminProducts(rawQuery = {}) {
+  const query = listProductsQuerySchema.parse({
+    ...rawQuery,
+    includeInactive: true,
+  });
+
+  const { items, total } = await repository.findManyProducts(query);
+
+  return {
+    items: items.map(toAdminProduct),
     meta: {
       page: query.page,
       limit: query.limit,
@@ -95,4 +115,20 @@ export async function deactivateProduct(rawId) {
   if (!updated) throw new NotFoundError("Product");
 
   return toPublicProduct(updated);
+}
+
+export async function activateProduct(rawId) {
+  const id = productIdentifierSchema.parse(rawId);
+
+  if (!isObjectId(id)) {
+    throw new NotFoundError("Product");
+  }
+
+  const updated = await repository.activateProductById(id);
+
+  if (!updated) {
+    throw new NotFoundError("Product");
+  }
+
+  return toAdminProduct(updated);
 }

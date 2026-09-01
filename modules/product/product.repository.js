@@ -143,6 +143,16 @@ export async function deactivateProductById(id) {
   ).lean();
 }
 
+export async function activateProductById(id) {
+  await connectDB();
+
+  return Product.findByIdAndUpdate(
+    id,
+    { isActive: true },
+    { returnDocument: "after", runValidators: true },
+  ).lean();
+}
+
 export async function decrementProductStock(id, quantity, options = {}) {
   await connectDB();
 
