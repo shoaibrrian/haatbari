@@ -1,29 +1,74 @@
-import Link from "next/link";
+"use client";
 
-const stats = [
-  {
-    label: "Total orders",
-    value: "—",
-    note: "All time",
-  },
-  {
-    label: "Pending orders",
-    value: "—",
-    note: "Need attention",
-  },
-  {
-    label: "Products",
-    value: "—",
-    note: "In your catalog",
-  },
-  {
-    label: "Revenue",
-    value: "৳—",
-    note: "All time",
-  },
-];
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { apiFetch } from "@/lib/api-client";
 
 export default function AdminDashboard() {
+  const { data: session, status } = useSession();
+
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    pendingOrders: 0,
+    products: 0,
+    revenue: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session?.user) {
+      window.location.href = "/account";
+      return;
+    }
+
+    if (session.user.role !== "admin") {
+      window.location.href = "/account";
+      return;
+    }
+
+    async function loadStats() {
+      try {
+        const { data } = await apiFetch("/api/admin/stats");
+
+        setStats(data);
+      } catch (err) {
+        setError(err.message || "Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadStats();
+  }, [session, status]);
+
+  const statCards = [
+    {
+      label: "Total orders",
+      value: loading ? "—" : stats.totalOrders,
+      note: "All time",
+    },
+    {
+      label: "Pending orders",
+      value: loading ? "—" : stats.pendingOrders,
+      note: "Need attention",
+    },
+    {
+      label: "Products",
+      value: loading ? "—" : stats.products,
+      note: "In your catalog",
+    },
+    {
+      label: "Revenue",
+      value: loading ? "৳—" : `৳${stats.revenue.toFixed(2)}`,
+      note: "All time",
+    },
+  ];
+
   return (
     <main className="admin-page page-width">
       <header className="admin-header">
@@ -46,8 +91,14 @@ export default function AdminDashboard() {
         </Link>
       </header>
 
+      {error && (
+        <p className="checkout-error" role="alert">
+          {error}
+        </p>
+      )}
+
       <section className="admin-stats" aria-label="Store overview">
-        {stats.map((stat) => (
+        {statCards.map((stat) => (
           <article className="admin-stat" key={stat.label}>
             <p>{stat.label}</p>
             <strong>{stat.value}</strong>
@@ -67,6 +118,7 @@ export default function AdminDashboard() {
         <div className="admin-actions">
           <Link href="/admin/orders" className="admin-action-card">
             <span className="admin-action-number">01</span>
+
             <div>
               <h3>Orders</h3>
               <p>
@@ -74,22 +126,26 @@ export default function AdminDashboard() {
                 fulfilment.
               </p>
             </div>
+
             <span className="admin-action-arrow">↗</span>
           </Link>
 
           <Link href="/admin/products" className="admin-action-card">
             <span className="admin-action-number">02</span>
+
             <div>
               <h3>Products</h3>
               <p>
                 Add, edit and manage the products available on your storefront.
               </p>
             </div>
+
             <span className="admin-action-arrow">↗</span>
           </Link>
 
           <Link href="/admin/inventory" className="admin-action-card">
             <span className="admin-action-number">03</span>
+
             <div>
               <h3>Inventory</h3>
               <p>
@@ -97,6 +153,7 @@ export default function AdminDashboard() {
                 attention.
               </p>
             </div>
+
             <span className="admin-action-arrow">↗</span>
           </Link>
         </div>

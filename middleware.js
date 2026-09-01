@@ -4,13 +4,17 @@ export default withAuth(
   function middleware(req) {
     const role = req.nextauth.token?.role;
 
+    // Only admins can access /admin
     if (role !== "admin") {
       return Response.redirect(new URL("/account", req.url));
     }
   },
   {
     callbacks: {
-      authorized: ({ token }) => Boolean(token),
+      authorized: ({ token }) => {
+        // Let middleware run even when there is no session.
+        return true;
+      },
     },
   },
 );
