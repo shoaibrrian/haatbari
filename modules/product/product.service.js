@@ -10,6 +10,7 @@ import {
   updateProductSchema,
 } from "./product.dto.js";
 import * as repository from "./product.repository.js";
+import { getSubcategories } from "../../lib/categories.js";
 
 const SEARCH_STRATEGIES = [
   {
@@ -89,20 +90,48 @@ export async function getProduct(rawIdentifier) {
   return toPublicProduct(product);
 }
 
+function validateCategorySubcategory(category, subcategory) {
+  const allowed = getSubcategories(category);
+
+  if (!allowed.includes(subcategory)) {
+    throw new Error(
+      `"${subcategory}" is not a valid subcategory for "${category}"`,
+    );
+  }
+}
+
 export async function createProduct(rawInput) {
   const input = createProductSchema.parse(rawInput);
+  validateCategorySubcategory(input.category, input.subcategory);
   const created = await repository.createProduct(input);
   return toPublicProduct(created);
 }
 
 export async function updateProduct(rawId, rawInput) {
   const id = productIdentifierSchema.parse(rawId);
+
+  if (!isObjectId(id)) {
+    throw new NotFoundError("Product");
+  }
+
   const patch = updateProductSchema.parse(rawInput);
 
-  if (!isObjectId(id)) throw new NotFoundError("Product");
+  const existing = await repository.findProductById(id);
+
+  if (!existing) {
+    throw new NotFoundError("Product");
+  }
+
+  const category = patch.category ?? existing.category;
+  const subcategory = patch.subcategory ?? existing.subcategory;
+
+  validateCategorySubcategory(category, subcategory);
 
   const updated = await repository.updateProductById(id, patch);
-  if (!updated) throw new NotFoundError("Product");
+
+  if (!updated) {
+    throw new NotFoundError("Product");
+  }
 
   return toPublicProduct(updated);
 }

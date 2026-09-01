@@ -5,12 +5,19 @@ function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function buildFilter({ category, q, minPrice, maxPrice, includeInactive }) {
+function buildFilter({
+  category,
+  subcategory,
+  q,
+  minPrice,
+  maxPrice,
+  includeInactive,
+}) {
   const filter = {};
 
   if (!includeInactive) filter.isActive = true;
   if (category) filter.category = category;
-
+  if (subcategory) filter.subcategory = subcategory;
   if (minPrice !== undefined || maxPrice !== undefined) {
     filter.price = {};
     if (minPrice !== undefined) filter.price.$gte = minPrice;

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { CATEGORIES } from "../../lib/categories.js";
 
 /**
  * "Blue Sneakers" -> "blue-sneakers". Kept local to this module because slugs
@@ -70,11 +71,26 @@ const productSchema = new mongoose.Schema(
       required: [true, "Category is required"],
       trim: true,
       enum: {
-        values: ["Electronics", "Apparel", "Footwear", "Accessories"],
+        values: CATEGORIES.map((category) => category.name),
         message: "{VALUE} is not a supported category",
       },
     },
 
+    subcategory: {
+      type: String,
+      required: [true, "Subcategory is required"],
+      trim: true,
+      validate: {
+        validator(value) {
+          const category = CATEGORIES.find(
+            (item) => item.name === this.category,
+          );
+
+          return category?.items.includes(value);
+        },
+        message: "Subcategory does not belong to the selected category",
+      },
+    },
     image: {
       type: String,
       required: [true, "Product image is required"],

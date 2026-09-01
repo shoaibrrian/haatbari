@@ -1,11 +1,6 @@
 import { z } from "zod";
 
-export const PRODUCT_CATEGORIES = [
-  "Electronics",
-  "Apparel",
-  "Footwear",
-  "Accessories",
-];
+import { CATEGORY_NAMES, ALL_SUBCATEGORIES } from "../../lib/categories.js";
 
 const OBJECT_ID = /^[0-9a-fA-F]{24}$/;
 const SORTS = ["newest", "oldest", "price_asc", "price_desc", "relevance"];
@@ -18,15 +13,32 @@ const priceField = z
     "Price cannot have more than 2 decimal places",
   );
 
+export const PRODUCT_CATEGORIES = CATEGORY_NAMES;
+
+export const PRODUCT_SUBCATEGORIES = ALL_SUBCATEGORIES;
+
+const categoryField = z.enum(CATEGORY_NAMES);
+
+const subcategoryField = z.enum(ALL_SUBCATEGORIES);
+
 export const listProductsQuerySchema = z
   .object({
     page: z.coerce.number().int().min(1).default(1),
+
     limit: z.coerce.number().int().min(1).max(60).default(12),
-    category: z.enum(PRODUCT_CATEGORIES).optional(),
+
+    category: categoryField.optional(),
+
+    subcategory: subcategoryField.optional(),
+
     q: z.string().trim().min(1).max(120).optional(),
+
     minPrice: z.coerce.number().min(0).optional(),
+
     maxPrice: z.coerce.number().min(0).optional(),
+
     sort: z.enum(SORTS).default("newest"),
+
     includeInactive: z.coerce.boolean().default(false),
   })
   .refine(
@@ -34,7 +46,10 @@ export const listProductsQuerySchema = z
       v.minPrice === undefined ||
       v.maxPrice === undefined ||
       v.minPrice <= v.maxPrice,
-    { path: ["minPrice"], error: "minPrice cannot be greater than maxPrice" },
+    {
+      path: ["minPrice"],
+      error: "minPrice cannot be greater than maxPrice",
+    },
   );
 
 export const searchQuerySchema = z.object({
@@ -43,16 +58,25 @@ export const searchQuerySchema = z.object({
     .trim()
     .min(1, "Type something to search for")
     .max(120, "Search query is too long"),
+
   limit: z.coerce.number().int().min(1).max(60).default(24),
 });
 
 export const createProductSchema = z.object({
   title: z.string().trim().min(2).max(200),
+
   description: z.string().trim().min(10).max(2000),
+
   price: priceField,
-  category: z.enum(PRODUCT_CATEGORIES),
+
+  category: categoryField,
+
+  subcategory: subcategoryField,
+
   image: z.url("Image must be a valid URL"),
+
   stock: z.number().int().min(0).default(0),
+
   isActive: z.boolean().default(true),
 });
 
@@ -73,16 +97,28 @@ export function isObjectId(value) {
 
 export function toPublicProduct(doc) {
   if (!doc) return null;
+
   return {
     id: doc._id?.toString() ?? doc.id,
+
     title: doc.title,
+
     slug: doc.slug,
+
     description: doc.description,
+
     price: doc.price,
+
     category: doc.category,
+
+    subcategory: doc.subcategory,
+
     image: doc.image,
+
     stock: doc.stock,
+
     inStock: (doc.stock ?? 0) > 0,
+
     createdAt: doc.createdAt,
   };
 }
