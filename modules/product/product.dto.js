@@ -86,3 +86,12 @@ export function toPublicProduct(doc) {
     createdAt: doc.createdAt,
   };
 }
+
+export function toAdminProduct(doc) {
+  if (!doc) return null;
+
+  return {
+    ...toPublicProduct(doc),
+    isActive: doc.isActive !== false,
+  };
+}
