@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CATEGORIES } from "@/lib/categories";
 
-
 function taka(value) {
   return Number(value || 0).toLocaleString("en-US", {
     maximumFractionDigits: 2,
@@ -85,7 +84,10 @@ function AdminDropdown({ value, options, onChange }) {
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
+  const [searchResults, setSearchResults] = useState(null);
+
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
 
   const [query, setQuery] = useState("");
@@ -121,19 +123,54 @@ export default function AdminProductsPage() {
     loadProducts();
   }, [loadProducts]);
 
+  const runSearch = useCallback(async (rawQuery) => {
+    const term = rawQuery.trim();
+
+    if (!term) {
+      setSearchResults(null);
+      setSearching(false);
+      setError("");
+      return;
+    }
+
+    setSearching(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        `/api/admin/products/search?q=${encodeURIComponent(term)}&limit=60`,
+        {
+          cache: "no-store",
+        },
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result?.message || "Could not search products.");
+      }
+
+      setSearchResults(Array.isArray(result?.data) ? result.data : []);
+    } catch (searchError) {
+      setSearchResults([]);
+      setError(searchError.message || "Could not search products.");
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      runSearch(query);
+    }, 250);
+
+    return () => clearTimeout(timeout);
+  }, [query, runSearch]);
+
+  const displayedProducts = searchResults ?? products;
+
   const filteredProducts = useMemo(() => {
-    const term = query.trim().toLowerCase();
-
-    return products.filter((product) => {
-      const matchesSearch =
-        !term ||
-        String(product.title || "")
-          .toLowerCase()
-          .includes(term) ||
-        String(product.category || "")
-          .toLowerCase()
-          .includes(term);
-
+    return displayedProducts.filter((product) => {
       const matchesCategory =
         category === "All" || product.category === category;
 
@@ -142,9 +179,9 @@ export default function AdminProductsPage() {
         (status === "active" && product.isActive !== false) ||
         (status === "inactive" && product.isActive === false);
 
-      return matchesSearch && matchesCategory && matchesStatus;
+      return matchesCategory && matchesStatus;
     });
-  }, [products, query, category, status]);
+  }, [displayedProducts, category, status]);
 
   const activeCount = products.filter(
     (product) => product.isActive !== false,
@@ -174,8 +211,26 @@ export default function AdminProductsPage() {
 
       setProducts((current) =>
         current.map((item) =>
-          item.id === product.id ? { ...item, isActive: false } : item,
+          item.id === product.id
+            ? {
+                ...item,
+                isActive: false,
+              }
+            : item,
         ),
+      );
+
+      setSearchResults((current) =>
+        current
+          ? current.map((item) =>
+              item.id === product.id
+                ? {
+                    ...item,
+                    isActive: false,
+                  }
+                : item,
+            )
+          : current,
       );
     } catch (deleteError) {
       window.alert(deleteError.message || "Could not deactivate this product.");
@@ -200,8 +255,26 @@ export default function AdminProductsPage() {
 
       setProducts((current) =>
         current.map((item) =>
-          item.id === product.id ? { ...item, isActive: true } : item,
+          item.id === product.id
+            ? {
+                ...item,
+                isActive: true,
+              }
+            : item,
         ),
+      );
+
+      setSearchResults((current) =>
+        current
+          ? current.map((item) =>
+              item.id === product.id
+                ? {
+                    ...item,
+                    isActive: true,
+                  }
+                : item,
+            )
+          : current,
       );
     } catch (activateError) {
       window.alert(activateError.message || "Could not activate this product.");
@@ -210,10 +283,19 @@ export default function AdminProductsPage() {
     }
   }
 
+  function clearFilters() {
+    setQuery("");
+    setSearchResults(null);
+    setCategory("All");
+    setStatus("all");
+    setError("");
+  }
+
+  const hasFilters = query || category !== "All" || status !== "all";
+
   return (
     <main className="admin-products page-width">
       {/* HEADER */}
-
       <header className="admin-products-header">
         <div>
           <Link href="/admin" className="admin-back">
@@ -244,29 +326,33 @@ export default function AdminProductsPage() {
       </header>
 
       {/* OVERVIEW */}
-
       <section className="admin-product-overview">
         <div>
           <span className="kicker">Catalogue</span>
+
           <strong>{products.length}</strong>
+
           <p>Total products</p>
         </div>
 
         <div>
           <span className="kicker">Published</span>
+
           <strong>{activeCount}</strong>
+
           <p>Visible in storefront</p>
         </div>
 
         <div>
           <span className="kicker">Inactive</span>
+
           <strong>{inactiveCount}</strong>
+
           <p>Hidden from storefront</p>
         </div>
       </section>
 
       {/* CONTROLS */}
-
       <section className="admin-product-controls">
         <div className="admin-product-search">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
@@ -277,6 +363,7 @@ export default function AdminProductsPage() {
               stroke="currentColor"
               strokeWidth="1.8"
             />
+
             <path
               d="M16 16l4.5 4.5"
               stroke="currentColor"
@@ -286,14 +373,21 @@ export default function AdminProductsPage() {
           </svg>
 
           <input
-            type="search"
+            type="text"
             placeholder="Search products"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
 
           {query && (
-            <button type="button" onClick={() => setQuery("")}>
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setSearchResults(null);
+              }}
+              aria-label="Clear search"
+            >
               ×
             </button>
           )}
@@ -301,56 +395,62 @@ export default function AdminProductsPage() {
 
         <div className="admin-product-filter-group">
           <AdminDropdown
-  value={category}
-  onChange={setCategory}
-  options={[
-    { value: "All", label: "All categories" },
-    ...CATEGORIES.map((item) => ({
-      value: item.name,
-      label: item.name,
-    })),
-  ]}
-/>
+            value={category}
+            onChange={setCategory}
+            options={[
+              {
+                value: "All",
+                label: "All categories",
+              },
+
+              ...CATEGORIES.map((item) => ({
+                value: item.name,
+                label: item.name,
+              })),
+            ]}
+          />
 
           <AdminDropdown
             value={status}
             onChange={setStatus}
             options={[
-              { value: "all", label: "All status" },
-              { value: "active", label: "Active" },
-              { value: "inactive", label: "Inactive" },
+              {
+                value: "all",
+                label: "All status",
+              },
+              {
+                value: "active",
+                label: "Active",
+              },
+              {
+                value: "inactive",
+                label: "Inactive",
+              },
             ]}
           />
         </div>
       </section>
 
       {/* RESULT INFO */}
-
       <div className="admin-product-result">
         <span>
           {loading
             ? "Loading catalogue…"
-            : `${filteredProducts.length} ${
-                filteredProducts.length === 1 ? "product" : "products"
-              }`}
+            : searching
+              ? "Searching catalogue…"
+              : `${filteredProducts.length} ${
+                  filteredProducts.length === 1 ? "product" : "products"
+                }`}
         </span>
 
-        {(query || category !== "All" || status !== "all") && (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setCategory("All");
-              setStatus("all");
-            }}
-          >
+        {hasFilters && (
+          <button type="button" onClick={clearFilters}>
             Clear filters
           </button>
         )}
       </div>
 
       {/* ERROR */}
-
       {error && (
         <div className="admin-product-error">
           <span>{error}</span>
@@ -361,9 +461,8 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-      {/* PRODUCTS */}
-
-      {!loading && !error && filteredProducts.length === 0 ? (
+      {/* EMPTY */}
+      {!loading && !searching && !error && filteredProducts.length === 0 ? (
         <div className="admin-product-empty">
           <span className="admin-empty-symbol">□</span>
 
@@ -372,7 +471,9 @@ export default function AdminProductsPage() {
           <p>
             {products.length === 0
               ? "Your catalogue is empty. Add your first product to get started."
-              : "Try changing your search or filters."}
+              : query
+                ? `No products matched "${query}".`
+                : "Try changing your filters."}
           </p>
 
           {products.length === 0 ? (
@@ -384,11 +485,7 @@ export default function AdminProductsPage() {
             <button
               type="button"
               className="button button-dark"
-              onClick={() => {
-                setQuery("");
-                setCategory("All");
-                setStatus("all");
-              }}
+              onClick={clearFilters}
             >
               Show all products
               <span>↗</span>
@@ -409,6 +506,7 @@ export default function AdminProductsPage() {
           <div className="admin-product-table">
             {filteredProducts.map((product) => {
               const active = product.isActive !== false;
+
               const stock = Number(product.stock || 0);
 
               return (
@@ -448,7 +546,9 @@ export default function AdminProductsPage() {
                     }
                   >
                     {stock}
+
                     {stock === 0 && <small>Out</small>}
+
                     {stock > 0 && stock <= 5 && <small>Low</small>}
                   </div>
 
@@ -461,6 +561,7 @@ export default function AdminProductsPage() {
                       }
                     >
                       <i />
+
                       {active ? "Active" : "Inactive"}
                     </span>
                   </div>

@@ -93,34 +93,53 @@ export async function findProductsByIds(ids, options = {}) {
   return Product.find({ _id: { $in: ids } }, null, options).lean();
 }
 
-export async function searchProductsByText(q, limit) {
+export async function searchProductsByText(q, limit, includeInactive = false) {
   await connectDB();
 
-  return Product.find({ isActive: true, $text: { $search: q } })
+  const filter = {
+    $text: { $search: q },
+  };
+
+  if (!includeInactive) {
+    filter.isActive = true;
+  }
+
+  return Product.find(filter)
     .sort({ score: { $meta: "textScore" } })
     .limit(limit)
     .lean();
 }
 
-export async function searchProductsLoosely(q, limit) {
+export async function searchProductsLoosely(q, limit, includeInactive = false) {
   await connectDB();
 
   const tokens = q.split(/\s+/).filter(Boolean).slice(0, 5);
+
   if (tokens.length === 0) return [];
 
-  return Product.find({
-    isActive: true,
+  const filter = {
     $and: tokens.map((token) => {
-      const pattern = { $regex: escapeRegex(token), $options: "i" };
+      const pattern = {
+        $regex: escapeRegex(token),
+        $options: "i",
+      };
+
       return {
         $or: [
           { title: pattern },
           { category: pattern },
+          { subcategory: pattern },
           { description: pattern },
         ],
       };
     }),
-  })
+  };
+
+  if (!includeInactive) {
+    filter.isActive = true;
+  }
+
+  return Product.find(filter)
     .sort({ createdAt: -1, _id: -1 })
     .limit(limit)
     .lean();

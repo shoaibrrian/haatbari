@@ -15,14 +15,15 @@ import { getSubcategories } from "../../lib/categories.js";
 const SEARCH_STRATEGIES = [
   {
     name: "text",
-    run: (q, limit) => repository.searchProductsByText(q, limit),
+    run: (q, limit, includeInactive = false) =>
+      repository.searchProductsByText(q, limit, includeInactive),
   },
   {
     name: "loose",
-    run: (q, limit) => repository.searchProductsLoosely(q, limit),
+    run: (q, limit, includeInactive = false) =>
+      repository.searchProductsLoosely(q, limit, includeInactive),
   },
 ];
-
 export async function listProducts(rawQuery = {}) {
   const query = listProductsQuerySchema.parse(rawQuery);
 
@@ -62,7 +63,7 @@ export async function searchProducts(rawQuery = {}) {
   const { q, limit } = searchQuerySchema.parse(rawQuery);
 
   for (const strategy of SEARCH_STRATEGIES) {
-    const items = await strategy.run(q, limit);
+    const items = await strategy.run(q, limit, false);
 
     if (items.length > 0) {
       return {
@@ -73,7 +74,33 @@ export async function searchProducts(rawQuery = {}) {
     }
   }
 
-  return { items: [], strategy: "none", query: q };
+  return {
+    items: [],
+    strategy: "none",
+    query: q,
+  };
+}
+
+export async function searchAdminProducts(rawQuery = {}) {
+  const { q, limit } = searchQuerySchema.parse(rawQuery);
+
+  for (const strategy of SEARCH_STRATEGIES) {
+    const items = await strategy.run(q, limit, true);
+
+    if (items.length > 0) {
+      return {
+        items: items.map(toAdminProduct),
+        strategy: strategy.name,
+        query: q,
+      };
+    }
+  }
+
+  return {
+    items: [],
+    strategy: "none",
+    query: q,
+  };
 }
 
 export async function getProduct(rawIdentifier) {
