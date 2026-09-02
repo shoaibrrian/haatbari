@@ -85,6 +85,7 @@ export default function EditProductPage({ params }) {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [statusChanging, setStatusChanging] = useState(false);
+  const [statusAction, setStatusAction] = useState("");
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -255,6 +256,7 @@ export default function EditProductPage({ params }) {
 
     if (!result.isConfirmed) return;
 
+    setStatusAction(nextActive ? "activate" : "deactivate");
     setStatusChanging(true);
     setError("");
     setSuccess("");
@@ -315,6 +317,7 @@ export default function EditProductPage({ params }) {
         },
       });
     } finally {
+      setStatusAction("");
       setStatusChanging(false);
     }
   }
@@ -715,9 +718,9 @@ export default function EditProductPage({ params }) {
             disabled={statusChanging || saving || uploading}
           >
             {statusChanging
-              ? isActive
-                ? "Deactivating..."
-                : "Activating..."
+              ? statusAction === "activate"
+                ? "Activating..."
+                : "Deactivating..."
               : isActive
                 ? "Deactivate product"
                 : "Activate product"}
