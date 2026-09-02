@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
+import Swal from "sweetalert2";
 
 export default function OrderDetailsPage() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -12,6 +13,61 @@ export default function OrderDetailsPage() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [cancelling, setCancelling] = useState(false);
+
+  async function handleCancelOrder() {
+    const result = await Swal.fire({
+      title: "Cancel this order?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, cancel it",
+      cancelButtonText: "Keep order",
+      reverseButtons: true,
+      focusCancel: true,
+    });
+
+    if (!result.isConfirmed) return;
+
+    setCancelling(true);
+
+    try {
+      const response = await fetch(`/api/customer/orders/${params.id}`, {
+        method: "PATCH",
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error?.message ||
+            result?.data?.error?.message ||
+            "Failed to cancel order",
+        );
+      }
+
+      setOrder(result.data?.data || result.data);
+
+      await Swal.fire({
+        title: "Order cancelled",
+        text: "Your order has been cancelled successfully.",
+        icon: "success",
+        confirmButtonText: "Done",
+      });
+    } catch (error) {
+      console.error("Cancel order error:", error);
+
+      Swal.fire({
+        title: "Something went wrong",
+        text: error.message || "Failed to cancel order.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -125,9 +181,22 @@ export default function OrderDetailsPage() {
           </p>
         </div>
 
-        <span className={`orders-status orders-status-${order.status}`}>
-          {order.status}
-        </span>
+        <div className="order-details-actions">
+          {["pending", "confirmed", "processing"].includes(order.status) && (
+            <button
+              type="button"
+              className="order-cancel-button"
+              onClick={handleCancelOrder}
+              disabled={cancelling}
+            >
+              {cancelling ? "Cancelling..." : "Cancel order"}
+            </button>
+          )}
+
+          <span className={`orders-status orders-status-${order.status}`}>
+            {order.status}
+          </span>
+        </div>
       </header>
 
       <section className="order-details-grid">

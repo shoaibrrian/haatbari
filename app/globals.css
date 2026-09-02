@@ -10522,6 +10522,17 @@ ul.checkout-error {
   text-transform: capitalize;
 }
 
+.order-details-actions .orders-status {
+  min-height: 34px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .orders-status-delivered {
   color: #3a8c5b;
 }
@@ -11147,4 +11158,43 @@ ul.checkout-error {
   .order-summary-total strong {
     font-size: 20px;
   }
+}
+
+.order-cancel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--danger);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--danger);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 180ms var(--e),
+    color 180ms var(--e),
+    transform 180ms var(--e);
+}
+
+.order-cancel-button:hover {
+  background: var(--danger);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.order-cancel-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.order-details-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
 }
