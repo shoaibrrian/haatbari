@@ -97,6 +97,7 @@ export default function AccountPage() {
                 <SignIn
                   key="haatbari-sign-in"
                   routing="virtual"
+                  forceRedirectUrl="/customer/dashboard"
                   appearance={{
                     layout: {
                       socialButtonsPlacement: "top",
@@ -146,6 +147,7 @@ export default function AccountPage() {
                 <SignUp
                   key="haatbari-sign-up"
                   routing="virtual"
+                  forceRedirectUrl="/customer/dashboard"
                   appearance={{
                     layout: {
                       socialButtonsPlacement: "top",

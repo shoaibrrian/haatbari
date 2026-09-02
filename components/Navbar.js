@@ -282,30 +282,62 @@ export default function Navbar() {
                 href="/account"
                 aria-label="Account"
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                  <circle
-                    cx="12"
-                    cy="8"
-                    r="4"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <path
-                    d="M4.5 21c.9-4.2 3.5-6.3 7.5-6.3s6.6 2.1 7.5 6.3"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                {isLoaded && isSignedIn && user ? (
+                  user.imageUrl ? (
+                    <img
+                      src={user.imageUrl}
+                      alt={user.fullName || "Account"}
+                      className="navbar-avatar"
+                    />
+                  ) : (
+                    <span className="navbar-avatar navbar-avatar-fallback">
+                      {(user.firstName || user.fullName || "U")
+                        .charAt(0)
+                        .toUpperCase()}
+                    </span>
+                  )
+                ) : (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <circle
+                      cx="12"
+                      cy="8"
+                      r="4"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                    />
+                    <path
+                      d="M4.5 21c.9-4.2 3.5-6.3 7.5-6.3s6.6 2.1 7.5 6.3"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                )}
               </Link>
 
               {isLoaded && isSignedIn ? (
                 <div className="account-dropdown">
+                  <div className="account-dropdown-user">
+                    <strong>
+                      {user?.fullName ||
+                        user?.firstName ||
+                        user?.primaryEmailAddress?.emailAddress?.split(
+                          "@",
+                        )[0] ||
+                        "Customer"}
+                    </strong>
+                    <span>{user?.primaryEmailAddress?.emailAddress || ""}</span>
+                  </div>
+
+                  <div className="account-dropdown-divider" />
+
                   <Link href="/account">My Account</Link>
-                  <Link href="/account">Customer Dashboard</Link>
+                  <Link href="/customer/dashboard">Customer Dashboard</Link>
                   <Link href="/orders">My Orders</Link>
                   <Link href="/wishlist">Wishlist</Link>
                   <Link href="/cart">Cart</Link>
+
+                  <div className="account-dropdown-divider" />
 
                   <button
                     type="button"

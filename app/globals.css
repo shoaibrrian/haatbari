@@ -9679,3 +9679,49 @@ ul.checkout-error {
   background: var(--danger-tint);
   color: var(--danger);
 }
+
+.navbar-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.navbar-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.account-dropdown-user {
+  padding: 4px 13px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.account-dropdown-user strong {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.account-dropdown-user span {
+  color: var(--muted);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.account-dropdown-divider {
+  height: 1px;
+  margin: 7px 0;
+  background: var(--line-2);
+}
