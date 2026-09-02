@@ -215,8 +215,6 @@ export default function AdminCustomersPage() {
 
                 <div className="admin-customer-orders">
                   <strong>{customer.orderCount}</strong>
-
-                  <span>{customer.orderCount === 1 ? "order" : "orders"}</span>
                 </div>
 
                 <div className="admin-customer-date">
