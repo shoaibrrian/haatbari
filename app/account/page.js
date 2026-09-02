@@ -2,61 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { SignIn, SignUp, useAuth } from "@clerk/nextjs";
 
 export default function AccountPage() {
-  const searchParams = useSearchParams();
-
-  const [mode, setMode] = useState(
-    searchParams.get("mode") === "register" ? "register" : "login",
-  );
-
-  const [loginForm, setLoginForm] = useState({
-    email: "",
-    password: "",
-  });
-
-  const [loginError, setLoginError] = useState("");
-  const [loginLoading, setLoginLoading] = useState(false);
-
-  async function handleLogin(event) {
-    event.preventDefault();
-
-    setLoginLoading(true);
-    setLoginError("");
-
-    try {
-      const result = await signIn("credentials", {
-        email: loginForm.email,
-        password: loginForm.password,
-        redirect: false,
-      });
-
-      console.log("SIGN IN RESULT:", result);
-
-      if (result?.error) {
-        setLoginError("Invalid email or password.");
-        setLoginLoading(false);
-        return;
-      }
-
-      const sessionResponse = await fetch("/api/auth/session");
-      const session = await sessionResponse.json();
-
-      console.log("SESSION:", session);
-
-      if (session?.user?.role === "admin") {
-        window.location.href = "/admin";
-      } else {
-        window.location.href = "/account";
-      }
-    } catch (error) {
-      console.error("LOGIN ERROR:", error);
-      setLoginError("Something went wrong. Please try again.");
-      setLoginLoading(false);
-    }
-  }
+  const { isLoaded } = useAuth();
+  const [mode, setMode] = useState("login");
 
   return (
     <main className="account-page page-width">
@@ -98,10 +48,7 @@ export default function AccountPage() {
             <button
               type="button"
               className={mode === "login" ? "active" : ""}
-              onClick={() => {
-                setMode("login");
-                setLoginError("");
-              }}
+              onClick={() => setMode("login")}
             >
               Sign in
             </button>
@@ -115,110 +62,116 @@ export default function AccountPage() {
             </button>
           </div>
 
-          {mode === "login" ? (
-            <form className="account-form" onSubmit={handleLogin}>
-              <div>
-                <p className="eyebrow">Welcome back</p>
+          <div className="account-form clerk-account-form">
+  {!isLoaded ? (
+    <div className="account-loading">
+      <div className="account-loading-line account-loading-title" />
+      <div className="account-loading-line" />
+      <div className="account-loading-line account-loading-short" />
 
-                <h2>Sign in</h2>
+      <div className="account-loading-button" />
+      <div className="account-loading-divider" />
 
-                <p>Access your HaatBari orders and account details.</p>
-              </div>
+      <div className="account-loading-input" />
+      <div className="account-loading-input" />
+      <div className="account-loading-button" />
+    </div>
+  ) : mode === "login" ? (
+              <>
+                <div>
+                  <p className="eyebrow">Welcome back</p>
 
-              <label>
-                Email address
-                <input
-                  type="email"
-                  name="email"
-                  value={loginForm.email}
-                  onChange={(event) =>
-                    setLoginForm((current) => ({
-                      ...current,
-                      email: event.target.value,
-                    }))
-                  }
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  required
-                />
-              </label>
+                  <h2>Sign in</h2>
 
-              <label>
-                Password
-                <input
-                  type="password"
-                  name="password"
-                  value={loginForm.password}
-                  onChange={(event) =>
-                    setLoginForm((current) => ({
-                      ...current,
-                      password: event.target.value,
-                    }))
-                  }
-                  placeholder="Enter your password"
-                  autoComplete="current-password"
-                  required
-                />
-              </label>
+                  <p>Access your HaatBari orders and account details.</p>
+                </div>
 
-              {loginError && (
-                <p className="account-error" role="alert">
-                  {loginError}
-                </p>
-              )}
+                <SignIn
+                  routing="hash"
+                  appearance={{
+                    layout: {
+                      socialButtonsPlacement: "top",
+                      socialButtonsVariant: "blockButton",
+                    },
+                    elements: {
+                      rootBox: "hb-clerk-root",
+                      card: "hb-clerk-card",
+                      header: "hb-clerk-header",
+                      headerTitle: "hb-clerk-header-title",
+                      headerSubtitle: "hb-clerk-header-subtitle",
 
-              <button
-                type="submit"
-                className="button button-dark"
-                disabled={loginLoading}
-              >
-                {loginLoading ? "Signing in..." : "Sign in"}
-                <span>{loginLoading ? "…" : "↗"}</span>
-              </button>
+                      socialButtons: "hb-clerk-social-buttons",
+                      socialButtonsBlockButton: "hb-clerk-social-button",
+                      socialButtonsBlockButtonText: "hb-clerk-social-text",
 
-              <p className="account-switch">
-                Don&apos;t have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("register");
-                    setLoginError("");
+                      dividerRow: "hb-clerk-divider-row",
+                      dividerLine: "hb-clerk-divider-line",
+                      dividerText: "hb-clerk-divider-text",
+
+                      form: "hb-clerk-form",
+                      formFieldRow: "hb-clerk-field-row",
+                      formFieldLabel: "hb-clerk-label",
+                      formFieldInput: "hb-clerk-input",
+
+                      formButtonPrimary: "hb-clerk-primary",
+
+                      footer: "hb-clerk-footer",
+                      footerAction: "hb-clerk-footer-action",
+                      footerActionLink: "hb-clerk-link",
+                    },
                   }}
-                >
-                  Create one
-                </button>
-              </p>
-            </form>
-          ) : (
-            <form
-              className="account-form"
-              onSubmit={(event) => {
-                event.preventDefault();
-                window.location.href = "/account/register";
-              }}
-            >
-              <div>
-                <p className="eyebrow">Join HaatBari</p>
+                />
+              </>
+            ) : (
+              <>
+                <div>
+                  <p className="eyebrow">Join HaatBari</p>
 
-                <h2>Create account</h2>
+                  <h2>Create account</h2>
 
-                <p>
-                  Register once and keep your future orders connected to you.
-                </p>
-              </div>
+                  <p>
+                    Register once and keep your future orders connected to you.
+                  </p>
+                </div>
 
-              <button type="submit" className="button button-dark">
-                Continue to registration <span>↗</span>
-              </button>
+                <SignUp
+                  routing="hash"
+                  appearance={{
+                    layout: {
+                      socialButtonsPlacement: "top",
+                      socialButtonsVariant: "blockButton",
+                    },
+                    elements: {
+                      rootBox: "hb-clerk-root",
+                      card: "hb-clerk-card",
+                      header: "hb-clerk-header",
+                      headerTitle: "hb-clerk-header-title",
+                      headerSubtitle: "hb-clerk-header-subtitle",
 
-              <p className="account-switch">
-                Already have an account?{" "}
-                <button type="button" onClick={() => setMode("login")}>
-                  Sign in
-                </button>
-              </p>
-            </form>
-          )}
+                      socialButtons: "hb-clerk-social-buttons",
+                      socialButtonsBlockButton: "hb-clerk-social-button",
+                      socialButtonsBlockButtonText: "hb-clerk-social-text",
+
+                      dividerRow: "hb-clerk-divider-row",
+                      dividerLine: "hb-clerk-divider-line",
+                      dividerText: "hb-clerk-divider-text",
+
+                      form: "hb-clerk-form",
+                      formFieldRow: "hb-clerk-field-row",
+                      formFieldLabel: "hb-clerk-label",
+                      formFieldInput: "hb-clerk-input",
+
+                      formButtonPrimary: "hb-clerk-primary",
+
+                      footer: "hb-clerk-footer",
+                      footerAction: "hb-clerk-footer-action",
+                      footerActionLink: "hb-clerk-link",
+                    },
+                  }}
+                />
+              </>
+            )}
+          </div>
         </div>
       </section>
 
