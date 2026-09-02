@@ -23,12 +23,15 @@ import {
   findOrders,
   updateOrderStatusById,
 } from "./order.repository.js";
+import { auth } from "@clerk/nextjs/server";
 
 function round2(value) {
   return Math.round(value * 100) / 100;
 }
 
 export async function placeOrder(input) {
+  const { userId } = await auth();
+
   const { customer, items, paymentMethod } = createOrderSchema.parse(input);
 
   return withTransaction(async (session) => {
@@ -106,6 +109,7 @@ export async function placeOrder(input) {
 
     const order = await createOrder(
       {
+        clerkUserId: userId || undefined,
         customer,
         items: lineItems,
         subtotal,

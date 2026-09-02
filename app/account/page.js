@@ -1,12 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SignIn, SignUp, useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export default function AccountPage() {
-  const { isLoaded } = useAuth();
+  const router = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
   const [mode, setMode] = useState("login");
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.replace("/customer/dashboard");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   return (
     <main className="account-page page-width">
