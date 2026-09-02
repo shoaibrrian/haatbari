@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
+import Swal from "sweetalert2";
+
 import { apiFetch } from "@/lib/api-client";
 import { readCart, writeCart } from "@/lib/cart";
 import {
@@ -32,14 +35,16 @@ function extractMessages(apiError) {
 }
 
 export default function CheckoutPage() {
+  const { isLoaded, isSignedIn } = useAuth();
+
   const [cart, setCart] = useState([]);
-  const [placedOrder, setPlacedOrder] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     const syncCart = window.setTimeout(() => setCart(readCart()), 0);
+
     return () => window.clearTimeout(syncCart);
   }, []);
 
@@ -72,6 +77,7 @@ export default function CheckoutPage() {
     (total, item) => total + item.price * item.quantity,
     0,
   );
+
   const total = cart.length ? subtotal + DELIVERY_FEE : 0;
 
   async function handleSubmit(event) {
@@ -82,14 +88,17 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!isLoaded) return;
+
     setSubmitting(true);
     setError("");
     setMessages([]);
 
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
 
     try {
-      const { data } = await apiFetch("/api/orders", {
+      const { data: order } = await apiFetch("/api/orders", {
         method: "POST",
         body: {
           customer: {
@@ -106,41 +115,90 @@ export default function CheckoutPage() {
         },
       });
 
+      // Clear cart
       writeCart([]);
       setCart([]);
-      setPlacedOrder(data.data);
+
+      // Reset delivery form
+      form.reset();
+
+      // Update navbar cart count
+      window.dispatchEvent(new Event("cart-updated"));
+
+      // Logged-in customer
+      if (isSignedIn) {
+        const result = await Swal.fire({
+          title: "Order placed successfully!",
+          html: `
+  <div class="hb-order-success">
+    <p class="hb-order-success-message">
+      Your order has been received successfully.
+    </p>
+
+    <div class="hb-order-info">
+      <div>
+        <span>Order ID</span>
+        <strong>${order.id}</strong>
+      </div>
+
+      <div>
+        <span>Total</span>
+        <strong>৳${order.total}</strong>
+      </div>
+    </div>
+  </div>
+`,
+          icon: "success",
+          confirmButtonText: "View my orders",
+          showCancelButton: true,
+          cancelButtonText: "Continue shopping",
+          reverseButtons: true,
+        });
+
+        if (result.isConfirmed) {
+          window.location.href = "/orders";
+        } else {
+          window.location.href = "/";
+        }
+
+        return;
+      }
+
+      // Guest customer
+      await Swal.fire({
+        title: "Order placed successfully!",
+        html: `
+  <div class="hb-order-success">
+    <p class="hb-order-success-message">
+      Your order has been received successfully.
+    </p>
+
+    <div class="hb-order-info">
+      <div>
+        <span>Order ID</span>
+        <strong>${order.id}</strong>
+      </div>
+
+      <div>
+        <span>Total</span>
+        <strong>৳${order.total}</strong>
+      </div>
+    </div>
+  </div>
+`,
+        icon: "success",
+        confirmButtonText: "Continue shopping",
+      });
+
+      window.location.href = "/";
     } catch (submitError) {
       const detailed = extractMessages(submitError);
+
       setMessages(detailed);
       setError(detailed.length ? "" : submitError.message);
     } finally {
       setSubmitting(false);
     }
-  }
-
-  if (placedOrder) {
-    return (
-      <main className="checkout-page page-width confirmation">
-        <p className="eyebrow">Order received</p>
-        <h1>
-          Thank you for
-          <br />
-          <em>shopping close.</em>
-        </h1>
-        <p>
-          Your order is being prepared with care. We&apos;ll send delivery
-          details to your phone shortly.
-        </p>
-        <p>
-          <strong>Order reference:</strong> {placedOrder.id}
-          <br />
-          <strong>Amount due on delivery:</strong> ৳{placedOrder.total}
-        </p>
-        <Link href="/" className="button button-dark">
-          Back to the market <span>↗</span>
-        </Link>
-      </main>
-    );
   }
 
   return (
@@ -154,22 +212,27 @@ export default function CheckoutPage() {
             <em>order.</em>
           </h1>
         </div>
+
         <span className="step-count">01 — 02</span>
       </div>
+
       <div className="checkout-grid">
         <form className="checkout-form" onSubmit={handleSubmit}>
           <fieldset>
             <legend>Where should we deliver?</legend>
+
             <div className="form-row">
               <label>
                 First name
                 <input required name="firstName" />
               </label>
+
               <label>
                 Last name
                 <input required name="lastName" />
               </label>
             </div>
+
             <label>
               Phone number
               <input
@@ -179,6 +242,7 @@ export default function CheckoutPage() {
                 placeholder="01XXXXXXXXX"
               />
             </label>
+
             <label>
               Delivery address
               <textarea
@@ -190,38 +254,45 @@ export default function CheckoutPage() {
               />
             </label>
           </fieldset>
+
           <fieldset>
             <legend>Payment</legend>
+
             <label className="payment-choice">
               <input
                 type="radio"
                 name="payment"
                 value="cash_on_delivery"
                 defaultChecked
-              />{" "}
+              />
+
               <span>
                 <strong>Cash on delivery</strong>
                 <small>Pay when your order arrives</small>
               </span>
             </label>
+
             <label className="payment-choice muted">
               <input
                 type="radio"
                 name="payment"
                 value="card_or_mobile_wallet"
                 disabled
-              />{" "}
+              />
+
               <span>
                 <strong>Card or mobile wallet</strong>
                 <small>Coming soon</small>
               </span>
             </label>
           </fieldset>
+
           {error && (
             <p className="checkout-error" role="alert">
               {error}
             </p>
           )}
+
           {messages.length > 0 && (
             <ul className="checkout-error" role="alert">
               {messages.map((message, index) => (
@@ -229,6 +300,7 @@ export default function CheckoutPage() {
               ))}
             </ul>
           )}
+
           <button
             className="button button-dark submit-button"
             type="submit"
@@ -238,8 +310,10 @@ export default function CheckoutPage() {
             <span>{submitting ? "…" : "↗"}</span>
           </button>
         </form>
+
         <aside className="order-summary">
           <p className="eyebrow">Your basket</p>
+
           {cart.length === 0 ? (
             <div className="checkout-empty">
               <p>Your basket is empty.</p>
@@ -252,11 +326,14 @@ export default function CheckoutPage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={item.image || "/placeholder.png"} alt="" />
                 </div>
+
                 <div>
                   <strong>{item.title}</strong>
+
                   <small>
                     ৳{item.price} × {item.quantity}
                   </small>
+
                   <button
                     type="button"
                     className="summary-remove"
@@ -265,7 +342,9 @@ export default function CheckoutPage() {
                     Remove
                   </button>
                 </div>
+
                 <span>৳{(item.price * item.quantity).toFixed(2)}</span>
+
                 <div className="summary-quantity">
                   <button
                     type="button"
@@ -274,7 +353,9 @@ export default function CheckoutPage() {
                   >
                     −
                   </button>
+
                   <span>{item.quantity}</span>
+
                   <button
                     type="button"
                     aria-label={`Increase ${item.title} quantity`}
@@ -286,11 +367,14 @@ export default function CheckoutPage() {
               </div>
             ))
           )}
+
           <div className="summary-total">
             <span>Subtotal</span>
             <span>৳{subtotal.toFixed(2)}</span>
+
             <span>Delivery</span>
             <span>৳{cart.length ? DELIVERY_FEE : 0}</span>
+
             <strong>Total</strong>
             <strong>৳{total.toFixed(2)}</strong>
           </div>

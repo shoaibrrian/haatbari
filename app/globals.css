@@ -11562,3 +11562,43 @@ ul.checkout-error {
   background: var(--page);
   transform: translateY(-1px);
 }
+
+/* SweetAlert — HaatBari order success */
+.hb-order-success {
+  margin-top: 4px;
+}
+
+.hb-order-success-message {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.hb-order-info {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--page);
+  text-align: left;
+}
+
+.hb-order-info > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.hb-order-info span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.hb-order-info strong {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+}
