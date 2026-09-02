@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import { Hind_Siliguri, Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -35,13 +36,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${sans.variable} ${bangla.variable}`}>
       <body>
-        <Providers>
+        <ClerkProvider>
+          <Providers>
           <MotionRoot>
-            <Navbar />
-            {children}
-            <Footer />
+          <Navbar />
+          {children}
+          <Footer />
           </MotionRoot>
-        </Providers>
+          </Providers>
+        </ClerkProvider>
       </body>
     </html>
   );

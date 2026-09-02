@@ -13,6 +13,7 @@
     "db:seed": "node --env-file=.env scripts/seed.mjs"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.8.4",
     "cloudinary": "^2.11.0",
     "mongoose": "^9.9.3",
     "motion": "^13.1.1",
