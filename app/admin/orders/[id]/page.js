@@ -23,7 +23,10 @@ const STATUS_LABELS = {
 };
 
 function formatStatus(status) {
-  return STATUS_LABELS[status] || status;
+  return (
+    STATUS_LABELS[status] ||
+    status.replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase())
+  );
 }
 
 function formatDate(date) {
@@ -42,16 +45,12 @@ function formatMoney(value) {
   return `৳${Number(value || 0).toFixed(2)}`;
 }
 
-function getInitials(firstName = "", lastName = "") {
-  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-}
-
 export default function AdminOrderDetailsPage({ params }) {
   const { id } = use(params);
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [changingStatus, setChangingStatus] = useState(false);
+  const [changing, setChanging] = useState(false);
   const [error, setError] = useState("");
 
   async function loadOrder() {
@@ -70,8 +69,8 @@ export default function AdminOrderDetailsPage({ params }) {
       }
 
       setOrder(result.data);
-    } catch (loadError) {
-      setError(loadError.message || "Could not load order.");
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -86,43 +85,44 @@ export default function AdminOrderDetailsPage({ params }) {
     return ORDER_STATUS_TRANSITIONS[order.status] || [];
   }, [order]);
 
-  async function changeStatus(nextStatus) {
-    if (!order || changingStatus) return;
+  async function updateStatus(nextStatus) {
+    if (!order || changing) return;
+
+    const isCancelling = nextStatus === "cancelled";
 
     const result = await Swal.fire({
-      title: `Move order to ${formatStatus(nextStatus)}?`,
-      text:
-        nextStatus === "cancelled"
-          ? "This will cancel the order and return the ordered products to stock."
-          : `The order will move from ${formatStatus(order.status)} to ${formatStatus(nextStatus)}.`,
-      icon: nextStatus === "cancelled" ? "warning" : "question",
+      title: isCancelling
+        ? "Cancel this order?"
+        : `Mark as ${formatStatus(nextStatus)}?`,
+      text: isCancelling
+        ? "The order will be cancelled and its reserved stock will be returned."
+        : `This will move the order from ${formatStatus(order.status)} to ${formatStatus(nextStatus)}.`,
+      icon: isCancelling ? "warning" : "question",
       showCancelButton: true,
-      confirmButtonText:
-        nextStatus === "cancelled"
-          ? "Yes, cancel order"
-          : `Yes, ${formatStatus(nextStatus).toLowerCase()}`,
-      cancelButtonText: "Keep order",
+      confirmButtonText: isCancelling
+        ? "Yes, cancel order"
+        : `Yes, ${formatStatus(nextStatus)}`,
+      cancelButtonText: "Cancel",
       reverseButtons: true,
       buttonsStyling: false,
       customClass: {
         popup: "haatbari-swal-popup",
         title: "haatbari-swal-title",
         htmlContainer: "haatbari-swal-text",
-        confirmButton:
-          nextStatus === "cancelled"
-            ? "haatbari-swal-danger"
-            : "haatbari-swal-confirm",
+        confirmButton: isCancelling
+          ? "haatbari-swal-danger"
+          : "haatbari-swal-confirm",
         cancelButton: "haatbari-swal-cancel",
       },
     });
 
     if (!result.isConfirmed) return;
 
-    setChangingStatus(true);
+    setChanging(true);
     setError("");
 
     try {
-      const response = await fetch(`/api/orders/${id}`, {
+      const response = await fetch(`/api/orders/${order.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -135,51 +135,43 @@ export default function AdminOrderDetailsPage({ params }) {
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          responseData?.message || "Could not update order status.",
-        );
+        throw new Error(responseData?.message || "Could not update order.");
       }
 
       setOrder(responseData.data);
 
       await Swal.fire({
+        toast: true,
+        position: "top-end",
         icon: "success",
-        title: "Order updated",
-        text: `Order is now ${formatStatus(nextStatus)}.`,
-        confirmButtonText: "Done",
-        buttonsStyling: false,
-        customClass: {
-          popup: "haatbari-swal-popup",
-          title: "haatbari-swal-title",
-          htmlContainer: "haatbari-swal-text",
-          confirmButton: "haatbari-swal-confirm",
-        },
+        title: `Order ${formatStatus(nextStatus).toLowerCase()}`,
+        showConfirmButton: false,
+        timer: 1800,
+        timerProgressBar: true,
       });
-    } catch (statusError) {
-      setError(statusError.message || "Could not update order status.");
-
+    } catch (err) {
       await Swal.fire({
+        toast: true,
+        position: "top-end",
         icon: "error",
-        title: "Something went wrong",
-        text: statusError.message || "Could not update order status.",
-        confirmButtonText: "Close",
-        buttonsStyling: false,
-        customClass: {
-          popup: "haatbari-swal-popup",
-          title: "haatbari-swal-title",
-          htmlContainer: "haatbari-swal-text",
-          confirmButton: "haatbari-swal-confirm",
-        },
+        title: "Could not update order",
+        text: err.message || "Something went wrong.",
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
       });
+
+      setError(err.message || "Could not update order.");
     } finally {
-      setChangingStatus(false);
+      setChanging(false);
     }
   }
 
   if (loading) {
     return (
       <main className="admin-page page-width">
-        <div className="admin-empty">
+        <div className="admin-detail-loading">
+          <div className="admin-orders-loader" />
           <p>Loading order...</p>
         </div>
       </main>
@@ -193,8 +185,18 @@ export default function AdminOrderDetailsPage({ params }) {
           ← Orders
         </Link>
 
-        <div className="admin-error" role="alert">
-          {error}
+        <div className="admin-empty admin-order-error-state">
+          <p className="eyebrow">Unable to load</p>
+          <h2>Order not found.</h2>
+          <p>{error}</p>
+
+          <button
+            type="button"
+            className="admin-primary-button"
+            onClick={loadOrder}
+          >
+            Try again
+          </button>
         </div>
       </main>
     );
@@ -202,12 +204,9 @@ export default function AdminOrderDetailsPage({ params }) {
 
   if (!order) return null;
 
-  const customerName =
-    `${order.customer.firstName} ${order.customer.lastName}`.trim();
-
   return (
     <main className="admin-page page-width">
-      <header className="admin-page-header admin-order-detail-header">
+      <header className="admin-order-detail-header">
         <div>
           <Link href="/admin/orders" className="admin-back">
             ← Orders
@@ -241,7 +240,7 @@ export default function AdminOrderDetailsPage({ params }) {
 
       <section className="admin-order-detail-grid">
         <div className="admin-order-main">
-          <section className="admin-detail-card">
+          <div className="admin-detail-card">
             <div className="admin-detail-card-head">
               <div>
                 <p className="eyebrow">Items</p>
@@ -254,7 +253,7 @@ export default function AdminOrderDetailsPage({ params }) {
 
             <div className="admin-order-items">
               {order.items.map((item) => (
-                <div className="admin-order-item" key={item.productId}>
+                <article className="admin-order-item" key={item.productId}>
                   <div className="admin-order-item-image">
                     {item.image ? (
                       <img src={item.image} alt={item.title} />
@@ -274,7 +273,7 @@ export default function AdminOrderDetailsPage({ params }) {
                   <strong className="admin-order-item-total">
                     {formatMoney(item.lineTotal)}
                   </strong>
-                </div>
+                </article>
               ))}
             </div>
 
@@ -289,14 +288,61 @@ export default function AdminOrderDetailsPage({ params }) {
                 <strong>{formatMoney(order.deliveryFee)}</strong>
               </div>
 
-              <div className="admin-order-grand-total">
+              <div className="admin-order-summary-total">
                 <span>Total</span>
                 <strong>{formatMoney(order.total)}</strong>
               </div>
             </div>
-          </section>
+          </div>
 
-          <section className="admin-detail-card">
+          <div className="admin-detail-card">
+            <div className="admin-detail-card-head">
+              <div>
+                <p className="eyebrow">Customer</p>
+                <h2>Delivery information</h2>
+              </div>
+            </div>
+
+            <div className="admin-customer-profile">
+              <div className="admin-customer-avatar">
+                {order.customer.firstName?.charAt(0)}
+                {order.customer.lastName?.charAt(0)}
+              </div>
+
+              <div className="admin-customer-profile-info">
+                <strong>
+                  {order.customer.firstName} {order.customer.lastName}
+                </strong>
+
+                <span>{order.customer.phone}</span>
+              </div>
+            </div>
+
+            <div className="admin-detail-info">
+              <div>
+                <span>Phone</span>
+                <strong>{order.customer.phone}</strong>
+              </div>
+
+              <div>
+                <span>Delivery address</span>
+                <strong>{order.customer.address}</strong>
+              </div>
+
+              <div>
+                <span>Payment method</span>
+                <strong>
+                  {order.paymentMethod === "cash_on_delivery"
+                    ? "Cash on delivery"
+                    : order.paymentMethod}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside className="admin-order-sidebar">
+          <div className="admin-detail-card">
             <div className="admin-detail-card-head">
               <div>
                 <p className="eyebrow">Fulfilment</p>
@@ -305,28 +351,16 @@ export default function AdminOrderDetailsPage({ params }) {
             </div>
 
             <div className="admin-order-status-current">
-              <div>
-                <span className="admin-detail-label">Current status</span>
+              <span>Current status</span>
 
-                <span className={`order-status status-${order.status}`}>
-                  {formatStatus(order.status)}
-                </span>
-              </div>
-
-              <div>
-                <span className="admin-detail-label">Payment</span>
-
-                <strong>
-                  {order.paymentMethod === "cash_on_delivery"
-                    ? "Cash on delivery"
-                    : order.paymentMethod}
-                </strong>
-              </div>
+              <strong className={`order-status status-${order.status}`}>
+                {formatStatus(order.status)}
+              </strong>
             </div>
 
             {nextStatuses.length > 0 ? (
               <div className="admin-status-actions">
-                <span className="admin-detail-label">Move order to</span>
+                <p>Move order to</p>
 
                 <div className="admin-status-buttons">
                   {nextStatuses.map((nextStatus) => (
@@ -335,86 +369,47 @@ export default function AdminOrderDetailsPage({ params }) {
                       type="button"
                       className={
                         nextStatus === "cancelled"
-                          ? "admin-order-status-danger"
+                          ? "admin-order-status-button admin-order-status-danger"
                           : "admin-order-status-button"
                       }
-                      onClick={() => changeStatus(nextStatus)}
-                      disabled={changingStatus}
+                      onClick={() => updateStatus(nextStatus)}
+                      disabled={changing}
                     >
-                      {changingStatus
-                        ? "Updating..."
-                        : formatStatus(nextStatus)}
+                      {changing ? "Updating..." : formatStatus(nextStatus)}
                     </button>
                   ))}
                 </div>
               </div>
             ) : (
               <div className="admin-order-terminal">
-                This order is in a final status and cannot be changed.
+                <span>This order is in a final status.</span>
               </div>
             )}
-          </section>
-        </div>
+          </div>
 
-        <aside className="admin-order-sidebar">
-          <section className="admin-detail-card">
-            <div className="admin-detail-card-head">
-              <div>
-                <p className="eyebrow">Customer</p>
-                <h2>Customer details</h2>
-              </div>
+          <div className="admin-detail-card admin-order-meta-card">
+            <p className="eyebrow">Summary</p>
+
+            <div className="admin-meta-row">
+              <span>Order ID</span>
+              <strong>#{order.id.slice(-8).toUpperCase()}</strong>
             </div>
 
-            <div className="admin-customer-profile">
-              <div className="admin-customer-avatar">
-                {getInitials(order.customer.firstName, order.customer.lastName)}
-              </div>
-
-              <div>
-                <strong>{customerName}</strong>
-                <span>{order.customer.phone}</span>
-              </div>
+            <div className="admin-meta-row">
+              <span>Items</span>
+              <strong>{order.items.length}</strong>
             </div>
 
-            <div className="admin-detail-info">
-              <div>
-                <span className="admin-detail-label">Phone</span>
-                <strong>{order.customer.phone}</strong>
-              </div>
-
-              <div>
-                <span className="admin-detail-label">Delivery address</span>
-                <strong>{order.customer.address}</strong>
-              </div>
-            </div>
-          </section>
-
-          <section className="admin-detail-card">
-            <div className="admin-detail-card-head">
-              <div>
-                <p className="eyebrow">Payment</p>
-                <h2>Payment details</h2>
-              </div>
+            <div className="admin-meta-row">
+              <span>Payment</span>
+              <strong>COD</strong>
             </div>
 
-            <div className="admin-detail-info">
-              <div>
-                <span className="admin-detail-label">Method</span>
-
-                <strong>
-                  {order.paymentMethod === "cash_on_delivery"
-                    ? "Cash on delivery"
-                    : order.paymentMethod}
-                </strong>
-              </div>
-
-              <div>
-                <span className="admin-detail-label">Amount</span>
-
-                <strong>{formatMoney(order.total)}</strong>
-              </div>
+            <div className="admin-meta-row">
+              <span>Placed</span>
+              <strong>{formatDate(order.createdAt)}</strong>
             </div>
-          </section>
+          </div>
         </aside>
       </section>
     </main>
