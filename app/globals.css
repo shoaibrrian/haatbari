@@ -9649,3 +9649,33 @@ ul.checkout-error {
     transform: translateY(0);
   }
 }
+
+.account-dropdown-action {
+  display: block;
+  width: 100%;
+
+  padding: 11px 13px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: transparent;
+  color: var(--danger);
+
+  text-align: left;
+
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s var(--e),
+    color 0.2s var(--e);
+}
+
+.account-dropdown-action:hover {
+  background: var(--danger-tint);
+  color: var(--danger);
+}

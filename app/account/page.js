@@ -63,20 +63,20 @@ export default function AccountPage() {
           </div>
 
           <div className="account-form clerk-account-form">
-  {!isLoaded ? (
-    <div className="account-loading">
-      <div className="account-loading-line account-loading-title" />
-      <div className="account-loading-line" />
-      <div className="account-loading-line account-loading-short" />
+            {!isLoaded ? (
+              <div className="account-loading">
+                <div className="account-loading-line account-loading-title" />
+                <div className="account-loading-line" />
+                <div className="account-loading-line account-loading-short" />
 
-      <div className="account-loading-button" />
-      <div className="account-loading-divider" />
+                <div className="account-loading-button" />
+                <div className="account-loading-divider" />
 
-      <div className="account-loading-input" />
-      <div className="account-loading-input" />
-      <div className="account-loading-button" />
-    </div>
-  ) : mode === "login" ? (
+                <div className="account-loading-input" />
+                <div className="account-loading-input" />
+                <div className="account-loading-button" />
+              </div>
+            ) : mode === "login" ? (
               <>
                 <div>
                   <p className="eyebrow">Welcome back</p>
@@ -87,7 +87,8 @@ export default function AccountPage() {
                 </div>
 
                 <SignIn
-                  routing="hash"
+                  key="haatbari-sign-in"
+                  routing="virtual"
                   appearance={{
                     layout: {
                       socialButtonsPlacement: "top",
@@ -135,7 +136,8 @@ export default function AccountPage() {
                 </div>
 
                 <SignUp
-                  routing="hash"
+                  key="haatbari-sign-up"
+                  routing="virtual"
                   appearance={{
                     layout: {
                       socialButtonsPlacement: "top",

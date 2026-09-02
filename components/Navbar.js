@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { cartCount, readCart } from "@/lib/cart";
 import { wishlistCount } from "@/lib/wishlist";
+import { useUser, useClerk } from "@clerk/nextjs";
 
 const CATEGORIES = [
   {
@@ -41,6 +42,8 @@ const CATEGORIES = [
 ];
 
 export default function Navbar() {
+  const { isLoaded, isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
   const [count, setCount] = useState(0);
   const [wishCount, setWishCount] = useState(0);
   const [stuck, setStuck] = useState(false);
@@ -296,10 +299,23 @@ export default function Navbar() {
                 </svg>
               </Link>
 
-              <div className="account-dropdown">
-                <Link href="/account">Sign in</Link>
-                <Link href="/account?mode=register">Create account</Link>
-              </div>
+              {isLoaded && isSignedIn ? (
+                <div className="account-dropdown">
+                  <Link href="/account">My Account</Link>
+                  <Link href="/account">Customer Dashboard</Link>
+                  <Link href="/orders">My Orders</Link>
+                  <Link href="/wishlist">Wishlist</Link>
+                  <Link href="/cart">Cart</Link>
+
+                  <button
+                    type="button"
+                    className="account-dropdown-action"
+                    onClick={() => signOut({ redirectUrl: "/" })}
+                  >
+                    Sign out
+                  </button>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
