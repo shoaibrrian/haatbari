@@ -2,15 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Swal from "sweetalert2";
 
 const STATUSES = [
   "all",
   "pending",
   "confirmed",
+  "processing",
   "shipped",
   "delivered",
   "cancelled",
 ];
+
+const STATUS_LABELS = {
+  pending: "Pending",
+  confirmed: "Confirmed",
+  processing: "Processing",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
+};
 
 function formatDate(date) {
   if (!date) return "—";
@@ -23,9 +34,14 @@ function formatDate(date) {
 }
 
 function formatStatus(status) {
-  return status
-    .replaceAll("_", " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+  return (
+    STATUS_LABELS[status] ||
+    status.replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase())
+  );
+}
+
+function formatMoney(value) {
+  return `৳${Number(value || 0).toFixed(2)}`;
 }
 
 export default function AdminOrdersPage() {
@@ -49,7 +65,7 @@ export default function AdminOrdersPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Failed to load orders.");
+        throw new Error(result?.message || "Failed to load orders.");
       }
 
       setOrders(result.data?.items || []);
@@ -64,34 +80,18 @@ export default function AdminOrdersPage() {
     loadOrders();
   }, [status]);
 
-  async function updateStatus(orderId, nextStatus) {
-    try {
-      const response = await fetch(`/api/orders/${orderId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status: nextStatus,
-        }),
-      });
+  async function handleRefresh() {
+    await loadOrders();
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Could not update order.");
-      }
-
-      setOrders((current) =>
-        current.map((order) =>
-          order.id === orderId
-            ? { ...order, status: result.data.status }
-            : order,
-        ),
-      );
-    } catch (err) {
-      setError(err.message || "Could not update order.");
-    }
+    await Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: "Orders refreshed",
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    });
   }
 
   return (
@@ -124,6 +124,7 @@ export default function AdminOrdersPage() {
               type="button"
               className={status === item ? "active" : ""}
               onClick={() => setStatus(item)}
+              disabled={loading && status === item}
             >
               {item === "all" ? "All orders" : formatStatus(item)}
             </button>
@@ -133,7 +134,7 @@ export default function AdminOrdersPage() {
         <button
           type="button"
           className="admin-refresh"
-          onClick={loadOrders}
+          onClick={handleRefresh}
           disabled={loading}
         >
           {loading ? "Loading..." : "Refresh ↻"}
@@ -147,12 +148,32 @@ export default function AdminOrdersPage() {
       )}
 
       <section className="admin-orders">
+        <div className="admin-orders-topline">
+          <div>
+            <p className="eyebrow">Order queue</p>
+            <h2>
+              {loading
+                ? "Loading orders..."
+                : `${orders.length} ${
+                    orders.length === 1 ? "order" : "orders"
+                  }`}
+            </h2>
+          </div>
+
+          {!loading && orders.length > 0 && (
+            <span className="admin-orders-count">
+              {status === "all" ? "All statuses" : formatStatus(status)}
+            </span>
+          )}
+        </div>
+
         {loading ? (
-          <div className="admin-empty">
+          <div className="admin-empty admin-orders-empty">
+            <div className="admin-orders-loader" />
             <p>Loading orders...</p>
           </div>
         ) : orders.length === 0 ? (
-          <div className="admin-empty">
+          <div className="admin-empty admin-orders-empty">
             <p className="eyebrow">Nothing here yet</p>
             <h2>No orders found.</h2>
             <p>
@@ -161,14 +182,14 @@ export default function AdminOrdersPage() {
             </p>
           </div>
         ) : (
-          <>
+          <div className="admin-orders-list">
             <div className="admin-orders-head">
               <span>Order</span>
               <span>Customer</span>
               <span>Date</span>
               <span>Total</span>
               <span>Status</span>
-              <span>Action</span>
+              <span />
             </div>
 
             {orders.map((order) => (
@@ -190,7 +211,7 @@ export default function AdminOrdersPage() {
                 </div>
 
                 <div className="admin-order-total">
-                  <strong>৳{Number(order.total).toFixed(2)}</strong>
+                  <strong>{formatMoney(order.total)}</strong>
                   <span>
                     {order.items.length}{" "}
                     {order.items.length === 1 ? "item" : "items"}
@@ -205,12 +226,13 @@ export default function AdminOrdersPage() {
 
                 <div className="admin-order-action">
                   <Link href={`/admin/orders/${order.id}`}>
-                    View order →
+                    View order
+                    <span>→</span>
                   </Link>
                 </div>
               </article>
             ))}
-          </>
+          </div>
         )}
       </section>
     </main>
