@@ -117,6 +117,22 @@ export async function getProduct(rawIdentifier) {
   return toPublicProduct(product);
 }
 
+export async function getProductAdmin(rawIdentifier) {
+  const identifier = productIdentifierSchema.parse(rawIdentifier);
+
+  let product = isObjectId(identifier)
+    ? await repository.findProductById(identifier)
+    : null;
+
+  product ??= await repository.findProductBySlug(identifier);
+
+  if (!product) {
+    throw new NotFoundError("Product");
+  }
+
+  return toAdminProduct(product);
+}
+
 function validateCategorySubcategory(category, subcategory) {
   const allowed = getSubcategories(category);
 

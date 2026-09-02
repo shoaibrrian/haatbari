@@ -104,7 +104,7 @@ export default function EditProductPage({ params }) {
 
     async function loadProduct() {
       try {
-        const response = await fetch(`/api/products/${id}`, {
+        const response = await fetch(`/api/admin/products/${id}`, {
           cache: "no-store",
         });
 
