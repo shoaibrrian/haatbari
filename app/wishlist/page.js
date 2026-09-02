@@ -5,8 +5,13 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { EASE, rise } from "@/components/Motion";
 import { addToCart } from "@/lib/cart";
-import { readWishlist, toggleWishlist } from "@/lib/wishlist";
 import { getProducts } from "@/lib/products-cache";
+import {
+  getWishlist,
+  removeFromWishlist as removeWishlistItem,
+} from "@/lib/wishlist";
+
+import { useAuth } from "@clerk/nextjs";
 
 const AMBIENTS = [
   "var(--amb-3)",
@@ -23,24 +28,33 @@ function taka(value) {
 }
 
 export default function WishlistPage() {
+  const { isLoaded, isSignedIn } = useAuth();
   const [products, setProducts] = useState([]);
   const [saved, setSaved] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addedId, setAddedId] = useState(null);
 
   useEffect(() => {
-    setSaved(readWishlist());
+    if (!isLoaded) return;
 
-    const updateWishlist = () => {
-      setSaved(readWishlist());
-    };
+    async function loadWishlist() {
+      if (!isSignedIn) {
+        setSaved([]);
+        return;
+      }
 
-    window.addEventListener("wishlist-updated", updateWishlist);
+      try {
+        const wishlist = await getWishlist();
 
-    return () => {
-      window.removeEventListener("wishlist-updated", updateWishlist);
-    };
-  }, []);
+        setSaved(wishlist.items?.map((item) => String(item.productId)) || []);
+      } catch (error) {
+        console.error("Wishlist load error:", error);
+        setSaved([]);
+      }
+    }
+
+    loadWishlist();
+  }, [isLoaded, isSignedIn]);
 
   useEffect(() => {
     let active = true;
@@ -72,9 +86,16 @@ export default function WishlistPage() {
     return products.filter((product) => saved.includes(product.id));
   }, [products, saved]);
 
-  const removeFromWishlist = (id) => {
-    const updated = toggleWishlist(id);
-    setSaved(updated);
+  const removeFromWishlist = async (id) => {
+    try {
+      await removeWishlistItem(id);
+
+      setSaved((current) => current.filter((item) => item !== id));
+
+      window.dispatchEvent(new Event("wishlist-updated"));
+    } catch (error) {
+      console.error("Wishlist remove error:", error);
+    }
   };
 
   const add = (product) => {

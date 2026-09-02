@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { cartCount, readCart } from "@/lib/cart";
-import { wishlistCount } from "@/lib/wishlist";
+import { getWishlist } from "@/lib/wishlist";
 import { useUser, useClerk } from "@clerk/nextjs";
+import Swal from "sweetalert2";
 
 const CATEGORIES = [
   {
@@ -50,12 +51,26 @@ export default function Navbar() {
   const [categoryOpen, setCategoryOpen] = useState(false);
 
   useEffect(() => {
-    const updateCounts = () => {
+    const updateCounts = async () => {
       setCount(cartCount(readCart()));
-      setWishCount(wishlistCount());
+
+      if (!isSignedIn) {
+        setWishCount(0);
+        return;
+      }
+
+      try {
+        const wishlist = await getWishlist();
+        setWishCount(wishlist.count || 0);
+      } catch (error) {
+        console.error("Wishlist count error:", error);
+        setWishCount(0);
+      }
     };
 
-    updateCounts();
+    if (isLoaded) {
+      updateCounts();
+    }
 
     window.addEventListener("cart-updated", updateCounts);
     window.addEventListener("wishlist-updated", updateCounts);
@@ -64,7 +79,7 @@ export default function Navbar() {
       window.removeEventListener("cart-updated", updateCounts);
       window.removeEventListener("wishlist-updated", updateCounts);
     };
-  }, []);
+  }, [isLoaded, isSignedIn]);
 
   useEffect(() => {
     const onScroll = () => setStuck(window.scrollY > 30);
@@ -261,14 +276,34 @@ export default function Navbar() {
                 />
               </svg>
             </Link>
-            <Link
+            <button
+              type="button"
               className="icon-btn wishlist-btn"
-              href="/wishlist"
               aria-label={`Wishlist ${wishCount} items`}
+              onClick={async () => {
+                if (!isSignedIn) {
+                  const result = await Swal.fire({
+                    title: "Sign in required",
+                    text: "Please sign in to view your wishlist.",
+                    icon: "info",
+                    confirmButtonText: "Sign in",
+                    showCancelButton: true,
+                    cancelButtonText: "Cancel",
+                  });
+
+                  if (result.isConfirmed) {
+                    window.location.href = "/account";
+                  }
+
+                  return;
+                }
+
+                window.location.href = "/wishlist";
+              }}
             >
               Wishlist
               {wishCount > 0 && <i>{wishCount}</i>}
-            </Link>
+            </button>
             <Link className="icon-btn cart-btn" href="/cart">
               Cart <i>{count}</i>
             </Link>

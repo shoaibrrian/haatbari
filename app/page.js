@@ -7,6 +7,11 @@ import { EASE, rise } from "@/components/Motion";
 import { addToCart } from "@/lib/cart";
 import { getProducts } from "@/lib/products-cache";
 import { apiFetch } from "@/lib/api-client";
+import { useAuth } from "@clerk/nextjs";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
+
+import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/wishlist";
 
 const MotionLink = motion.create(Link);
 
@@ -91,6 +96,8 @@ function Fact({ to, pre = "", post = "", label }) {
 }
 
 export default function Home() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const router = useRouter();
   const [products, setProducts] = useState([]);
   const [results, setResults] = useState(null);
   const [searchMeta, setSearchMeta] = useState(null);
@@ -103,6 +110,28 @@ export default function Home() {
   const [addedId, setAddedId] = useState(null);
   const [saved, setSaved] = useState([]);
   const [reviewIndex, setReviewIndex] = useState(0);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    async function loadWishlist() {
+      if (!isSignedIn) {
+        setSaved([]);
+        return;
+      }
+
+      try {
+        const wishlist = await getWishlist();
+
+        setSaved(wishlist.items?.map((item) => String(item.productId)) || []);
+      } catch (error) {
+        console.error("Wishlist load error:", error);
+        setSaved([]);
+      }
+    }
+
+    loadWishlist();
+  }, [isLoaded, isSignedIn]);
 
   const inFlight = useRef(null);
   const rail = useRef(null);
@@ -192,10 +221,50 @@ export default function Home() {
     );
   };
 
-  const toggleSave = (id) => {
-    setSaved((list) =>
-      list.includes(id) ? list.filter((x) => x !== id) : [...list, id],
-    );
+  const toggleSave = async (id) => {
+    if (!isLoaded) return;
+
+    if (!isSignedIn) {
+      const result = await Swal.fire({
+        title: "Sign in required",
+        text: "Please sign in to save products to your wishlist.",
+        icon: "info",
+        confirmButtonText: "Sign in",
+        showCancelButton: true,
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        router.push("/account");
+      }
+
+      return;
+    }
+
+    const alreadySaved = saved.includes(id);
+
+    try {
+      if (alreadySaved) {
+        await removeFromWishlist(id);
+
+        setSaved((current) => current.filter((item) => item !== id));
+      } else {
+        await addToWishlist(id);
+
+        setSaved((current) => [...current, id]);
+      }
+
+      window.dispatchEvent(new Event("wishlist-updated"));
+    } catch (error) {
+      console.error("Wishlist error:", error);
+
+      await Swal.fire({
+        title: "Something went wrong",
+        text: "We couldn't update your wishlist.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
   const scrollRail = (direction) => {

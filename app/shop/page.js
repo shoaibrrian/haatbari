@@ -7,7 +7,10 @@ import { EASE, rise } from "@/components/Motion";
 import { addToCart } from "@/lib/cart";
 import { getProducts } from "@/lib/products-cache";
 import { apiFetch } from "@/lib/api-client";
-import { readWishlist, toggleWishlist } from "@/lib/wishlist";
+import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/wishlist";
+import { useAuth } from "@clerk/nextjs";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 const AMBIENTS = [
   "var(--amb-3)",
@@ -55,6 +58,9 @@ function isSaleProduct(product) {
 }
 
 export default function ShopPage() {
+  const { isLoaded, isSignedIn } = useAuth();
+
+  const router = useRouter();
   const [products, setProducts] = useState([]);
   const [results, setResults] = useState(null);
   const [searchMeta, setSearchMeta] = useState(null);
@@ -79,18 +85,26 @@ export default function ShopPage() {
   const [quickView, setQuickView] = useState(null);
 
   useEffect(() => {
-    const updateWishlist = () => {
-      setSaved(readWishlist());
-    };
+    if (!isLoaded) return;
 
-    updateWishlist();
+    async function loadWishlist() {
+      if (!isSignedIn) {
+        setSaved([]);
+        return;
+      }
 
-    window.addEventListener("wishlist-updated", updateWishlist);
+      try {
+        const wishlist = await getWishlist();
 
-    return () => {
-      window.removeEventListener("wishlist-updated", updateWishlist);
-    };
-  }, []);
+        setSaved(wishlist.items?.map((item) => String(item.productId)) || []);
+      } catch (error) {
+        console.error("Wishlist load error:", error);
+        setSaved([]);
+      }
+    }
+
+    loadWishlist();
+  }, [isLoaded, isSignedIn]);
 
   const [filterOpen, setFilterOpen] = useState(false);
 
@@ -445,9 +459,55 @@ export default function ShopPage() {
      WISHLIST
   --------------------------------- */
 
-  const toggleSave = (id) => {
-    const updated = toggleWishlist(id);
-    setSaved(updated);
+  const toggleSave = async (id) => {
+    console.log("WISHLIST PRODUCT ID:", id);
+
+    if (!id) {
+      console.error("Product ID missing");
+      return;
+    }
+
+    if (!isLoaded) return;
+
+    if (!isSignedIn) {
+      const result = await Swal.fire({
+        title: "Sign in required",
+        text: "Please sign in to save products to your wishlist.",
+        icon: "info",
+        confirmButtonText: "Sign in",
+        showCancelButton: true,
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        router.push("/account");
+      }
+
+      return;
+    }
+
+    const alreadySaved = saved.includes(id);
+
+    try {
+      if (alreadySaved) {
+        await removeFromWishlist(id);
+        setSaved((current) => current.filter((item) => item !== id));
+      } else {
+        await addToWishlist(id);
+        setSaved((current) => [...current, id]);
+      }
+
+      window.dispatchEvent(new Event("wishlist-updated"));
+    } catch (error) {
+      console.error("Wishlist error:", error);
+
+      await Swal.fire({
+        title: "Something went wrong",
+        text: "We couldn't update your wishlist.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
   /* ---------------------------------
@@ -517,10 +577,10 @@ export default function ShopPage() {
             type="button"
             className="save"
             aria-label={`Save ${product.title}`}
-            aria-pressed={saved.includes(product.id)}
-            onClick={() => toggleSave(product.id)}
+            aria-pressed={saved.includes(String(product.id || product._id))}
+            onClick={() => toggleSave(String(product.id || product._id))}
           >
-            {saved.includes(product.id) ? "♥" : "♡"}
+            {saved.includes(String(product.id || product._id)) ? "♥" : "♡"}
           </button>
 
           <button

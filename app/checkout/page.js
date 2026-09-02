@@ -108,7 +108,7 @@ export default function CheckoutPage() {
 
       writeCart([]);
       setCart([]);
-      setPlacedOrder(data);
+      setPlacedOrder(data.data);
     } catch (submitError) {
       const detailed = extractMessages(submitError);
       setMessages(detailed);
