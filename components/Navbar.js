@@ -283,7 +283,7 @@ export default function Navbar() {
                 aria-label="Account"
               >
                 {isLoaded && isSignedIn && user ? (
-                  user.imageUrl ? (
+                  user.hasImage ? (
                     <img
                       src={user.imageUrl}
                       alt={user.fullName || "Account"}
@@ -291,7 +291,13 @@ export default function Navbar() {
                     />
                   ) : (
                     <span className="navbar-avatar navbar-avatar-fallback">
-                      {(user.firstName || user.fullName || "U")
+                      {(
+                        user.fullName ||
+                        user.firstName ||
+                        user.primaryEmailAddress?.emailAddress ||
+                        "Customer"
+                      )
+                        .trim()
                         .charAt(0)
                         .toUpperCase()}
                     </span>

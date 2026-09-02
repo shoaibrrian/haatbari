@@ -9680,22 +9680,53 @@ ul.checkout-error {
   color: var(--danger);
 }
 
+.navbar-avatar,
+.navbar-avatar-fallback {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  max-width: 34px !important;
+  max-height: 34px !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 50% !important;
+  box-sizing: border-box;
+}
+
 .navbar-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  object-fit: cover;
   display: block;
+  object-fit: cover;
 }
 
 .navbar-avatar-fallback {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--ink);
-  color: #fff;
+  background: var(--ink) !important;
+  color: #fff !important;
   font-size: 12px;
   font-weight: 800;
+  line-height: 1;
+}
+
+.account-btn:has(.navbar-avatar) {
+  padding: 0 !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  overflow: hidden;
+}
+
+.account-btn:has(.navbar-avatar) .navbar-avatar,
+.account-btn:has(.navbar-avatar) .navbar-avatar-fallback {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  border-radius: 50% !important;
 }
 
 .account-dropdown-user {
