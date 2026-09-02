@@ -337,7 +337,7 @@ export default function Navbar() {
 
                   <div className="account-dropdown-divider" />
 
-                  <Link href="/account">My Account</Link>
+                  <Link href="/account/profile">My Account</Link>
                   <Link href="/customer/dashboard">Customer Dashboard</Link>
                   <Link href="/orders">My Orders</Link>
                   <Link href="/wishlist">Wishlist</Link>
