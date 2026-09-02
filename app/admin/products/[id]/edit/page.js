@@ -4,6 +4,7 @@ import Link from "next/link";
 import { use, useEffect, useMemo, useState } from "react";
 import { CATEGORIES, getSubcategories } from "@/lib/categories";
 import { clearProductCache } from "@/lib/products-cache";
+import Swal from "sweetalert2";
 
 function AdminDropdown({ value, options, onChange, placeholder }) {
   const [open, setOpen] = useState(false);
@@ -83,6 +84,7 @@ export default function EditProductPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [statusChanging, setStatusChanging] = useState(false);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -223,6 +225,97 @@ export default function EditProductPage({ params }) {
 
     if (!allowed.includes(subcategory)) {
       setSubcategory("");
+    }
+  }
+
+  async function handleStatusChange() {
+    const nextActive = !isActive;
+
+    const result = await Swal.fire({
+      title: nextActive ? "Activate this product?" : "Deactivate this product?",
+      text: nextActive
+        ? `"${title}" will become visible to customers again.`
+        : `"${title}" will be hidden from the storefront.`,
+      icon: nextActive ? "question" : "warning",
+      showCancelButton: true,
+      confirmButtonText: nextActive ? "Yes, activate" : "Yes, deactivate",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      buttonsStyling: false,
+      customClass: {
+        popup: "haatbari-swal-popup",
+        title: "haatbari-swal-title",
+        htmlContainer: "haatbari-swal-text",
+        confirmButton: nextActive
+          ? "haatbari-swal-confirm"
+          : "haatbari-swal-danger",
+        cancelButton: "haatbari-swal-cancel",
+      },
+    });
+
+    if (!result.isConfirmed) return;
+
+    setStatusChanging(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch(`/api/admin/products/${id}`, {
+        method: nextActive ? "PUT" : "DELETE",
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          responseData?.message ||
+            (nextActive
+              ? "Could not activate product."
+              : "Could not deactivate product."),
+        );
+      }
+
+      setIsActive(nextActive);
+      clearProductCache();
+
+      await Swal.fire({
+        icon: "success",
+        title: nextActive ? "Product activated" : "Product deactivated",
+        text: nextActive
+          ? "The product is now visible to customers."
+          : "The product has been hidden from the storefront.",
+        confirmButtonText: "Done",
+        buttonsStyling: false,
+        customClass: {
+          popup: "haatbari-swal-popup",
+          title: "haatbari-swal-title",
+          htmlContainer: "haatbari-swal-text",
+          confirmButton: "haatbari-swal-confirm",
+        },
+      });
+    } catch (statusError) {
+      setError(
+        statusError.message ||
+          (nextActive
+            ? "Could not activate product."
+            : "Could not deactivate product."),
+      );
+
+      await Swal.fire({
+        icon: "error",
+        title: "Something went wrong",
+        text: statusError.message || "Could not change product status.",
+        confirmButtonText: "Close",
+        buttonsStyling: false,
+        customClass: {
+          popup: "haatbari-swal-popup",
+          title: "haatbari-swal-title",
+          htmlContainer: "haatbari-swal-text",
+          confirmButton: "haatbari-swal-confirm",
+        },
+      });
+    } finally {
+      setStatusChanging(false);
     }
   }
 
@@ -576,6 +669,7 @@ export default function EditProductPage({ params }) {
               type="checkbox"
               checked={isActive}
               onChange={(event) => setIsActive(event.target.checked)}
+              disabled={statusChanging}
             />
 
             <span className="admin-toggle-ui">
@@ -596,6 +690,40 @@ export default function EditProductPage({ params }) {
           </label>
         </section>
 
+        {/* DANGER ZONE */}
+        <section className="admin-danger-zone">
+          <div className="admin-danger-content">
+            <span className="kicker">06 · Danger zone</span>
+
+            <h2>
+              {isActive ? "Deactivate this product" : "Activate this product"}
+            </h2>
+
+            <p>
+              {isActive
+                ? "Deactivating will hide this product from the storefront. The product and its data will remain in your catalogue and can be activated again later."
+                : "Activating will make this product visible to customers on the storefront again."}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className={
+              isActive ? "admin-danger-button" : "admin-activate-button"
+            }
+            onClick={handleStatusChange}
+            disabled={statusChanging || saving || uploading}
+          >
+            {statusChanging
+              ? isActive
+                ? "Deactivating..."
+                : "Activating..."
+              : isActive
+                ? "Deactivate product"
+                : "Activate product"}
+          </button>
+        </section>
+
         {/* ACTIONS */}
         <div className="admin-form-actions">
           <Link href="/admin/products" className="button button-light">
@@ -605,7 +733,7 @@ export default function EditProductPage({ params }) {
           <button
             type="submit"
             className="button button-dark"
-            disabled={saving || uploading}
+            disabled={saving || uploading || statusChanging}
           >
             {saving ? "Saving..." : "Save changes"}
 

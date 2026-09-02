@@ -7273,3 +7273,151 @@ ul.checkout-error {
     padding: 15px;
   }
 }
+
+.admin-danger-zone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: 24px;
+  padding: 28px 30px;
+  border: 1px solid rgba(192, 51, 43, 0.24);
+  border-radius: var(--r);
+  background: var(--danger-tint);
+}
+
+.admin-danger-content {
+  min-width: 0;
+}
+
+.admin-danger-content .kicker {
+  color: var(--danger);
+}
+
+.admin-danger-content h2 {
+  margin: 8px 0 7px;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+
+.admin-danger-content p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.admin-danger-button,
+.admin-activate-button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 180ms var(--e),
+    background 180ms var(--e),
+    border-color 180ms var(--e),
+    opacity 180ms var(--e);
+}
+
+.admin-danger-button {
+  color: #fff;
+  background: var(--danger);
+}
+
+.admin-danger-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+
+.admin-activate-button {
+  color: var(--ink);
+  background: var(--card);
+  border-color: var(--line);
+}
+
+.admin-activate-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: var(--ink);
+}
+
+.admin-danger-button:disabled,
+.admin-activate-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-width: 700px) {
+  .admin-danger-zone {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+  }
+
+  .admin-danger-button,
+  .admin-activate-button {
+    width: 100%;
+  }
+}
+
+.haatbari-swal-popup {
+  border-radius: 22px !important;
+  padding: 28px !important;
+  font-family: inherit !important;
+}
+
+.haatbari-swal-title {
+  color: var(--ink) !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.haatbari-swal-text {
+  color: var(--muted) !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+.haatbari-swal-confirm,
+.haatbari-swal-danger,
+.haatbari-swal-cancel {
+  border: 0 !important;
+  border-radius: 999px !important;
+  padding: 11px 18px !important;
+  margin: 0 5px !important;
+  font: inherit !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
+
+.haatbari-swal-confirm {
+  background: var(--cobalt) !important;
+  color: #fff !important;
+}
+
+.haatbari-swal-danger {
+  background: var(--danger) !important;
+  color: #fff !important;
+}
+
+.haatbari-swal-cancel {
+  background: var(--page-2) !important;
+  color: var(--ink) !important;
+}
+
+.haatbari-swal-confirm:hover,
+.haatbari-swal-danger:hover,
+.haatbari-swal-cancel:hover {
+  opacity: 0.9;
+}
