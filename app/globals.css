@@ -4666,23 +4666,19 @@ ul.checkout-error {
   position: absolute;
   top: calc(100% + 12px);
   right: 0;
-  width: 210px;
+  width: 230px;
   padding: 8px;
-
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 16px;
   box-shadow: var(--sh-m);
-
   opacity: 0;
   visibility: hidden;
   transform: translateY(-6px);
-
   transition:
     opacity 0.2s var(--e),
     transform 0.2s var(--e),
     visibility 0.2s var(--e);
-
   z-index: 100;
 }
 
@@ -4692,31 +4688,72 @@ ul.checkout-error {
   transform: translateY(0);
 }
 
-.account-dropdown a {
-  display: block;
-  padding: 11px 13px;
+.account-dropdown-user {
+  padding: 10px 12px 12px;
+}
 
+.account-dropdown-user strong {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.account-dropdown-user span {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-dropdown-divider {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--line-2);
+}
+
+.account-dropdown a,
+.account-dropdown-action {
+  display: block;
+  width: 100%;
+  padding: 11px 13px;
   color: var(--ink);
   text-decoration: none;
-
+  border: 0;
   border-radius: 10px;
-
+  background: transparent;
+  font-family: inherit;
   font-size: 13px;
   font-weight: 500;
-
+  text-align: left;
+  cursor: pointer;
   transition:
     background 0.2s var(--e),
     color 0.2s var(--e);
 }
 
-.account-dropdown a:hover {
+.account-dropdown a:hover,
+.account-dropdown-action:hover {
   background: var(--page);
   color: var(--ink);
+}
+
+.account-dropdown-action {
+  color: var(--danger);
+}
+
+.account-dropdown-action:hover {
+  background: var(--danger-tint);
+  color: var(--danger);
 }
 
 .account-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
   white-space: nowrap;
   padding: 10px 10px;

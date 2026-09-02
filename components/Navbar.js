@@ -49,6 +49,37 @@ export default function Navbar() {
   const [wishCount, setWishCount] = useState(0);
   const [stuck, setStuck] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
+  const [profileName, setProfileName] = useState("");
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) {
+      setProfileName("");
+      return;
+    }
+
+    async function loadProfileName() {
+      try {
+        const response = await fetch("/api/customer/account");
+
+        if (!response.ok) return;
+
+        const result = await response.json();
+        const account = result?.data?.data;
+
+        if (account) {
+          const name = [account.firstName, account.lastName]
+            .filter(Boolean)
+            .join(" ");
+
+          setProfileName(name);
+        }
+      } catch (error) {
+        console.error("Profile name error:", error);
+      }
+    }
+
+    loadProfileName();
+  }, [isLoaded, isSignedIn]);
 
   useEffect(() => {
     const updateCounts = async () => {
@@ -359,14 +390,7 @@ export default function Navbar() {
               {isLoaded && isSignedIn ? (
                 <div className="account-dropdown">
                   <div className="account-dropdown-user">
-                    <strong>
-                      {user?.fullName ||
-                        user?.firstName ||
-                        user?.primaryEmailAddress?.emailAddress?.split(
-                          "@",
-                        )[0] ||
-                        "Customer"}
-                    </strong>
+                    <strong>{profileName || "Customer"}</strong>
                     <span>{user?.primaryEmailAddress?.emailAddress || ""}</span>
                   </div>
 
