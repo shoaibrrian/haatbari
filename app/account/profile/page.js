@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
 import Swal from "sweetalert2";
+import imageCompression from "browser-image-compression";
 
 export default function AccountProfilePage() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -185,17 +186,65 @@ export default function AccountProfilePage() {
           </p>
         </div>
 
-        <div className="account-profile-avatar">
-          {user?.hasImage ? (
-            <img src={user.imageUrl} alt={user.fullName || "Account"} />
-          ) : (
-            <span>
-              {(form.firstName || user?.firstName || "C")
-                .trim()
-                .charAt(0)
-                .toUpperCase()}
-            </span>
-          )}
+        <div className="account-profile-avatar-wrap">
+          <div className="account-profile-avatar">
+            {user?.hasImage ? (
+              <img src={user.imageUrl} alt={user.fullName || "Account"} />
+            ) : (
+              <span>
+                {(form.firstName || user?.firstName || "C")
+                  .trim()
+                  .charAt(0)
+                  .toUpperCase()}
+              </span>
+            )}
+          </div>
+
+          <label className="account-profile-photo-button">
+            Change photo
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={async (event) => {
+                const file = event.target.files?.[0];
+
+                if (!file || !user) return;
+
+                try {
+                  const options = {
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 800,
+                    useWebWorker: true,
+                  };
+
+                  const compressedFile = await imageCompression(file, options);
+
+                  await user.setProfileImage({
+                    file: compressedFile,
+                  });
+
+                  await Swal.fire({
+                    title: "Photo updated",
+                    text: "Your profile photo has been updated successfully.",
+                    icon: "success",
+                    confirmButtonText: "Done",
+                  });
+                } catch (error) {
+                  console.error("Profile photo error:", error);
+
+                  Swal.fire({
+                    title: "Upload failed",
+                    text: "We couldn't update your profile photo.",
+                    icon: "error",
+                    confirmButtonText: "OK",
+                  });
+                }
+
+                event.target.value = "";
+              }}
+            />
+          </label>
         </div>
       </header>
 

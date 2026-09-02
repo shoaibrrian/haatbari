@@ -6,6 +6,8 @@ import { withRoute } from "@/lib/http/with-route";
 import connectDB from "@/lib/db/connect";
 import User from "@/modules/user/user.model";
 
+import { syncClerkUser } from "@/lib/auth/sync-clerk-user";
+
 export const GET = withRoute(async () => {
   const { userId } = await auth();
 
@@ -16,13 +18,11 @@ export const GET = withRoute(async () => {
     });
   }
 
-  await connectDB();
-
-  let user = await User.findOne({ clerkUserId: userId });
+  const user = await syncClerkUser(userId);
 
   const clerkUser = await currentUser();
 
-  if (!clerkUser) {
+  if (!clerkUser || !user) {
     return ok({
       authenticated: false,
       data: null,
@@ -32,24 +32,14 @@ export const GET = withRoute(async () => {
   const email =
     clerkUser.emailAddresses?.[0]?.emailAddress?.toLowerCase().trim() || "";
 
-  // If local user doesn't exist yet, sync it from Clerk.
-  if (!user && email) {
-    user = await User.findOne({ email });
-
-    if (user) {
-      user.clerkUserId = userId;
-      await user.save();
-    }
-  }
-
   return ok({
     authenticated: true,
     data: {
-      firstName: user?.firstName || clerkUser.firstName || "",
-      lastName: user?.lastName || clerkUser.lastName || "",
+      firstName: user.firstName || clerkUser.firstName || "",
+      lastName: user.lastName || clerkUser.lastName || "",
       email,
-      phone: user?.phone || clerkUser.phoneNumbers?.[0]?.phoneNumber || "",
-      address: user?.address || "",
+      phone: user.phone || clerkUser.phoneNumbers?.[0]?.phoneNumber || "",
+      address: user.address || "",
       imageUrl: clerkUser.imageUrl || "",
     },
   });
@@ -118,21 +108,31 @@ export const PATCH = withRoute(async (request) => {
 
   await connectDB();
 
-  const user = await User.findOneAndUpdate(
-    { clerkUserId: userId },
-    {
-      $set: {
-        firstName,
-        lastName,
-        phone,
-        address,
+  const user = await syncClerkUser(userId);
+
+  if (!user) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: {
+          message: "Customer account not found",
+        },
+      }),
+      {
+        status: 404,
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    },
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+    );
+  }
+
+  user.firstName = firstName;
+  user.lastName = lastName;
+  user.phone = phone;
+  user.address = address;
+
+  await user.save();
 
   if (!user) {
     return new Response(

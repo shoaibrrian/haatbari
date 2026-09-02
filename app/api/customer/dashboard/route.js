@@ -5,9 +5,11 @@ import { withRoute } from "@/lib/http/with-route";
 
 import { findOrders } from "@/modules/order/order.repository";
 import { toPublicOrder } from "@/modules/order/order.dto";
+import { syncClerkUser } from "@/lib/auth/sync-clerk-user";
 
 export const GET = withRoute(async () => {
   const { userId } = await auth();
+
 
   if (!userId) {
     return ok({
@@ -15,6 +17,8 @@ export const GET = withRoute(async () => {
       data: null,
     });
   }
+
+  const user = await syncClerkUser(userId);
 
   const { items: orders } = await findOrders({
     clerkUserId: userId,
