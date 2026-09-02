@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CATEGORIES } from "@/lib/categories";
+import Swal from "sweetalert2";
 
 function taka(value) {
   return Number(value || 0).toLocaleString("en-US", {
@@ -190,11 +191,25 @@ export default function AdminProductsPage() {
   const inactiveCount = products.length - activeCount;
 
   async function deactivateProduct(product) {
-    const confirmed = window.confirm(
-      `Deactivate "${product.title}"? It will no longer appear in the storefront.`,
-    );
+    const result = await Swal.fire({
+      title: "Deactivate this product?",
+      text: `"${product.title}" will no longer appear in the storefront.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, deactivate",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      buttonsStyling: false,
+      customClass: {
+        popup: "haatbari-swal-popup",
+        title: "haatbari-swal-title",
+        htmlContainer: "haatbari-swal-text",
+        confirmButton: "haatbari-swal-danger",
+        cancelButton: "haatbari-swal-cancel",
+      },
+    });
 
-    if (!confirmed) return;
+    if (!result.isConfirmed) return;
 
     setDeletingId(product.id);
 
@@ -232,13 +247,31 @@ export default function AdminProductsPage() {
             )
           : current,
       );
+
+      await Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: "Product deactivated",
+        showConfirmButton: false,
+        timer: 1800,
+        timerProgressBar: true,
+      });
     } catch (deleteError) {
-      window.alert(deleteError.message || "Could not deactivate this product.");
+      await Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Something went wrong",
+        text: deleteError.message || "Could not deactivate this product.",
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+      });
     } finally {
       setDeletingId(null);
     }
   }
-
   async function activateProduct(product) {
     setDeletingId(product.id);
 
