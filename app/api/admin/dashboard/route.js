@@ -50,10 +50,13 @@ export async function GET() {
       pendingOrders,
     ] = await Promise.all([
       // Total orders
-      Order.countDocuments(),
+      Order.countDocuments({
+        status: { $ne: "cancelled" },
+      }),
 
       // Orders this month
       Order.countDocuments({
+        status: { $ne: "cancelled" },
         createdAt: {
           $gte: startOfMonth,
           $lt: startOfNextMonth,
@@ -62,6 +65,7 @@ export async function GET() {
 
       // Orders previous month
       Order.countDocuments({
+        status: { $ne: "cancelled" },
         createdAt: {
           $gte: startOfPreviousMonth,
           $lt: startOfMonth,
