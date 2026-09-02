@@ -70,6 +70,12 @@ const customerSchema = new mongoose.Schema(
 
 const orderSchema = new mongoose.Schema(
   {
+    clerkUserId: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+
     customer: { type: customerSchema, required: true },
 
     items: {

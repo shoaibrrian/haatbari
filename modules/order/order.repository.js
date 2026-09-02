@@ -12,12 +12,22 @@ export async function findOrderById(id, options = {}) {
   return Order.findById(id, null, options).lean();
 }
 
-export async function findOrders({ status, phone, page = 1, limit = 20 } = {}) {
+export async function findOrders({
+  status,
+  phone,
+  clerkUserId,
+  page = 1,
+  limit = 20,
+} = {}) {
   await connectDB();
 
   const filter = {};
+
   if (status) filter.status = status;
+
   if (phone) filter["customer.phone"] = phone;
+
+  if (clerkUserId) filter.clerkUserId = clerkUserId;
 
   const skip = (page - 1) * limit;
 
@@ -27,6 +37,7 @@ export async function findOrders({ status, phone, page = 1, limit = 20 } = {}) {
       .skip(skip)
       .limit(limit)
       .lean(),
+
     Order.countDocuments(filter),
   ]);
 
