@@ -1790,6 +1790,40 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
+.cart-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.cart-summary-row span:last-child {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.cart-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 22px;
+}
+
+.cart-total strong:first-child {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cart-total strong:last-child {
+  color: var(--ink);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
 .checkout-link,
 .submit-button {
   width: 100%;

@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { cartCount, readCart, writeCart } from "@/lib/cart";
 
-const deliveryFee = 70;
-
 export default function CartPage() {
   const [cart, setCart] = useState([]);
 
@@ -37,7 +35,8 @@ export default function CartPage() {
     (total, item) => total + item.price * item.quantity,
     0,
   );
-  const total = subtotal ? subtotal + deliveryFee : 0;
+
+  const total = subtotal;
 
   return (
     <main className="cart-page page-width">
@@ -55,7 +54,7 @@ export default function CartPage() {
       {cart.length === 0 ? (
         <section className="cart-empty">
           <p>Your basket is waiting for something good.</p>
-          <Link href="/#market" className="button button-dark">
+          <Link href="/shop" className="button button-dark">
             Explore the market <span>↗</span>
           </Link>
         </section>
@@ -109,18 +108,17 @@ export default function CartPage() {
           </section>
           <aside className="cart-summary">
             <p className="eyebrow">Order summary</p>
-            <div>
+
+            <div className="cart-summary-row">
               <span>Subtotal</span>
               <span>৳{subtotal}</span>
             </div>
-            <div>
-              <span>Delivery</span>
-              <span>৳{deliveryFee}</span>
-            </div>
+
             <div className="cart-total">
               <strong>Total</strong>
               <strong>৳{total}</strong>
             </div>
+
             <Link href="/checkout" className="button button-dark checkout-link">
               Continue to checkout <span>↗</span>
             </Link>
