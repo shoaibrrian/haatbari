@@ -40,12 +40,33 @@ export default function CheckoutPage() {
   const [cart, setCart] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [profile, setProfile] = useState(null);
+
   const [messages, setMessages] = useState([]);
   const [deliveryArea, setDeliveryArea] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) return;
+
+    async function loadProfile() {
+      try {
+        const response = await fetch("/api/customer/account");
+
+        if (!response.ok) return;
+
+        const result = await response.json();
+        setProfile(result?.data?.data || null);
+      } catch (error) {
+        console.error("Checkout profile error:", error);
+      }
+    }
+
+    loadProfile();
+  }, [isLoaded, isSignedIn]);
 
   useEffect(() => {
     const syncCart = window.setTimeout(() => setCart(readCart()), 0);
@@ -283,15 +304,22 @@ export default function CheckoutPage() {
             <div className="form-row">
               <label>
                 First name
-                <input required name="firstName" />
+                <input
+                  required
+                  name="firstName"
+                  defaultValue={profile?.firstName || ""}
+                />
               </label>
 
               <label>
                 Last name
-                <input required name="lastName" />
+                <input
+                  required
+                  name="lastName"
+                  defaultValue={profile?.lastName || ""}
+                />
               </label>
             </div>
-
             <label>
               Phone number
               <input
@@ -299,6 +327,17 @@ export default function CheckoutPage() {
                 type="tel"
                 name="phone"
                 placeholder="01XXXXXXXXX"
+                defaultValue={profile?.phone || ""}
+              />
+            </label>
+
+            <label>
+              Address
+              <input
+                required
+                name="address"
+                placeholder="Your delivery address"
+                defaultValue={profile?.address || ""}
               />
             </label>
 

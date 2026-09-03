@@ -137,11 +137,12 @@ orderSchema.pre("validate", function checkTotals() {
     );
   }
 
-  const expectedTotal = this.subtotal + this.deliveryFee;
+  const expectedTotal = this.subtotal + this.deliveryFee - this.discount;
+
   if (Math.abs(this.total - expectedTotal) > 0.005) {
     this.invalidate(
       "total",
-      `total (${this.total}) does not equal subtotal + deliveryFee (${expectedTotal})`,
+      `total (${this.total}) does not equal subtotal + deliveryFee - discount (${expectedTotal})`,
     );
   }
 });
