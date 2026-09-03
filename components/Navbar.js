@@ -49,6 +49,8 @@ export default function Navbar() {
   const [wishCount, setWishCount] = useState(0);
   const [stuck, setStuck] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
+  const [offersOpen, setOffersOpen] = useState(false);
+  const [offersPinned, setOffersPinned] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -249,22 +251,54 @@ export default function Navbar() {
               )}
             </div>
 
-            <div className="nav-offers">
-              <button type="button" className="offers-nav-btn">
+            <div
+              className="nav-offers"
+              onMouseEnter={() => setOffersOpen(true)}
+              onMouseLeave={() => {
+                if (!offersPinned) {
+                  setOffersOpen(false);
+                }
+              }}
+            >
+              <button
+                type="button"
+                className="offers-nav-btn"
+                onClick={() => {
+                  if (offersPinned) {
+                    setOffersPinned(false);
+                    setOffersOpen(false);
+                  } else {
+                    setOffersPinned(true);
+                    setOffersOpen(true);
+                  }
+                }}
+                aria-expanded={offersOpen}
+              >
                 Offers
-                <span className="chevron">↓</span>
+                <span className={offersOpen ? "chevron open" : "chevron"}>
+                  ↓
+                </span>
               </button>
 
-              <div className="offers-mega-menu">
+              <div className={`offers-mega-menu ${offersOpen ? "open" : ""}`}>
                 <div className="offers-mega-inner">
                   <div className="offers-heading">
                     <span className="kicker">Limited time</span>
+
                     <h2>Offers & deals</h2>
+
                     <p>
                       Save more on your favorite products with our latest deals.
                     </p>
 
-                    <Link href="/offers" className="offers-all-link">
+                    <Link
+                      href="/offers"
+                      className="offers-all-link"
+                      onClick={() => {
+                        setOffersOpen(false);
+                        setOffersPinned(false);
+                      }}
+                    >
                       View all offers →
                     </Link>
                   </div>

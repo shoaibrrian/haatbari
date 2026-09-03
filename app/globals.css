@@ -3544,17 +3544,6 @@ ul.checkout-error {
   position: static;
 }
 
-.nav-offers::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: transparent;
-  z-index: 79;
-}
-
 .offers-nav-btn {
   position: relative;
   display: inline-flex;
@@ -3591,17 +3580,6 @@ ul.checkout-error {
   color: var(--ink);
 }
 
-/* Hover bridge */
-
-.nav-offers::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  height: 14px;
-}
-
 /* Mega menu */
 
 .offers-mega-menu {
@@ -3632,11 +3610,22 @@ ul.checkout-error {
     visibility 0.3s ease;
 }
 
-.nav-offers:hover .offers-mega-menu {
+.offers-mega-menu::before {
+  content: "";
+  position: absolute;
+  top: -18px;
+  left: 0;
+  right: 0;
+  height: 18px;
+}
+
+/* Open by hover or click */
+
+/* .nav-offers:hover .offers-mega-menu, */
+.offers-mega-menu.open {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-
   transform: translateY(0);
 }
 
