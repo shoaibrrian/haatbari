@@ -10,6 +10,7 @@ export default function CustomerDashboardPage() {
 
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -29,6 +30,12 @@ export default function CustomerDashboardPage() {
 
         const result = await response.json();
         setDashboard(result.data);
+        const accountResponse = await fetch("/api/customer/account");
+
+        if (accountResponse.ok) {
+          const accountResult = await accountResponse.json();
+          setProfile(accountResult?.data?.data || null);
+        }
       } catch (error) {
         console.error("Dashboard error:", error);
       } finally {
@@ -81,9 +88,7 @@ export default function CustomerDashboardPage() {
   const recentOrders = data.recentOrders || [];
 
   const displayName =
-    user?.fullName ||
-    user?.firstName ||
-    user?.primaryEmailAddress?.emailAddress?.split("@")[0] ||
+    [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") ||
     "Customer";
 
   return (
@@ -211,23 +216,23 @@ export default function CustomerDashboardPage() {
             </div>
           </div>
 
-          {customer ? (
+          {profile ? (
             <div className="customer-details-list">
               <div>
                 <span>Name</span>
                 <strong>
-                  {customer.firstName} {customer.lastName}
+                  {profile.firstName} {profile.lastName}
                 </strong>
               </div>
 
               <div>
                 <span>Phone</span>
-                <strong>{customer.phone}</strong>
+                <strong>{profile.phone}</strong>
               </div>
 
               <div>
                 <span>Address</span>
-                <strong>{customer.address}</strong>
+                <strong>{profile.address}</strong>
               </div>
             </div>
           ) : (
@@ -240,7 +245,10 @@ export default function CustomerDashboardPage() {
             </div>
           )}
 
-          <Link href="/account" className="customer-dashboard-secondary">
+          <Link
+            href="/account/profile"
+            className="customer-dashboard-secondary"
+          >
             Manage account
           </Link>
         </aside>

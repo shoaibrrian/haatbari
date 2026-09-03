@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import { apiFetch } from "@/lib/api-client";
 import { readCart, writeCart } from "@/lib/cart";
 import {
-  DELIVERY_FEE,
+  DELIVERY_FEES,
   MAX_QUANTITY_PER_ITEM,
 } from "@/modules/order/order.constants";
 
@@ -41,6 +41,8 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [messages, setMessages] = useState([]);
+  const [deliveryArea, setDeliveryArea] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const syncCart = window.setTimeout(() => setCart(readCart()), 0);
@@ -78,7 +80,9 @@ export default function CheckoutPage() {
     0,
   );
 
-  const total = cart.length ? subtotal + DELIVERY_FEE : 0;
+  const deliveryFee = DELIVERY_FEES[deliveryArea] || 0;
+
+  const total = cart.length ? subtotal + deliveryFee : 0;
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -243,15 +247,68 @@ export default function CheckoutPage() {
               />
             </label>
 
-            <label>
-              Delivery address
-              <textarea
-                required
-                name="address"
-                rows="3"
-                minLength={15}
-                placeholder="House, road, area, city"
-              />
+            <label className="delivery-area-field">
+              Delivery area
+              <div className="custom-delivery-select">
+                <input
+                  type="hidden"
+                  name="deliveryArea"
+                  value={deliveryArea}
+                  required
+                />
+
+                <button
+                  type="button"
+                  className={`custom-delivery-trigger ${
+                    deliveryArea ? "selected" : ""
+                  }`}
+                  onClick={() => setDropdownOpen((open) => !open)}
+                >
+                  <span>
+                    {deliveryArea === "inside_dhaka"
+                      ? "Inside Dhaka — ৳80"
+                      : deliveryArea === "outside_dhaka"
+                        ? "Outside Dhaka — ৳150"
+                        : "Select delivery area"}
+                  </span>
+
+                  <span
+                    className={`custom-delivery-arrow ${
+                      dropdownOpen ? "open" : ""
+                    }`}
+                  >
+                    ⌄
+                  </span>
+                </button>
+
+                <div
+                  className={`custom-delivery-menu ${
+                    dropdownOpen ? "open" : ""
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeliveryArea("inside_dhaka");
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    <span>Inside Dhaka</span>
+                    <strong>৳80</strong>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeliveryArea("outside_dhaka");
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    <span>Outside Dhaka</span>
+                    <strong>৳150</strong>
+                  </button>
+                </div>
+              </div>
             </label>
           </fieldset>
 
@@ -317,7 +374,7 @@ export default function CheckoutPage() {
           {cart.length === 0 ? (
             <div className="checkout-empty">
               <p>Your basket is empty.</p>
-              <Link href="/#market">Return to the market →</Link>
+              <Link href="/shop">Return to the market →</Link>
             </div>
           ) : (
             cart.map((item) => (
@@ -373,7 +430,7 @@ export default function CheckoutPage() {
             <span>৳{subtotal.toFixed(2)}</span>
 
             <span>Delivery</span>
-            <span>৳{cart.length ? DELIVERY_FEE : 0}</span>
+            <span>৳{cart.length ? deliveryFee : 0}</span>
 
             <strong>Total</strong>
             <strong>৳{total.toFixed(2)}</strong>

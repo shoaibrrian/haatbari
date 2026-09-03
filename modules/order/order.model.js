@@ -76,6 +76,12 @@ const orderSchema = new mongoose.Schema(
       index: true,
     },
 
+    deliveryArea: {
+      type: String,
+      enum: ["inside_dhaka", "outside_dhaka"],
+      required: true,
+    },
+
     customer: { type: customerSchema, required: true },
 
     items: {

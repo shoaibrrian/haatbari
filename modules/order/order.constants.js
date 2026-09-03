@@ -19,7 +19,10 @@ export const ORDER_STATUSES = [
 
 export const PAYMENT_METHODS = ["cash_on_delivery"];
 
-export const DELIVERY_FEE = 70;
+export const DELIVERY_FEES = {
+  inside_dhaka: 80,
+  outside_dhaka: 150,
+};
 
 export const MAX_QUANTITY_PER_ITEM = 20;
 export const MAX_ITEMS_PER_ORDER = 50;

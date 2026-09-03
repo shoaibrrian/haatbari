@@ -76,6 +76,7 @@ export const createOrderSchema = z.object({
       { error: "Duplicate products in cart — merge them into one line" },
     ),
   paymentMethod: z.enum(PAYMENT_METHODS).default("cash_on_delivery"),
+  deliveryArea: z.enum(["inside_dhaka", "outside_dhaka"]),
 });
 
 export const orderIdSchema = z.string().regex(OBJECT_ID, "Invalid order id");
@@ -117,6 +118,7 @@ export function toPublicOrder(doc) {
     })),
     subtotal: doc.subtotal,
     deliveryFee: doc.deliveryFee,
+    deliveryArea: doc.deliveryArea,
     total: doc.total,
     paymentMethod: doc.paymentMethod,
     status: doc.status,

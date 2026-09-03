@@ -11639,3 +11639,116 @@ ul.checkout-error {
   font-size: 13px;
   font-weight: 600;
 }
+
+.delivery-area-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.custom-delivery-select {
+  position: relative;
+}
+
+.custom-delivery-trigger {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--e),
+    box-shadow 0.2s var(--e);
+}
+
+.custom-delivery-trigger.selected {
+  color: var(--ink);
+}
+
+.custom-delivery-trigger:hover {
+  border-color: var(--muted-2);
+}
+
+.custom-delivery-trigger:focus {
+  outline: none;
+  border-color: var(--cobalt);
+  box-shadow: 0 0 0 3px rgba(36, 71, 232, 0.1);
+}
+
+.custom-delivery-arrow {
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 0.2s var(--e);
+}
+
+.custom-delivery-arrow.open {
+  transform: rotate(180deg);
+}
+
+.custom-delivery-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: var(--sh-m);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition:
+    opacity 0.18s var(--e),
+    transform 0.18s var(--e),
+    visibility 0.18s var(--e);
+}
+
+.custom-delivery-menu.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.custom-delivery-menu button {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s var(--e);
+}
+
+.custom-delivery-menu button:hover {
+  background: var(--page);
+}
+
+.custom-delivery-menu button strong {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}

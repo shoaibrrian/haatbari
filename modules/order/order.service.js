@@ -9,7 +9,7 @@ import {
   findProductsByIds,
   incrementProductStock,
 } from "../product/product.repository.js";
-import { DELIVERY_FEE, ORDER_STATUS_TRANSITIONS } from "./order.constants.js";
+import { DELIVERY_FEES, ORDER_STATUS_TRANSITIONS } from "./order.constants.js";
 import {
   createOrderSchema,
   listOrdersQuerySchema,
@@ -32,7 +32,8 @@ function round2(value) {
 export async function placeOrder(input) {
   const { userId } = await auth();
 
-  const { customer, items, paymentMethod } = createOrderSchema.parse(input);
+  const { customer, items, paymentMethod, deliveryArea } =
+    createOrderSchema.parse(input);
 
   return withTransaction(async (session) => {
     const products = await findProductsByIds(
@@ -90,7 +91,7 @@ export async function placeOrder(input) {
     const subtotal = round2(
       lineItems.reduce((sum, item) => sum + item.lineTotal, 0),
     );
-    const deliveryFee = DELIVERY_FEE;
+    const deliveryFee = DELIVERY_FEES[deliveryArea];
     const total = round2(subtotal + deliveryFee);
 
     for (const item of lineItems) {
@@ -116,6 +117,7 @@ export async function placeOrder(input) {
         deliveryFee,
         total,
         paymentMethod,
+        deliveryArea,
       },
       { session },
     );
