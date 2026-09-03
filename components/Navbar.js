@@ -50,6 +50,8 @@ export default function Navbar() {
   const [stuck, setStuck] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [profileName, setProfileName] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn) {
@@ -120,6 +122,20 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    function handleSearchEscape(event) {
+      if (event.key === "Escape") {
+        setSearchOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleSearchEscape);
+
+    return () => {
+      window.removeEventListener("keydown", handleSearchEscape);
+    };
   }, []);
 
   return (
@@ -286,10 +302,11 @@ export default function Navbar() {
 
           {/* RIGHT SIDE TOOLS */}
           <div className="tools">
-            <Link
+            <button
+              type="button"
               className="icon-btn"
-              href="/#new"
               aria-label="Search products"
+              onClick={() => setSearchOpen((open) => !open)}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle
@@ -306,7 +323,49 @@ export default function Navbar() {
                   strokeWidth="1.6"
                 />
               </svg>
-            </Link>
+            </button>
+
+            {searchOpen && (
+              <div className="search-popover">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+
+                    const query = searchQuery.trim();
+
+                    if (!query) return;
+
+                    window.location.href = `/shop?search=${encodeURIComponent(query)}`;
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <circle
+                      cx="11"
+                      cy="11"
+                      r="6.5"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                    />
+                    <path
+                      d="M16 16l4.5 4.5"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                    />
+                  </svg>
+
+                  <input
+                    type="search"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                  />
+
+                  <kbd>ESC</kbd>
+                </form>
+              </div>
+            )}
+
             <button
               type="button"
               className="icon-btn wishlist-btn"

@@ -149,7 +149,7 @@ export default function ShopPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
-    const urlQuery = params.get("q") || "";
+    const urlQuery = params.get("search") || params.get("q") || "";
     const urlCategory = params.get("category") || "";
     const urlMin = params.get("min") || "";
     const urlMax = params.get("max") || "";

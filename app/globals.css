@@ -9751,6 +9751,82 @@ ul.checkout-error {
   color: var(--danger);
 }
 
+.tools {
+  position: relative;
+}
+
+.search-popover {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  width: 320px;
+  padding: 6px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--sh-m);
+  z-index: 200;
+  animation: searchPopoverIn 0.22s var(--e) both;
+}
+
+.search-popover form {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px 0 12px;
+}
+
+.search-popover form > svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.search-popover input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+}
+
+.search-popover input::placeholder {
+  color: var(--muted-2);
+}
+
+.search-popover kbd {
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.search-popover input[type="search"]::-webkit-search-cancel-button,
+.search-popover input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+@keyframes searchPopoverIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .navbar-avatar,
 .navbar-avatar-fallback {
   width: 34px !important;
