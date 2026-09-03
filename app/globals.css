@@ -453,6 +453,7 @@ button {
   font-size: clamp(44px, 7.4vw, 104px);
   line-height: 0.94;
   letter-spacing: -0.05em;
+  min-height: 3.9em;
 }
 
 .hero h1 span {
@@ -4589,6 +4590,10 @@ ul.checkout-error {
 @media (max-width: 900px) {
   .about-hero {
     padding: 80px 0;
+  }
+
+  .hero h1 {
+    min-height: 1.9em;
   }
 
   .about-intro,
