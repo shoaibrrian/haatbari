@@ -36,3 +36,16 @@ export const ORDER_STATUS_TRANSITIONS = Object.freeze({
   delivered: [],
   cancelled: [],
 });
+
+export const COUPON_CODES = {
+  WELCOME10: {
+    type: "percentage",
+    value: 10,
+    minOrder: 500,
+  },
+  SAVE100: {
+    type: "fixed",
+    value: 100,
+    minOrder: 1000,
+  },
+};

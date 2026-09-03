@@ -77,6 +77,7 @@ export const createOrderSchema = z.object({
     ),
   paymentMethod: z.enum(PAYMENT_METHODS).default("cash_on_delivery"),
   deliveryArea: z.enum(["inside_dhaka", "outside_dhaka"]),
+  couponCode: z.string().trim().toUpperCase().optional(),
 });
 
 export const orderIdSchema = z.string().regex(OBJECT_ID, "Invalid order id");
@@ -119,6 +120,7 @@ export function toPublicOrder(doc) {
     subtotal: doc.subtotal,
     deliveryFee: doc.deliveryFee,
     deliveryArea: doc.deliveryArea,
+    discount: doc.discount,
     total: doc.total,
     paymentMethod: doc.paymentMethod,
     status: doc.status,

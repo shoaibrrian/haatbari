@@ -9,7 +9,11 @@ import {
   findProductsByIds,
   incrementProductStock,
 } from "../product/product.repository.js";
-import { DELIVERY_FEES, ORDER_STATUS_TRANSITIONS } from "./order.constants.js";
+import {
+  DELIVERY_FEES,
+  COUPON_CODES,
+  ORDER_STATUS_TRANSITIONS,
+} from "./order.constants.js";
 import {
   createOrderSchema,
   listOrdersQuerySchema,
@@ -32,7 +36,7 @@ function round2(value) {
 export async function placeOrder(input) {
   const { userId } = await auth();
 
-  const { customer, items, paymentMethod, deliveryArea } =
+  const { customer, items, paymentMethod, deliveryArea, couponCode } =
     createOrderSchema.parse(input);
 
   return withTransaction(async (session) => {
@@ -91,8 +95,28 @@ export async function placeOrder(input) {
     const subtotal = round2(
       lineItems.reduce((sum, item) => sum + item.lineTotal, 0),
     );
+    const coupon = couponCode ? COUPON_CODES[couponCode] : null;
+
+    if (couponCode && !coupon) {
+      throw new Error("Invalid coupon code");
+    }
+
+    if (coupon && subtotal < coupon.minOrder) {
+      throw new Error(
+        `Minimum order ৳${coupon.minOrder} required for this coupon`,
+      );
+    }
+
+    let discount = 0;
+
+    if (coupon) {
+      discount =
+        coupon.type === "percentage"
+          ? round2((subtotal * coupon.value) / 100)
+          : coupon.value;
+    }
     const deliveryFee = DELIVERY_FEES[deliveryArea];
-    const total = round2(subtotal + deliveryFee);
+    const total = round2(subtotal + deliveryFee - discount);
 
     for (const item of lineItems) {
       const reserved = await decrementProductStock(
@@ -115,6 +139,7 @@ export async function placeOrder(input) {
         items: lineItems,
         subtotal,
         deliveryFee,
+        discount,
         total,
         paymentMethod,
         deliveryArea,

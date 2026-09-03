@@ -11752,3 +11752,57 @@ ul.checkout-error {
   font-size: 12px;
   font-weight: 600;
 }
+
+.coupon-hint,
+.coupon-error,
+.coupon-success {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.coupon-hint {
+  color: var(--muted);
+}
+
+.coupon-error {
+  color: var(--danger);
+}
+
+.coupon-success {
+  color: #2f6b45;
+}
+
+.coupon-field {
+  display: flex;
+  gap: 10px;
+}
+
+.coupon-field input {
+  flex: 1;
+}
+
+.coupon-apply {
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--ink);
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--on-dark);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s var(--e),
+    transform 0.2s var(--e);
+}
+
+.coupon-apply:hover {
+  background: var(--ink-2);
+  transform: translateY(-1px);
+}
+
+.coupon-apply:active {
+  transform: translateY(0);
+}

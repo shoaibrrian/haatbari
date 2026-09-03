@@ -94,6 +94,7 @@ const orderSchema = new mongoose.Schema(
 
     subtotal: { type: Number, required: true, min: 0 },
     deliveryFee: { type: Number, required: true, min: 0 },
+    discount: { type: Number, required: true, min: 0, default: 0 },
     total: { type: Number, required: true, min: 0 },
 
     paymentMethod: {

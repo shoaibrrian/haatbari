@@ -42,6 +42,9 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
   const [messages, setMessages] = useState([]);
   const [deliveryArea, setDeliveryArea] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
@@ -82,7 +85,57 @@ export default function CheckoutPage() {
 
   const deliveryFee = DELIVERY_FEES[deliveryArea] || 0;
 
-  const total = cart.length ? subtotal + deliveryFee : 0;
+  const discount = appliedCoupon
+    ? appliedCoupon.type === "percentage"
+      ? (subtotal * appliedCoupon.value) / 100
+      : appliedCoupon.value
+    : 0;
+
+  const total = cart.length ? subtotal + deliveryFee - discount : 0;
+
+  function handleApplyCoupon() {
+    setCouponError("");
+    setAppliedCoupon(null);
+
+    const code = couponCode.trim().toUpperCase();
+
+    if (!code) {
+      setCouponError("Enter a coupon code.");
+      return;
+    }
+
+    if (code === "WELCOME10") {
+      if (subtotal < 500) {
+        setCouponError("Minimum order ৳500 required for WELCOME10.");
+        return;
+      }
+
+      setAppliedCoupon({
+        code,
+        type: "percentage",
+        value: 10,
+      });
+
+      return;
+    }
+
+    if (code === "SAVE100") {
+      if (subtotal < 1000) {
+        setCouponError("Minimum order ৳1000 required for SAVE100.");
+        return;
+      }
+
+      setAppliedCoupon({
+        code,
+        type: "fixed",
+        value: 100,
+      });
+
+      return;
+    }
+
+    setCouponError("Invalid coupon code.");
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -116,6 +169,8 @@ export default function CheckoutPage() {
             quantity: item.quantity,
           })),
           paymentMethod: formData.get("payment"),
+          deliveryArea: formData.get("deliveryArea"),
+          couponCode: appliedCoupon?.code,
         },
       });
 
@@ -313,6 +368,41 @@ export default function CheckoutPage() {
           </fieldset>
 
           <fieldset>
+            <legend>Discount code</legend>
+
+            <div className="coupon-field">
+              <input
+                type="text"
+                placeholder="Enter coupon code"
+                value={couponCode}
+                onChange={(event) =>
+                  setCouponCode(event.target.value.toUpperCase())
+                }
+              />
+
+              <button
+                type="button"
+                className="coupon-apply"
+                onClick={handleApplyCoupon}
+              >
+                Apply
+              </button>
+            </div>
+
+            {couponError && (
+              <small className="coupon-error">{couponError}</small>
+            )}
+
+            {appliedCoupon && (
+              <small className="coupon-success">
+                {appliedCoupon.code} applied successfully.
+              </small>
+            )}
+
+            <small className="coupon-hint">Try WELCOME10 or SAVE100</small>
+          </fieldset>
+
+          <fieldset>
             <legend>Payment</legend>
 
             <label className="payment-choice">
@@ -431,6 +521,13 @@ export default function CheckoutPage() {
 
             <span>Delivery</span>
             <span>৳{cart.length ? deliveryFee : 0}</span>
+
+            {appliedCoupon && (
+              <>
+                <span>Discount ({appliedCoupon.code})</span>
+                <span>-৳{discount.toFixed(2)}</span>
+              </>
+            )}
 
             <strong>Total</strong>
             <strong>৳{total.toFixed(2)}</strong>
