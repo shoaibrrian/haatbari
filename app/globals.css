@@ -4880,18 +4880,37 @@ ul.checkout-error {
    ========================================================= */
 
 .account-tabs {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
-
   padding: 7px;
-
   border-bottom: 1px solid var(--line);
-
   background: var(--page);
 }
 
+.account-tab-indicator {
+  position: absolute;
+  z-index: 1;
+  top: 7px;
+  left: 7px;
+  width: calc(50% - 10px);
+  height: 46px;
+  border-radius: 14px;
+  background: var(--ink);
+  box-shadow: var(--sh-s);
+  pointer-events: none;
+
+  transition: transform 0.35s var(--e);
+}
+
+.account-tab-indicator.register {
+  transform: translateX(calc(100% + 6px));
+}
+
 .account-tabs button {
+  position: relative;
+  z-index: 2;
   min-height: 46px;
 
   border: 0;
@@ -4935,7 +4954,7 @@ ul.checkout-error {
 }
 
 .clerk-account-form > div:first-child {
-  margin-bottom: 30px;
+  margin-bottom: 22px;
 }
 
 .clerk-account-form h2 {
@@ -5075,7 +5094,7 @@ ul.checkout-error {
 }
 
 .hb-clerk-field-row {
-  margin-bottom: 18px !important;
+  margin-bottom: 14px !important;
 }
 
 .hb-clerk-label {
@@ -9447,7 +9466,7 @@ ul.checkout-error {
 
 .clerk-account-form {
   width: 100%;
-  padding: 38px;
+  padding: 30px 34px;
 }
 
 .hb-clerk-root {
@@ -9499,8 +9518,9 @@ ul.checkout-error {
 
 .hb-clerk-social-button:hover {
   background: var(--card) !important;
-  border-color: var(--ink-3) !important;
-  transform: translateY(-1px);
+  border-color: transparent !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--sh-s) !important;
 }
 
 .hb-clerk-social-text {
@@ -9512,7 +9532,7 @@ ul.checkout-error {
 /* Divider */
 
 .hb-clerk-divider-row {
-  margin: 24px 0 !important;
+  margin: 18px 0 !important;
 }
 
 .hb-clerk-divider-line {
@@ -9592,6 +9612,51 @@ ul.checkout-error {
 .hb-clerk-primary:hover {
   background: var(--ink-2) !important;
   transform: translateY(-1px);
+}
+
+/* transition */
+
+.account-content {
+  animation: accountContentIn 0.35s var(--e) both;
+}
+
+@keyframes accountContentIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tighten Clerk sign-in spacing */
+.hb-clerk-social-buttons {
+  margin-bottom: 0 !important;
+}
+
+.hb-clerk-divider-row {
+  margin: 8px 0 !important;
+}
+
+.hb-clerk-form {
+  gap: 0 !important;
+}
+
+.hb-clerk-field-row {
+  margin-top: 0 !important;
+  margin-bottom: 10px !important;
+}
+
+/* Remove extra Clerk spacing around form sections */
+.hb-clerk-form > * {
+  margin-top: 0 !important;
+}
+
+.hb-clerk-form > * + * {
+  margin-top: 10px !important;
 }
 
 /* Links */

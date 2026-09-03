@@ -53,6 +53,12 @@ export default function AccountPage() {
 
         <div className="account-form-wrap">
           <div className="account-tabs">
+            <div
+              className={`account-tab-indicator ${
+                mode === "register" ? "register" : "login"
+              }`}
+            />
+
             <button
               type="button"
               className={mode === "login" ? "active" : ""}
@@ -71,118 +77,123 @@ export default function AccountPage() {
           </div>
 
           <div className="account-form clerk-account-form">
-            {!isLoaded ? (
-              <div className="account-loading">
-                <div className="account-loading-line account-loading-title" />
-                <div className="account-loading-line" />
-                <div className="account-loading-line account-loading-short" />
+            <div
+              className={`account-content ${
+                mode === "login" ? "login-mode" : "register-mode"
+              }`}
+            >
+              {!isLoaded ? (
+                <div className="account-loading">
+                  <div className="account-loading-line account-loading-title" />
+                  <div className="account-loading-line" />
+                  <div className="account-loading-line account-loading-short" />
 
-                <div className="account-loading-button" />
-                <div className="account-loading-divider" />
+                  <div className="account-loading-button" />
+                  <div className="account-loading-divider" />
 
-                <div className="account-loading-input" />
-                <div className="account-loading-input" />
-                <div className="account-loading-button" />
-              </div>
-            ) : mode === "login" ? (
-              <>
-                <div>
-                  <p className="eyebrow">Welcome back</p>
-
-                  <h2>Sign in</h2>
-
-                  <p>Access your HaatBari orders and account details.</p>
+                  <div className="account-loading-input" />
+                  <div className="account-loading-input" />
+                  <div className="account-loading-button" />
                 </div>
+              ) : mode === "login" ? (
+                <>
+                  <div>
+                    <p className="eyebrow">Welcome back</p>
 
-                <SignIn
-                  key="haatbari-sign-in"
-                  routing="virtual"
-                  forceRedirectUrl="/customer/dashboard"
-                  appearance={{
-                    layout: {
-                      socialButtonsPlacement: "top",
-                      socialButtonsVariant: "blockButton",
-                    },
-                    elements: {
-                      rootBox: "hb-clerk-root",
-                      card: "hb-clerk-card",
-                      header: "hb-clerk-header",
-                      headerTitle: "hb-clerk-header-title",
-                      headerSubtitle: "hb-clerk-header-subtitle",
+                    <h2>Sign in</h2>
 
-                      socialButtons: "hb-clerk-social-buttons",
-                      socialButtonsBlockButton: "hb-clerk-social-button",
-                      socialButtonsBlockButtonText: "hb-clerk-social-text",
+                    <p>Access your HaatBari orders and account details.</p>
+                  </div>
 
-                      dividerRow: "hb-clerk-divider-row",
-                      dividerLine: "hb-clerk-divider-line",
-                      dividerText: "hb-clerk-divider-text",
+                  <SignIn
+                    key="haatbari-sign-in"
+                    forceRedirectUrl="/customer/dashboard"
+                    appearance={{
+                      layout: {
+                        socialButtonsPlacement: "top",
+                        socialButtonsVariant: "blockButton",
+                      },
+                      elements: {
+                        rootBox: "hb-clerk-root",
+                        card: "hb-clerk-card",
+                        header: "hb-clerk-header",
+                        headerTitle: "hb-clerk-header-title",
+                        headerSubtitle: "hb-clerk-header-subtitle",
 
-                      form: "hb-clerk-form",
-                      formFieldRow: "hb-clerk-field-row",
-                      formFieldLabel: "hb-clerk-label",
-                      formFieldInput: "hb-clerk-input",
+                        socialButtons: "hb-clerk-social-buttons",
+                        socialButtonsBlockButton: "hb-clerk-social-button",
+                        socialButtonsBlockButtonText: "hb-clerk-social-text",
 
-                      formButtonPrimary: "hb-clerk-primary",
+                        dividerRow: "hb-clerk-divider-row",
+                        dividerLine: "hb-clerk-divider-line",
+                        dividerText: "hb-clerk-divider-text",
 
-                      footer: "hb-clerk-footer",
-                      footerAction: "hb-clerk-footer-action",
-                      footerActionLink: "hb-clerk-link",
-                    },
-                  }}
-                />
-              </>
-            ) : (
-              <>
-                <div>
-                  <p className="eyebrow">Join HaatBari</p>
+                        form: "hb-clerk-form",
+                        formFieldRow: "hb-clerk-field-row",
+                        formFieldLabel: "hb-clerk-label",
+                        formFieldInput: "hb-clerk-input",
 
-                  <h2>Create account</h2>
+                        formButtonPrimary: "hb-clerk-primary",
 
-                  <p>
-                    Register once and keep your future orders connected to you.
-                  </p>
-                </div>
+                        footer: "hb-clerk-footer",
+                        footerAction: "hb-clerk-footer-action",
+                        footerActionLink: "hb-clerk-link",
+                      },
+                    }}
+                  />
+                </>
+              ) : (
+                <>
+                  <div>
+                    <p className="eyebrow">Join HaatBari</p>
 
-                <SignUp
-                  key="haatbari-sign-up"
-                  routing="virtual"
-                  forceRedirectUrl="/customer/dashboard"
-                  appearance={{
-                    layout: {
-                      socialButtonsPlacement: "top",
-                      socialButtonsVariant: "blockButton",
-                    },
-                    elements: {
-                      rootBox: "hb-clerk-root",
-                      card: "hb-clerk-card",
-                      header: "hb-clerk-header",
-                      headerTitle: "hb-clerk-header-title",
-                      headerSubtitle: "hb-clerk-header-subtitle",
+                    <h2>Create account</h2>
 
-                      socialButtons: "hb-clerk-social-buttons",
-                      socialButtonsBlockButton: "hb-clerk-social-button",
-                      socialButtonsBlockButtonText: "hb-clerk-social-text",
+                    <p>
+                      Register once and keep your future orders connected to
+                      you.
+                    </p>
+                  </div>
 
-                      dividerRow: "hb-clerk-divider-row",
-                      dividerLine: "hb-clerk-divider-line",
-                      dividerText: "hb-clerk-divider-text",
+                  <SignUp
+                    key="haatbari-sign-up"
+                    forceRedirectUrl="/customer/dashboard"
+                    appearance={{
+                      layout: {
+                        socialButtonsPlacement: "top",
+                        socialButtonsVariant: "blockButton",
+                      },
+                      elements: {
+                        rootBox: "hb-clerk-root",
+                        card: "hb-clerk-card",
+                        header: "hb-clerk-header",
+                        headerTitle: "hb-clerk-header-title",
+                        headerSubtitle: "hb-clerk-header-subtitle",
 
-                      form: "hb-clerk-form",
-                      formFieldRow: "hb-clerk-field-row",
-                      formFieldLabel: "hb-clerk-label",
-                      formFieldInput: "hb-clerk-input",
+                        socialButtons: "hb-clerk-social-buttons",
+                        socialButtonsBlockButton: "hb-clerk-social-button",
+                        socialButtonsBlockButtonText: "hb-clerk-social-text",
 
-                      formButtonPrimary: "hb-clerk-primary",
+                        dividerRow: "hb-clerk-divider-row",
+                        dividerLine: "hb-clerk-divider-line",
+                        dividerText: "hb-clerk-divider-text",
 
-                      footer: "hb-clerk-footer",
-                      footerAction: "hb-clerk-footer-action",
-                      footerActionLink: "hb-clerk-link",
-                    },
-                  }}
-                />
-              </>
-            )}
+                        form: "hb-clerk-form",
+                        formFieldRow: "hb-clerk-field-row",
+                        formFieldLabel: "hb-clerk-label",
+                        formFieldInput: "hb-clerk-input",
+
+                        formButtonPrimary: "hb-clerk-primary",
+
+                        footer: "hb-clerk-footer",
+                        footerAction: "hb-clerk-footer-action",
+                        footerActionLink: "hb-clerk-link",
+                      },
+                    }}
+                  />
+                </>
+              )}
+            </div>
           </div>
         </div>
       </section>
