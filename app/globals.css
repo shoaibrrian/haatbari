@@ -771,6 +771,7 @@ button {
 .cat {
   position: relative;
   aspect-ratio: 4 / 5;
+  margin-bottom: 45px;
   border-radius: var(--r);
   overflow: hidden;
   scroll-snap-align: start;
@@ -887,6 +888,7 @@ button {
 
 .pgrid {
   display: grid;
+
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(18px, 2.4vw, 34px);
 }
