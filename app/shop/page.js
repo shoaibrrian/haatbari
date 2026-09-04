@@ -73,6 +73,27 @@ export default function ShopPage() {
 
   const [stockFilter, setStockFilter] = useState("all");
   const [sort, setSort] = useState("featured");
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef(null);
+
+  const SORT_OPTIONS = [
+    { value: "featured", label: "Featured" },
+    { value: "newest", label: "Newest" },
+    { value: "price-low", label: "Price: Low to high" },
+    { value: "price-high", label: "Price: High to low" },
+    { value: "name", label: "Name: A–Z" },
+  ];
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setSortOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const [page, setPage] = useState(1);
 
@@ -798,23 +819,68 @@ export default function ShopPage() {
                   }`}
             </div>
 
-            <label className="sort-select">
+            <div className="sort-select" ref={sortRef}>
               <span>Sort by</span>
 
-              <select
-                value={sort}
-                onChange={(event) => {
-                  setSort(event.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="featured">Featured</option>
-                <option value="newest">Newest</option>
-                <option value="price-low">Price: Low to high</option>
-                <option value="price-high">Price: High to low</option>
-                <option value="name">Name: A–Z</option>
-              </select>
-            </label>
+              <div className="admin-custom-dropdown shop-sort-dropdown">
+                <button
+                  type="button"
+                  className={
+                    sortOpen
+                      ? "admin-dropdown-trigger open"
+                      : "admin-dropdown-trigger"
+                  }
+                  onClick={() => setSortOpen((open) => !open)}
+                >
+                  {SORT_OPTIONS.find((option) => option.value === sort)
+                    ?.label ?? "Featured"}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M6 9l6 6 6-6"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+
+                {sortOpen && (
+                  <div className="admin-dropdown-menu">
+                    {SORT_OPTIONS.map((option) => (
+                      <button
+                        type="button"
+                        key={option.value}
+                        className={sort === option.value ? "selected" : ""}
+                        onClick={() => {
+                          setSort(option.value);
+                          setPage(1);
+                          setSortOpen(false);
+                        }}
+                      >
+                        {option.label}
+                        {sort === option.value && (
+                          <svg
+                            width="15"
+                            height="15"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
+                            <path
+                              d="M5 12.5l4.5 4.5L19 7"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </motion.div>
 
           {/* ---------------------------------
@@ -1239,107 +1305,88 @@ export default function ShopPage() {
           <>
             <motion.div
               className="quick-overlay"
-              initial={{
-                opacity: 0,
-              }}
-              animate={{
-                opacity: 1,
-              }}
-              exit={{
-                opacity: 0,
-              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setQuickView(null)}
             />
 
-            <motion.div
-              className="quick-modal"
-              initial={{
-                opacity: 0,
-                y: 24,
-                scale: 0.97,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-                scale: 1,
-              }}
-              exit={{
-                opacity: 0,
-                y: 24,
-                scale: 0.97,
-              }}
-              transition={{
-                duration: 0.35,
-                ease: EASE,
-              }}
-              role="dialog"
-              aria-modal="true"
-            >
-              <button
-                type="button"
-                className="quick-close"
-                aria-label="Close quick view"
-                onClick={() => setQuickView(null)}
+            <div className="quick-modal-wrap">
+              <motion.div
+                className="quick-modal"
+                initial={{ opacity: 0, y: 20, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.97 }}
+                transition={{ duration: 0.35, ease: EASE }}
+                role="dialog"
+                aria-modal="true"
               >
-                ×
-              </button>
+                <button
+                  type="button"
+                  className="quick-close"
+                  aria-label="Close quick view"
+                  onClick={() => setQuickView(null)}
+                >
+                  ×
+                </button>
 
-              <div className="quick-image">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={quickView.image || "/placeholder.png"}
-                  alt={quickView.title}
-                />
-              </div>
-
-              <div className="quick-copy">
-                <span className="eyebrow">
-                  {quickView.category || "Marketplace"}
-                </span>
-
-                <h2>{quickView.title}</h2>
-
-                <p className="quick-price">
-                  <span className="tk">৳</span>
-                  {taka(quickView.price)}
-                </p>
-
-                <p className="quick-description">
-                  {quickView.description ||
-                    "A quality product available from HaatBari sellers across Bangladesh."}
-                </p>
-
-                <div className="quick-status">
-                  <span
-                    className={
-                      quickView.inStock ? "status-dot" : "status-dot off"
-                    }
+                <div className="quick-image">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={quickView.image || "/placeholder.png"}
+                    alt={quickView.title}
                   />
-                  {quickView.inStock ? "In stock" : "Currently unavailable"}
                 </div>
 
-                <div className="quick-actions">
-                  <button
-                    type="button"
-                    className="btn btn-ink"
-                    disabled={!quickView.inStock}
-                    onClick={() => {
-                      add(quickView);
-                      setQuickView(null);
-                    }}
-                  >
-                    {quickView.inStock ? "Add to cart" : "Sold out"}
-                  </button>
+                <div className="quick-copy">
+                  <span className="eyebrow">
+                    {quickView.category || "Marketplace"}
+                  </span>
 
-                  <Link
-                    className="btn btn-line"
-                    href={`/products/${quickView.slug || quickView.id}`}
-                  >
-                    View details
-                  </Link>
+                  <h2>{quickView.title}</h2>
+
+                  <p className="quick-price">
+                    <span className="tk">৳</span>
+                    {taka(quickView.price)}
+                  </p>
+
+                  <p className="quick-description">
+                    {quickView.description ||
+                      "A quality product available from HaatBari sellers across Bangladesh."}
+                  </p>
+
+                  <div className="quick-status">
+                    <span
+                      className={
+                        quickView.inStock ? "status-dot" : "status-dot off"
+                      }
+                    />
+                    {quickView.inStock ? "In stock" : "Currently unavailable"}
+                  </div>
+
+                  <div className="quick-actions">
+                    <button
+                      type="button"
+                      className="btn btn-ink"
+                      disabled={!quickView.inStock}
+                      onClick={() => {
+                        add(quickView);
+                        setQuickView(null);
+                      }}
+                    >
+                      {quickView.inStock ? "Add to cart" : "Sold out"}
+                    </button>
+
+                    <Link
+                      className="btn btn-line"
+                      href={`/products/${quickView.slug || quickView.id}`}
+                    >
+                      View details
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </>
         )}
       </AnimatePresence>
