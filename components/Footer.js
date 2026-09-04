@@ -7,12 +7,12 @@ export default function Footer() {
         <div className="foot-in">
           <div>
             <Link className="brand" href="/">
-              <span className="mark">HB</span>
+              <img src="/logo.png" alt="HaatBari" className="logo" />
               <b>HaatBari</b>
             </Link>
             <p className="foot-note">
-              Everyday goods from sellers across Bangladesh, delivered for ৳70
-              flat.
+              Everyday goods from sellers across Bangladesh, Delivered to your
+              doorstep.
             </p>
           </div>
           <div>
@@ -68,8 +68,8 @@ export default function Footer() {
           </div>
         </div>
         <div className="foot-btm">
-          <span>© 2026 HaatBari</span>
-          <span>Cash on delivery · ৳70 flat</span>
+          <span>© 2026 HaatBari. All rights reserved.</span>
+          <span>Designed & Developed by Shoaib Rahman Rian</span>
         </div>
         <div className="word" aria-hidden="true">
           HaatBari

@@ -13,6 +13,17 @@ import { useRouter } from "next/navigation";
 
 import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/wishlist";
 
+import {
+  Smartphone,
+  Shirt,
+  Sofa,
+  Sparkles,
+  Dumbbell,
+  BookOpen,
+  ShoppingBasket,
+  Car,
+} from "lucide-react";
+
 const MotionLink = motion.create(Link);
 
 const AMBIENTS = [
@@ -43,6 +54,17 @@ const REVIEWS = [
     initials: "SK",
   },
 ];
+
+const CATEGORY_ICONS = {
+  Electronics: Smartphone,
+  Fashion: Shirt,
+  "Home & Living": Sofa,
+  "Beauty & Care": Sparkles,
+  "Sports & Fitness": Dumbbell,
+  "Books & Stationery": BookOpen,
+  "Grocery & Food": ShoppingBasket,
+  Automotive: Car,
+};
 
 function load(delay = 0) {
   return {
@@ -500,7 +522,7 @@ export default function Home() {
           <motion.div className="shell rail-head" {...rise()}>
             <div>
               <p className="kicker">Browse</p>
-              <h2>Four aisles, no clutter.</h2>
+              <h2>Eight aisles, no clutter.</h2>
             </div>
             <div className="rail-nav">
               <button
@@ -526,11 +548,17 @@ export default function Home() {
               <a
                 className="cat"
                 key={c.name}
-                href="#new"
+                href="#picked"
                 style={{ background: AMBIENTS[i % AMBIENTS.length] }}
                 onClick={() => setActiveCat(c.name)}
               >
                 <span className="cat-go">↗</span>
+                <span className="cat-ico">
+                  {(() => {
+                    const Icon = CATEGORY_ICONS[c.name] || ShoppingBasket;
+                    return <Icon strokeWidth={1.5} />;
+                  })()}
+                </span>
                 <span className="cat-txt">
                   <b>{c.name}</b>
                   <span>{c.count} items</span>
@@ -552,8 +580,16 @@ export default function Home() {
               <a href="/shop">See the full catalogue</a>
             </motion.div>
             <div className="pgrid">
-              {featurePicks.map((p, i) =>
-                card(p, i, i === 0 ? "New" : null, 0.06 * (i % 2)),
+              {(activeCat
+                ? searched.filter((p) => p.category === activeCat).slice(0, 4)
+                : featurePicks
+              ).map((p, i) =>
+                card(
+                  p,
+                  i,
+                  !activeCat && i === 0 ? "New" : null,
+                  0.06 * (i % 2),
+                ),
               )}
             </div>
           </div>
@@ -684,10 +720,8 @@ export default function Home() {
                   />
                 </svg>
               </span>
-              <b>৳70 flat, everywhere</b>
-              <p>
-                One delivery price for the whole country, no zone surcharge.
-              </p>
+              <b>64 Districts covered</b>
+              <p>Fast and secure delivery to every corner of the country.</p>
             </motion.div>
             <motion.div className="assure-card" {...rise(0.14)}>
               <span className="assure-ico">
