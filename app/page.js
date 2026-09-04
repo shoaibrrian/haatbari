@@ -433,7 +433,7 @@ export default function Home() {
             </motion.div>
             <motion.div className="facts" {...load(0.32)}>
               <Fact to={products.length} label="Products live" />
-              <Fact to={70} pre="৳" label="Flat delivery" />
+              <Fact to={64} label="Districts covered" />
               <Fact to={7} label="Day returns" />
             </motion.div>
           </div>
@@ -449,7 +449,7 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, ease: EASE }}
                 >
-                  <span className="showcase-badge">Top Selling</span>
+                  <span className="showcase-badge">Popular Products</span>
                   <span
                     className="showcase-media"
                     style={{ "--amb": AMBIENTS[stageIndex % AMBIENTS.length] }}
