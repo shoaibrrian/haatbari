@@ -2012,11 +2012,13 @@ button {
   padding: 6px 12px;
   border: 1px solid var(--line);
   border-radius: 999px;
+  background: linear-gradient(135deg, var(--page) 0%, var(--page-2) 100%);
   color: var(--muted);
   font-size: 11.5px;
   font-weight: 600;
   letter-spacing: 0.12em;
   font-variant-numeric: tabular-nums;
+  box-shadow: 0 1px 2px rgba(11, 12, 14, 0.04);
 }
 
 .cart-empty,
@@ -2188,6 +2190,7 @@ button {
   display: grid;
   gap: 14px;
   padding: clamp(20px, 2.4vw, 26px);
+  border: 1px solid var(--line-2);
   border-radius: var(--r);
   background: var(--card);
   box-shadow: var(--sh-m);
@@ -2259,6 +2262,12 @@ button {
 .submit-button {
   width: 100%;
   margin-top: 6px;
+  box-shadow: 0 12px 28px -14px rgba(11, 12, 14, 0.6);
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px -16px rgba(11, 12, 14, 0.65);
 }
 
 .checkout-grid {
@@ -2273,6 +2282,11 @@ button {
   gap: 20px;
 }
 
+.checkout-form fieldset:focus-within {
+  box-shadow: var(--sh-m);
+  border-color: #c8ccd1;
+}
+
 .checkout-form fieldset {
   display: grid;
   gap: 16px;
@@ -2281,6 +2295,8 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--r);
   background: var(--card);
+  box-shadow: var(--sh-s);
+  transition: box-shadow 0.3s ease;
 }
 
 .checkout-form legend {
@@ -2336,12 +2352,17 @@ button {
   color: var(--muted-2);
 }
 
+.checkout-form input:not([type="radio"]):hover,
+.checkout-form textarea:hover {
+  border-color: #c8ccd1;
+}
+
 .checkout-form input:not([type="radio"]):focus,
 .checkout-form textarea:focus {
   outline: none;
-  border-color: var(--ink);
+  border-color: var(--cobalt);
   background: var(--card);
-  box-shadow: 0 0 0 4px rgba(36, 71, 232, 0.12);
+  box-shadow: 0 0 0 4px rgba(36, 71, 232, 0.1);
 }
 
 .checkout-form label.payment-choice {
@@ -2368,9 +2389,9 @@ button {
 }
 
 .checkout-form label.payment-choice:has(input:checked) {
-  border-color: var(--ink);
-  background: var(--card);
-  box-shadow: var(--sh-s);
+  border-color: var(--cobalt);
+  background: rgba(36, 71, 232, 0.04);
+  box-shadow: 0 0 0 3px rgba(36, 71, 232, 0.08);
 }
 
 .checkout-form label.payment-choice.muted {
@@ -2385,7 +2406,7 @@ button {
 .payment-choice input {
   width: 18px;
   height: 18px;
-  accent-color: var(--ink);
+  accent-color: var(--cobalt);
 }
 
 .payment-choice > span {
@@ -2411,6 +2432,7 @@ button {
   background: var(--danger-tint);
   color: var(--danger);
   font-size: 14px;
+  box-shadow: 0 4px 12px -8px rgba(192, 51, 43, 0.3);
 }
 
 ul.checkout-error {
@@ -2436,6 +2458,7 @@ ul.checkout-error {
   border-radius: 11px;
   background: var(--amb-5);
   overflow: hidden;
+  box-shadow: 0 1px 2px rgba(11, 12, 14, 0.06);
 }
 
 .summary-art img {
@@ -2548,10 +2571,14 @@ ul.checkout-error {
   padding-top: 13px;
   border-top: 1px solid var(--line);
   color: var(--ink);
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 700;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--ink) 0%, var(--cobalt) 130%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .summary-total strong:last-child {
@@ -12394,6 +12421,7 @@ ul.checkout-error {
 
 .custom-delivery-trigger.selected {
   color: var(--ink);
+  border-color: #c8ccd1;
 }
 
 .custom-delivery-trigger:hover {
@@ -12469,9 +12497,9 @@ ul.checkout-error {
 }
 
 .custom-delivery-menu button strong {
-  color: var(--muted);
+  color: var(--cobalt);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .coupon-hint,
@@ -12505,27 +12533,33 @@ ul.checkout-error {
 
 .coupon-apply {
   height: 44px;
-  padding: 0 16px;
+  padding: 0 18px;
   border: 1px solid var(--ink);
   border-radius: 12px;
-  background: var(--ink);
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-2) 100%);
   color: var(--on-dark);
   font: inherit;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 6px 16px -10px rgba(11, 12, 14, 0.5);
   transition:
     background 0.2s var(--e),
     transform 0.2s var(--e);
 }
 
 .coupon-apply:hover {
-  background: var(--ink-2);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px -10px rgba(11, 12, 14, 0.6);
 }
 
 .coupon-apply:active {
   transform: translateY(0);
+}
+
+.coupon-success {
+  color: #2f6b45;
+  font-weight: 500;
 }
 
 /* =========================================================
