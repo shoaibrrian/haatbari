@@ -427,7 +427,7 @@ export default function Home() {
               <a className="btn btn-ink" href="/shop">
                 Shop the catalogue <span>↓</span>
               </a>
-              <Link className="btn btn-line" href="/about">
+              <Link className="btn btn-line" href="/delivery">
                 How delivery works
               </Link>
             </motion.div>
