@@ -438,59 +438,39 @@ export default function Home() {
             </motion.div>
           </div>
 
-          <motion.div {...load(0.18)}>
-            <div className="stage">
-              {stagePicks.length > 0 ? (
-                stagePicks.map((p, i) => (
-                  <motion.span
-                    key={`spot-${p.id}`}
-                    className="spot"
-                    style={{ "--amb": AMBIENTS[i % AMBIENTS.length] }}
-                    initial={false}
-                    animate={{ opacity: i === stageIndex ? 1 : 0 }}
-                    transition={{ duration: 0.45, ease: EASE }}
-                  />
-                ))
-              ) : (
-                <span className="spot" />
-              )}
+          <motion.div className="hero-visual" {...load(0.18)}>
+            <div className="showcase">
               {stageItem && (
-                <>
-                  <MotionLink
-                    key={`obj-${stageItem.id}`}
-                    className="stage-obj"
-                    href={`/products/${stageItem.slug || stageItem.id}`}
-                    initial={{ opacity: 0, scale: 0.94, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.36, ease: EASE }}
+                <MotionLink
+                  key={`obj-${stageItem.id}`}
+                  className="showcase-card"
+                  href={`/products/${stageItem.slug || stageItem.id}`}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: EASE }}
+                >
+                  <span className="showcase-badge">Top Selling</span>
+                  <span
+                    className="showcase-media"
+                    style={{ "--amb": AMBIENTS[stageIndex % AMBIENTS.length] }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={stageItem.image || "/placeholder.png"}
                       alt={stageItem.title}
                     />
-                  </MotionLink>
-                  <motion.span
-                    key={`cap-${stageItem.id}`}
-                    className="stage-cap"
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.05, ease: EASE }}
-                  >
-                    <b>{stageItem.title}</b>
-                    <span>{stageItem.category || "Marketplace"}</span>
-                  </motion.span>
-                  <motion.span
-                    key={`price-${stageItem.id}`}
-                    className="stage-price n"
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.05, ease: EASE }}
-                  >
-                    <span className="tk">৳</span>
-                    {taka(stageItem.price)}
-                  </motion.span>
-                </>
+                  </span>
+                  <span className="showcase-info">
+                    <span className="showcase-text">
+                      <b>{stageItem.title}</b>
+                      <span>{stageItem.category || "Marketplace"}</span>
+                    </span>
+                    <span className="showcase-price n">
+                      <span className="tk">৳</span>
+                      {taka(stageItem.price)}
+                    </span>
+                  </span>
+                </MotionLink>
               )}
             </div>
             {stagePicks.length > 1 && (
