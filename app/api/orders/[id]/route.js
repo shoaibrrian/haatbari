@@ -1,19 +1,12 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
+import { requireAdmin } from "@/lib/auth/require-admin";
+
 import { ok } from "@/lib/http/response";
+
 import { withRoute } from "@/lib/http/with-route";
+
 import { getOrder, updateOrderStatus } from "@/modules/order/order.service";
+
 import readJson from "@/lib/http/read-json";
-
-async function requireAdmin() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user || session.user.role !== "admin") {
-    return null;
-  }
-
-  return session;
-}
 
 function unauthorized() {
   return new Response(
@@ -30,9 +23,9 @@ function unauthorized() {
 }
 
 export const GET = withRoute(async (_request, context) => {
-  const session = await requireAdmin();
+  const admin = await requireAdmin();
 
-  if (!session) {
+  if (!admin) {
     return unauthorized();
   }
 
@@ -44,9 +37,9 @@ export const GET = withRoute(async (_request, context) => {
 });
 
 export const PATCH = withRoute(async (request, context) => {
-  const session = await requireAdmin();
+  const admin = await requireAdmin();
 
-  if (!session) {
+  if (!admin) {
     return unauthorized();
   }
 

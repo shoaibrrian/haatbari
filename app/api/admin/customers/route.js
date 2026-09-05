@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { requireAdmin } from "@/lib/auth/require-admin";
 
-import { authOptions } from "@/lib/auth-options";
 import connectDB from "@/lib/db/connect";
 import Product from "@/modules/product/product.model";
 import Order from "@/modules/order/order.model";
 
 export async function GET(request) {
-  const session = await getServerSession(authOptions);
+  const admin = await requireAdmin();
 
-  if (!session?.user || session.user.role !== "admin") {
+  if (!admin) {
     return NextResponse.json(
       {
         success: false,
