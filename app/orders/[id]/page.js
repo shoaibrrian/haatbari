@@ -159,10 +159,6 @@ export default function OrderDetailsPage() {
     <main className="order-details-page page-width">
       <header className="order-details-header">
         <div>
-          <Link href="/orders" className="order-details-back">
-            ← My orders
-          </Link>
-
           <p className="eyebrow">Order details</p>
 
           <h1>

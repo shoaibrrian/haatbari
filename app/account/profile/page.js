@@ -168,10 +168,6 @@ export default function AccountProfilePage() {
     <main className="account-profile-page page-width">
       <header className="account-profile-header">
         <div>
-          <Link href="/customer/dashboard" className="account-profile-back">
-            ← Dashboard
-          </Link>
-
           <p className="eyebrow">Account settings</p>
 
           <h1>
