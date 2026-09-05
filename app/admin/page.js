@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useUser } from "@clerk/nextjs";
 
 function formatMoney(value) {
   const amount = Number(value || 0);
@@ -29,12 +29,13 @@ function formatGrowth(value) {
 }
 
 export default function AdminPage() {
-  const { data: session } = useSession();
+  const { isLoaded, user } = useUser();
 
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const adminName = session?.user?.firstName || session?.user?.name || "Admin";
+  const adminName =
+    user?.firstName || user?.fullName || user?.username || "Admin";
 
   async function loadDashboard() {
     try {
@@ -59,8 +60,10 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
-    loadDashboard();
-  }, []);
+    if (isLoaded && user) {
+      loadDashboard();
+    }
+  }, [isLoaded, user]);
 
   const stats = [
     {
