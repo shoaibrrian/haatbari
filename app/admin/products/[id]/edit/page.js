@@ -406,10 +406,6 @@ export default function EditProductPage({ params }) {
   if (error && !title && !loading) {
     return (
       <main className="admin-product-form page-width">
-        <Link href="/admin/products" className="admin-back">
-          ← Products
-        </Link>
-
         <div className="admin-product-error">
           <span>{error}</span>
 
@@ -424,10 +420,6 @@ export default function EditProductPage({ params }) {
       {/* HEADER */}
       <header className="admin-form-header">
         <div>
-          <Link href="/admin/products" className="admin-back">
-            ← Products
-          </Link>
-
           <span className="eyebrow">HaatBari · Catalogue</span>
 
           <h1>

@@ -331,10 +331,6 @@ export default function AdminProductsPage() {
       {/* HEADER */}
       <header className="admin-products-header">
         <div>
-          <Link href="/admin" className="admin-back">
-            ← Dashboard
-          </Link>
-
           <span className="eyebrow">HaatBari · Catalogue</span>
 
           <h1>

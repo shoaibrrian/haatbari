@@ -224,10 +224,6 @@ export default function NewProductPage() {
     <main className="admin-new-product page-width">
       <header className="admin-new-product-header">
         <div>
-          <Link href="/admin/products" className="admin-back">
-            ← Products
-          </Link>
-
           <span className="eyebrow">HaatBari · Catalogue</span>
 
           <h1>
