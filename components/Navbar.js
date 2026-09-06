@@ -439,9 +439,43 @@ export default function Navbar() {
               Wishlist
               {wishCount > 0 && <i>{wishCount}</i>}
             </button>
-            <Link className="icon-btn cart-btn" href="/cart">
+            <button
+              type="button"
+              className="icon-btn cart-btn"
+              onClick={async () => {
+                if (user?.publicMetadata?.role === "admin") {
+                  await Swal.fire({
+                    title: "Admin account",
+                    text: "Cart is available for customer accounts only.",
+                    icon: "info",
+                    confirmButtonText: "Got it",
+                  });
+
+                  return;
+                }
+
+                if (!isSignedIn) {
+                  const result = await Swal.fire({
+                    title: "Sign in required",
+                    text: "Please sign in to view your cart.",
+                    icon: "info",
+                    confirmButtonText: "Sign in",
+                    showCancelButton: true,
+                    cancelButtonText: "Cancel",
+                  });
+
+                  if (result.isConfirmed) {
+                    window.location.href = "/account";
+                  }
+
+                  return;
+                }
+
+                window.location.href = "/cart";
+              }}
+            >
               Cart <i>{count}</i>
-            </Link>
+            </button>
             <Link className="btn btn-ink btn-sm" href="/checkout">
               Checkout
             </Link>
