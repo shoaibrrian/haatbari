@@ -55,6 +55,7 @@ export default function Navbar() {
   const [profileName, setProfileName] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [accountOpen, setAccountOpen] = useState(false);
 
   /* MOBILE MENU */
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -141,6 +142,20 @@ export default function Navbar() {
 
     return () => {
       window.removeEventListener("keydown", handleSearchEscape);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleAccountOutsideClick = (event) => {
+      if (!event.target.closest(".account-menu")) {
+        setAccountOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleAccountOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleAccountOutsideClick);
     };
   }, []);
 
@@ -635,10 +650,19 @@ export default function Navbar() {
             {/* ACCOUNT */}
 
             <div className="account-menu">
-              <Link
+              <button
+                type="button"
                 className="icon-btn account-btn"
-                href="/account"
                 aria-label="Account"
+                aria-expanded={accountOpen}
+                onClick={() => {
+                  setAccountOpen((open) => !open);
+                  setSearchOpen(false);
+                  setMobileMenuOpen(false);
+                  setCategoryOpen(false);
+                  setOffersOpen(false);
+                  setOffersPinned(false);
+                }}
               >
                 {isLoaded && isSignedIn && user ? (
                   user.hasImage ? (
@@ -678,9 +702,9 @@ export default function Navbar() {
                     />
                   </svg>
                 )}
-              </Link>
+              </button>
 
-              {isLoaded && isSignedIn ? (
+              {isLoaded && isSignedIn && accountOpen ? (
                 <div className="account-dropdown">
                   <div className="account-dropdown-user">
                     <strong>
