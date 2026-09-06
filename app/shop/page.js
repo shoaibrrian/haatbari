@@ -8,7 +8,7 @@ import { addToCart } from "@/lib/cart";
 import { getProducts } from "@/lib/products-cache";
 import { apiFetch } from "@/lib/api-client";
 import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/wishlist";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
@@ -59,6 +59,7 @@ function isSaleProduct(product) {
 
 export default function ShopPage() {
   const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
 
   const router = useRouter();
   const [products, setProducts] = useState([]);
@@ -458,6 +459,17 @@ export default function ShopPage() {
   --------------------------------- */
 
   const add = (product) => {
+    if (user?.publicMetadata?.role === "admin") {
+      Swal.fire({
+        title: "Admin account",
+        text: "Adding products to cart is available for customer accounts only.",
+        icon: "info",
+        confirmButtonText: "Got it",
+      });
+
+      return;
+    }
+
     if (!product.inStock) return;
 
     addToCart({
@@ -489,6 +501,17 @@ export default function ShopPage() {
     }
 
     if (!isLoaded) return;
+
+    if (user?.publicMetadata?.role === "admin") {
+      await Swal.fire({
+        title: "Admin account",
+        text: "Wishlist is available for customer accounts only.",
+        icon: "info",
+        confirmButtonText: "Got it",
+      });
+
+      return;
+    }
 
     if (!isSignedIn) {
       const result = await Swal.fire({

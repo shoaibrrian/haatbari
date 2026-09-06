@@ -476,9 +476,43 @@ export default function Navbar() {
             >
               Cart <i>{count}</i>
             </button>
-            <Link className="btn btn-ink btn-sm" href="/checkout">
+            <button
+              type="button"
+              className="btn btn-ink btn-sm"
+              onClick={async () => {
+                if (user?.publicMetadata?.role === "admin") {
+                  await Swal.fire({
+                    title: "Admin account",
+                    text: "Checkout is available for customer accounts only.",
+                    icon: "info",
+                    confirmButtonText: "Got it",
+                  });
+
+                  return;
+                }
+
+                if (!isSignedIn) {
+                  const result = await Swal.fire({
+                    title: "Sign in required",
+                    text: "Please sign in to continue to checkout.",
+                    icon: "info",
+                    confirmButtonText: "Sign in",
+                    showCancelButton: true,
+                    cancelButtonText: "Cancel",
+                  });
+
+                  if (result.isConfirmed) {
+                    window.location.href = "/account";
+                  }
+
+                  return;
+                }
+
+                window.location.href = "/checkout";
+              }}
+            >
               Checkout
-            </Link>
+            </button>
 
             <div className="account-menu">
               <Link
