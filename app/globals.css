@@ -13905,3 +13905,39 @@ ul.checkout-error {
 .tools .account-btn {
   display: grid;
 }
+
+/* =====================================================
+   MOBILE ACCOUNT DROPDOWN
+   Desktop account behavior remains unchanged
+   ===================================================== */
+
+@media (max-width: 900px) {
+  .account-menu {
+    position: relative;
+  }
+
+  .account-menu .account-dropdown {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(8px);
+  }
+
+  .account-menu:has(.account-btn[aria-expanded="true"]) .account-dropdown {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .account-btn {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .navbar-avatar {
+    display: block;
+  }
+}

@@ -650,18 +650,21 @@ export default function Navbar() {
             {/* ACCOUNT */}
 
             <div className="account-menu">
-              <button
-                type="button"
+              <Link
                 className="icon-btn account-btn"
+                href="/account"
                 aria-label="Account"
                 aria-expanded={accountOpen}
-                onClick={() => {
-                  setAccountOpen((open) => !open);
-                  setSearchOpen(false);
-                  setMobileMenuOpen(false);
-                  setCategoryOpen(false);
-                  setOffersOpen(false);
-                  setOffersPinned(false);
+                onClick={(e) => {
+                  if (isSignedIn && window.innerWidth <= 900) {
+                    e.preventDefault();
+                    setAccountOpen((open) => !open);
+                    setSearchOpen(false);
+                    setMobileMenuOpen(false);
+                    setCategoryOpen(false);
+                    setOffersOpen(false);
+                    setOffersPinned(false);
+                  }
                 }}
               >
                 {isLoaded && isSignedIn && user ? (
@@ -702,9 +705,9 @@ export default function Navbar() {
                     />
                   </svg>
                 )}
-              </button>
+              </Link>
 
-              {isLoaded && isSignedIn && accountOpen ? (
+              {isLoaded && isSignedIn ? (
                 <div className="account-dropdown">
                   <div className="account-dropdown-user">
                     <strong>
