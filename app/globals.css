@@ -8786,7 +8786,8 @@ ul.checkout-error {
 
 .admin-status-tabs button.active {
   color: var(--on-dark);
-  background: var(--ink);
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-2) 100%);
+  box-shadow: 0 6px 14px -8px rgba(11, 12, 14, 0.4);
 }
 
 .admin-status-tabs button:disabled {
@@ -8809,13 +8810,14 @@ ul.checkout-error {
     transform 180ms var(--e),
     background 180ms var(--e),
     border-color 180ms var(--e),
-    opacity 180ms var(--e);
+    box-shadow 180ms var(--e);
 }
 
 .admin-refresh:hover:not(:disabled) {
   transform: translateY(-1px);
-  border-color: var(--ink);
+  border-color: var(--cobalt);
   background: var(--card);
+  box-shadow: 0 6px 14px -8px rgba(36, 71, 232, 0.25);
 }
 
 .admin-refresh:disabled {
@@ -8857,7 +8859,7 @@ ul.checkout-error {
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--muted);
-  background: var(--page);
+  background: linear-gradient(135deg, var(--page) 0%, var(--page-2) 100%);
   font-size: 11px;
   font-weight: 700;
 }
@@ -8893,10 +8895,25 @@ ul.checkout-error {
 }
 
 .admin-order-row {
+  position: relative;
   min-height: 88px;
   padding: 16px 28px;
   border-bottom: 1px solid var(--line-2);
   transition: background 180ms var(--e);
+}
+
+.admin-order-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--cobalt);
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform 0.3s var(--e);
 }
 
 .admin-order-row:last-child {
@@ -8905,6 +8922,10 @@ ul.checkout-error {
 
 .admin-order-row:hover {
   background: #fafafa;
+}
+
+.admin-order-row:hover::before {
+  transform: scaleY(1);
 }
 
 .admin-order-id,
@@ -8953,6 +8974,11 @@ ul.checkout-error {
 .admin-order-total strong {
   color: var(--ink);
   font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .admin-order-total span {
@@ -8980,17 +9006,20 @@ ul.checkout-error {
   transition:
     transform 180ms var(--e),
     border-color 180ms var(--e),
-    background 180ms var(--e);
+    background 180ms var(--e),
+    box-shadow 180ms var(--e);
 }
 
 .admin-order-action a:hover {
   transform: translateY(-1px);
-  border-color: var(--ink);
-  background: var(--page);
+  border-color: var(--cobalt);
+  background: rgba(36, 71, 232, 0.04);
+  box-shadow: 0 6px 14px -8px rgba(36, 71, 232, 0.2);
 }
 
 .admin-order-action a span {
   font-size: 13px;
+  color: var(--cobalt);
   transition: transform 180ms var(--e);
 }
 
@@ -9028,7 +9057,7 @@ ul.checkout-error {
   height: 28px;
   margin-bottom: 15px;
   border: 2px solid var(--line);
-  border-top-color: var(--ink);
+  border-top-color: var(--cobalt);
   border-radius: 50%;
   animation: admin-orders-spin 700ms linear infinite;
 }
@@ -9134,6 +9163,11 @@ ul.checkout-error {
   border-radius: var(--r);
   background: var(--card);
   box-shadow: var(--sh-s);
+  transition: box-shadow 0.3s ease;
+}
+
+.admin-detail-card:hover {
+  box-shadow: var(--sh-m);
 }
 
 .admin-detail-card-head {
@@ -9163,10 +9197,15 @@ ul.checkout-error {
   gap: 16px;
   padding: 18px 0;
   border-bottom: 1px solid var(--line-2);
+  transition: padding-left 0.25s var(--e);
 }
 
 .admin-order-item:last-child {
   border-bottom: 0;
+}
+
+.admin-order-item:hover {
+  padding-left: 6px;
 }
 
 .admin-order-item-image {
@@ -9179,6 +9218,7 @@ ul.checkout-error {
   border-radius: 14px;
   background: var(--page);
   border: 1px solid var(--line-2);
+  box-shadow: 0 1px 2px rgba(11, 12, 14, 0.05);
 }
 
 .admin-order-item-image img {
@@ -9217,6 +9257,10 @@ ul.checkout-error {
   color: var(--ink);
   font-size: 13px;
   white-space: nowrap;
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .admin-order-summary {
@@ -9244,7 +9288,7 @@ ul.checkout-error {
 
 .admin-order-summary-total {
   margin-top: 10px;
-  padding-top: 16px !important;
+  padding: 14px 0 0 !important;
   border-top: 1px solid var(--line);
 }
 
@@ -9253,6 +9297,13 @@ ul.checkout-error {
   color: var(--ink);
   font-size: 15px;
   font-weight: 800;
+}
+
+.admin-order-summary-total strong {
+  background: linear-gradient(135deg, var(--ink) 0%, var(--cobalt) 130%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .admin-customer-profile {
@@ -9275,11 +9326,12 @@ ul.checkout-error {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--ink);
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-2) 100%);
   color: var(--on-dark);
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
+  box-shadow: 0 6px 14px -8px rgba(11, 12, 14, 0.4);
 }
 
 .admin-customer-profile-info {
@@ -9406,13 +9458,13 @@ ul.checkout-error {
 
 .admin-order-status-button:hover:not(:disabled) {
   transform: translateY(-1px);
-  border-color: var(--ink);
-  background: var(--page);
-  box-shadow: var(--sh-s);
+  border-color: var(--cobalt);
+  background: rgba(36, 71, 232, 0.03);
+  box-shadow: 0 8px 18px -12px rgba(36, 71, 232, 0.25);
 }
 
 .admin-order-status-button:hover:not(:disabled)::after {
-  color: var(--ink);
+  color: var(--cobalt);
   transform: translateX(3px);
 }
 
@@ -9481,6 +9533,33 @@ ul.checkout-error {
   color: var(--muted);
   font-size: 11px;
   line-height: 1.5;
+}
+
+.order-customer-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--line-2);
+}
+
+.order-customer-row .admin-customer-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.order-customer-row .admin-customer-profile-info strong {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.order-customer-row .admin-customer-profile-info span {
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .admin-order-meta-card {
@@ -9556,18 +9635,18 @@ ul.checkout-error {
   align-items: center;
   justify-content: center;
   min-height: 28px;
-  padding: 0 10px;
+  padding: 0 12px;
   border-radius: 999px;
   font-size: 10px;
   font-weight: 800;
   line-height: 1;
   white-space: nowrap;
+  letter-spacing: 0.02em;
 }
 
 .status-pending {
-  color: #a16c16;
-  background: rgba(161, 108, 22, 0.1);
-  border-color: rgba(161, 108, 22, 0.2);
+  color: #7a5b16;
+  background: var(--amb-2);
 }
 
 .status-confirmed {

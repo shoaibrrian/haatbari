@@ -181,10 +181,6 @@ export default function AdminOrderDetailsPage({ params }) {
   if (error && !order) {
     return (
       <main className="admin-page page-width">
-        <Link href="/admin/orders" className="admin-back">
-          ← Orders
-        </Link>
-
         <div className="admin-empty admin-order-error-state">
           <p className="eyebrow">Unable to load</p>
           <h2>Order not found.</h2>
@@ -208,10 +204,6 @@ export default function AdminOrderDetailsPage({ params }) {
     <main className="admin-page page-width">
       <header className="admin-order-detail-header">
         <div>
-          <Link href="/admin/orders" className="admin-back">
-            ← Orders
-          </Link>
-
           <p className="eyebrow">Order details</p>
 
           <h1>
@@ -220,7 +212,7 @@ export default function AdminOrderDetailsPage({ params }) {
             <em>#{order.id.slice(-8).toUpperCase()}.</em>
           </h1>
 
-          <p className="admin-subtitle">
+          <p className="admin-header-copy">
             Placed on {formatDate(order.createdAt)}
           </p>
         </div>
@@ -303,7 +295,7 @@ export default function AdminOrderDetailsPage({ params }) {
               </div>
             </div>
 
-            <div className="admin-customer-profile">
+            <div className="admin-customer-row">
               <div className="admin-customer-avatar">
                 {order.customer.firstName?.charAt(0)}
                 {order.customer.lastName?.charAt(0)}

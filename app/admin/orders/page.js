@@ -96,12 +96,8 @@ export default function AdminOrdersPage() {
 
   return (
     <main className="admin-page page-width">
-      <header className="admin-page-header">
+      <header className="admin-header">
         <div>
-          <Link href="/admin" className="admin-back">
-            ← Dashboard
-          </Link>
-
           <p className="eyebrow">Store operations</p>
 
           <h1>
@@ -110,7 +106,7 @@ export default function AdminOrdersPage() {
             <em>orders.</em>
           </h1>
 
-          <p className="admin-subtitle">
+          <p className="admin-header-copy">
             Review customer orders and keep fulfilment moving.
           </p>
         </div>
