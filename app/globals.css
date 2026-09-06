@@ -5614,7 +5614,7 @@ ul.checkout-error {
   justify-content: center;
   gap: 7px;
   white-space: nowrap;
-  padding: 10px 10px;
+  padding: 0 10px;
 }
 
 .account-btn svg {
