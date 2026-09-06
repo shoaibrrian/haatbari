@@ -11,7 +11,14 @@ import { useAuth, useUser } from "@clerk/nextjs";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
-import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/wishlist";
+import {
+  getWishlist,
+  addToWishlist,
+  removeFromWishlist,
+  getGuestWishlist,
+  addToGuestWishlist,
+  removeFromGuestWishlist,
+} from "@/lib/wishlist";
 
 import {
   Smartphone,
@@ -152,7 +159,7 @@ export default function Home() {
 
     async function loadWishlist() {
       if (!isSignedIn) {
-        setSaved([]);
+        setSaved(getGuestWishlist());
         return;
       }
 
@@ -284,34 +291,35 @@ export default function Home() {
       return;
     }
 
-    if (!isSignedIn) {
-      const result = await Swal.fire({
-        title: "Sign in required",
-        text: "Please sign in to save products to your wishlist.",
-        icon: "info",
-        confirmButtonText: "Sign in",
-        showCancelButton: true,
-        cancelButtonText: "Cancel",
-      });
-
-      if (result.isConfirmed) {
-        router.push("/account");
-      }
-
-      return;
-    }
-
-    const alreadySaved = saved.includes(id);
+    const productId = String(id);
+    const alreadySaved = saved.includes(productId);
 
     try {
+      // GUEST → LOCAL STORAGE
+      if (!isSignedIn) {
+        if (alreadySaved) {
+          const updated = removeFromGuestWishlist(productId);
+          setSaved(updated);
+        } else {
+          const updated = addToGuestWishlist(productId);
+          setSaved(updated);
+        }
+
+        window.dispatchEvent(new Event("wishlist-updated"));
+        return;
+      }
+
+      // CUSTOMER → MONGODB
       if (alreadySaved) {
-        await removeFromWishlist(id);
+        await removeFromWishlist(productId);
 
-        setSaved((current) => current.filter((item) => item !== id));
+        setSaved((current) => current.filter((item) => item !== productId));
       } else {
-        await addToWishlist(id);
+        await addToWishlist(productId);
 
-        setSaved((current) => [...current, id]);
+        setSaved((current) =>
+          current.includes(productId) ? current : [...current, productId],
+        );
       }
 
       window.dispatchEvent(new Event("wishlist-updated"));
@@ -385,10 +393,10 @@ export default function Home() {
         type="button"
         className="save"
         aria-label={`Save ${p.title}`}
-        aria-pressed={saved.includes(p.id)}
-        onClick={() => toggleSave(p.id)}
+        aria-pressed={saved.includes(String(p.id || p._id))}
+        onClick={() => toggleSave(String(p.id || p._id))}
       >
-        {saved.includes(p.id) ? "♥" : "♡"}
+        {saved.includes(String(p.id || p._id)) ? "♥" : "♡"}
       </button>
       <div className="prod-in">
         <div>
