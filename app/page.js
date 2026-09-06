@@ -7,7 +7,7 @@ import { EASE, rise } from "@/components/Motion";
 import { addToCart } from "@/lib/cart";
 import { getProducts } from "@/lib/products-cache";
 import { apiFetch } from "@/lib/api-client";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
@@ -119,6 +119,7 @@ function Fact({ to, pre = "", post = "", label }) {
 
 export default function Home() {
   const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
   const router = useRouter();
   const [products, setProducts] = useState([]);
   const [results, setResults] = useState(null);
@@ -241,6 +242,17 @@ export default function Home() {
   };
 
   const add = (p) => {
+    if (user?.publicMetadata?.role === "admin") {
+      Swal.fire({
+        title: "Admin account",
+        text: "Adding products to cart is available for customer accounts only.",
+        icon: "info",
+        confirmButtonText: "Got it",
+      });
+
+      return;
+    }
+
     addToCart({
       id: p.id,
       title: p.title,
@@ -249,7 +261,9 @@ export default function Home() {
       category: p.category,
       image: p.image,
     });
+
     setAddedId(p.id);
+
     setTimeout(
       () => setAddedId((current) => (current === p.id ? null : current)),
       1500,
@@ -258,6 +272,17 @@ export default function Home() {
 
   const toggleSave = async (id) => {
     if (!isLoaded) return;
+
+    if (user?.publicMetadata?.role === "admin") {
+      await Swal.fire({
+        title: "Admin account",
+        text: "Wishlist is available for customer accounts only.",
+        icon: "info",
+        confirmButtonText: "Got it",
+      });
+
+      return;
+    }
 
     if (!isSignedIn) {
       const result = await Swal.fire({
