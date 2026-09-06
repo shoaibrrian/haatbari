@@ -45,6 +45,7 @@ const CATEGORIES = [
 export default function Navbar() {
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useClerk();
+
   const [count, setCount] = useState(0);
   const [wishCount, setWishCount] = useState(0);
   const [stuck, setStuck] = useState(false);
@@ -54,6 +55,9 @@ export default function Navbar() {
   const [profileName, setProfileName] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  /* MOBILE MENU */
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn) {
@@ -140,8 +144,180 @@ export default function Navbar() {
     };
   }, []);
 
+  /*
+   * Close mobile menu when clicking Escape
+   */
+  useEffect(() => {
+    function handleMobileEscape(event) {
+      if (event.key === "Escape") {
+        setMobileMenuOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleMobileEscape);
+
+    return () => {
+      window.removeEventListener("keydown", handleMobileEscape);
+    };
+  }, []);
+
+  /*
+   * Prevent body scrolling while mobile menu is open
+   */
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileMenuOpen]);
+
+  /*
+   * Close mobile menu when screen becomes desktop
+   */
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 900) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  /*
+   * Close mobile menu helper
+   */
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  /*
+   * EXISTING WISHLIST BEHAVIOR
+   * Kept exactly the same.
+   */
+  const handleWishlist = async () => {
+    closeMobileMenu();
+
+    if (user?.publicMetadata?.role === "admin") {
+      await Swal.fire({
+        title: "Admin account",
+        text: "Wishlist is available for customer accounts only.",
+        icon: "info",
+        confirmButtonText: "Got it",
+      });
+
+      return;
+    }
+
+    if (!isSignedIn) {
+      const result = await Swal.fire({
+        title: "Sign in required",
+        text: "Please sign in to view your wishlist.",
+        icon: "info",
+        confirmButtonText: "Sign in",
+        showCancelButton: true,
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        window.location.href = "/account";
+      }
+
+      return;
+    }
+
+    window.location.href = "/wishlist";
+  };
+
+  /*
+   * EXISTING CART BEHAVIOR
+   * Kept exactly the same.
+   */
+  const handleCart = async () => {
+    closeMobileMenu();
+
+    if (user?.publicMetadata?.role === "admin") {
+      await Swal.fire({
+        title: "Admin account",
+        text: "Cart is available for customer accounts only.",
+        icon: "info",
+        confirmButtonText: "Got it",
+      });
+
+      return;
+    }
+
+    if (!isSignedIn) {
+      const result = await Swal.fire({
+        title: "Sign in required",
+        text: "Please sign in to view your cart.",
+        icon: "info",
+        confirmButtonText: "Sign in",
+        showCancelButton: true,
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        window.location.href = "/account";
+      }
+
+      return;
+    }
+
+    window.location.href = "/cart";
+  };
+
+  /*
+   * EXISTING CHECKOUT BEHAVIOR
+   * Kept exactly the same.
+   */
+  const handleCheckout = async () => {
+    closeMobileMenu();
+
+    if (user?.publicMetadata?.role === "admin") {
+      await Swal.fire({
+        title: "Admin account",
+        text: "Checkout is available for customer accounts only.",
+        icon: "info",
+        confirmButtonText: "Got it",
+      });
+
+      return;
+    }
+
+    if (!isSignedIn) {
+      const result = await Swal.fire({
+        title: "Sign in required",
+        text: "Please sign in to continue to checkout.",
+        icon: "info",
+        confirmButtonText: "Sign in",
+        showCancelButton: true,
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        window.location.href = "/account";
+      }
+
+      return;
+    }
+
+    window.location.href = "/checkout";
+  };
+
   return (
     <>
+      {/* =====================================================
+          TOP UTILITY BAR
+          ===================================================== */}
+
       <div className="util">
         <div className="shell util-in">
           <span>
@@ -156,9 +332,14 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* =====================================================
+          NAVBAR
+          ===================================================== */}
+
       <header className={stuck ? "nav stuck" : "nav"}>
         <div className="shell nav-in">
           {/* LOGO */}
+
           <Link
             className="brand"
             href="/"
@@ -178,11 +359,15 @@ export default function Navbar() {
             <b>HaatBari</b>
           </Link>
 
-          {/* MAIN MENU */}
+          {/* =================================================
+              DESKTOP MAIN MENU
+              ================================================= */}
+
           <nav className="menu" aria-label="Main navigation">
             <Link href="/shop">Shop</Link>
 
             {/* CATEGORIES */}
+
             <div
               className="nav-category"
               onMouseEnter={() => setCategoryOpen(true)}
@@ -205,7 +390,9 @@ export default function Navbar() {
                   <div className="category-mega-inner">
                     <div className="category-heading">
                       <span className="kicker">Browse</span>
+
                       <h2>Shop by category</h2>
+
                       <p>Find everything you need from HaatBari sellers.</p>
 
                       <Link
@@ -250,6 +437,8 @@ export default function Navbar() {
                 </div>
               )}
             </div>
+
+            {/* OFFERS */}
 
             <div
               className="nav-offers"
@@ -331,11 +520,17 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
+
             <Link href="/about">Our story</Link>
           </nav>
 
-          {/* RIGHT SIDE TOOLS */}
+          {/* =================================================
+              RIGHT SIDE TOOLS
+              ================================================= */}
+
           <div className="tools">
+            {/* SEARCH */}
+
             <button
               type="button"
               className="icon-btn"
@@ -359,6 +554,8 @@ export default function Navbar() {
               </svg>
             </button>
 
+            {/* SEARCH POPOVER */}
+
             {searchOpen && (
               <div className="search-popover">
                 <form
@@ -369,7 +566,9 @@ export default function Navbar() {
 
                     if (!query) return;
 
-                    window.location.href = `/shop?search=${encodeURIComponent(query)}`;
+                    window.location.href = `/shop?search=${encodeURIComponent(
+                      query,
+                    )}`;
                   }}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -380,6 +579,7 @@ export default function Navbar() {
                       stroke="currentColor"
                       strokeWidth="1.6"
                     />
+
                     <path
                       d="M16 16l4.5 4.5"
                       stroke="currentColor"
@@ -400,119 +600,39 @@ export default function Navbar() {
               </div>
             )}
 
+            {/* DESKTOP WISHLIST */}
+
             <button
               type="button"
               className="icon-btn wishlist-btn"
               aria-label={`Wishlist ${wishCount} items`}
-              onClick={async () => {
-                if (user?.publicMetadata?.role === "admin") {
-                  await Swal.fire({
-                    title: "Admin account",
-                    text: "Wishlist is available for customer accounts only.",
-                    icon: "info",
-                    confirmButtonText: "Got it",
-                  });
-
-                  return;
-                }
-
-                if (!isSignedIn) {
-                  const result = await Swal.fire({
-                    title: "Sign in required",
-                    text: "Please sign in to view your wishlist.",
-                    icon: "info",
-                    confirmButtonText: "Sign in",
-                    showCancelButton: true,
-                    cancelButtonText: "Cancel",
-                  });
-
-                  if (result.isConfirmed) {
-                    window.location.href = "/account";
-                  }
-
-                  return;
-                }
-
-                window.location.href = "/wishlist";
-              }}
+              onClick={handleWishlist}
             >
               Wishlist
               {wishCount > 0 && <i>{wishCount}</i>}
             </button>
+
+            {/* DESKTOP CART */}
+
             <button
               type="button"
               className="icon-btn cart-btn"
-              onClick={async () => {
-                if (user?.publicMetadata?.role === "admin") {
-                  await Swal.fire({
-                    title: "Admin account",
-                    text: "Cart is available for customer accounts only.",
-                    icon: "info",
-                    confirmButtonText: "Got it",
-                  });
-
-                  return;
-                }
-
-                if (!isSignedIn) {
-                  const result = await Swal.fire({
-                    title: "Sign in required",
-                    text: "Please sign in to view your cart.",
-                    icon: "info",
-                    confirmButtonText: "Sign in",
-                    showCancelButton: true,
-                    cancelButtonText: "Cancel",
-                  });
-
-                  if (result.isConfirmed) {
-                    window.location.href = "/account";
-                  }
-
-                  return;
-                }
-
-                window.location.href = "/cart";
-              }}
+              onClick={handleCart}
             >
               Cart <i>{count}</i>
             </button>
+
+            {/* DESKTOP CHECKOUT */}
+
             <button
               type="button"
-              className="btn btn-ink btn-sm"
-              onClick={async () => {
-                if (user?.publicMetadata?.role === "admin") {
-                  await Swal.fire({
-                    title: "Admin account",
-                    text: "Checkout is available for customer accounts only.",
-                    icon: "info",
-                    confirmButtonText: "Got it",
-                  });
-
-                  return;
-                }
-
-                if (!isSignedIn) {
-                  const result = await Swal.fire({
-                    title: "Sign in required",
-                    text: "Please sign in to continue to checkout.",
-                    icon: "info",
-                    confirmButtonText: "Sign in",
-                    showCancelButton: true,
-                    cancelButtonText: "Cancel",
-                  });
-
-                  if (result.isConfirmed) {
-                    window.location.href = "/account";
-                  }
-
-                  return;
-                }
-
-                window.location.href = "/checkout";
-              }}
+              className="btn btn-ink btn-sm checkout-nav-btn"
+              onClick={handleCheckout}
             >
               Checkout
             </button>
+
+            {/* ACCOUNT */}
 
             <div className="account-menu">
               <Link
@@ -549,6 +669,7 @@ export default function Navbar() {
                       stroke="currentColor"
                       strokeWidth="1.8"
                     />
+
                     <path
                       d="M4.5 21c.9-4.2 3.5-6.3 7.5-6.3s6.6 2.1 7.5 6.3"
                       stroke="currentColor"
@@ -568,6 +689,7 @@ export default function Navbar() {
                         user?.firstName ||
                         "Customer"}
                     </strong>
+
                     <span>{user?.primaryEmailAddress?.emailAddress || ""}</span>
                   </div>
 
@@ -576,15 +698,21 @@ export default function Navbar() {
                   {user?.publicMetadata?.role === "admin" ? (
                     <>
                       <Link href="/admin">Admin Dashboard</Link>
+
                       <Link href="/admin/products">Manage Products</Link>
+
                       <Link href="/admin/orders">Manage Orders</Link>
                     </>
                   ) : (
                     <>
                       <Link href="/account/profile">My Account</Link>
+
                       <Link href="/customer/dashboard">Customer Dashboard</Link>
+
                       <Link href="/orders">My Orders</Link>
+
                       <Link href="/wishlist">Wishlist</Link>
+
                       <Link href="/cart">Cart</Link>
                     </>
                   )}
@@ -601,8 +729,107 @@ export default function Navbar() {
                 </div>
               ) : null}
             </div>
+            {/* MOBILE HAMBURGER */}
+
+            <button
+              type="button"
+              className="mobile-menu-btn"
+              aria-label={
+                mobileMenuOpen
+                  ? "Close navigation menu"
+                  : "Open navigation menu"
+              }
+              aria-expanded={mobileMenuOpen}
+              onClick={() => {
+                setMobileMenuOpen((open) => !open);
+                setSearchOpen(false);
+                setCategoryOpen(false);
+                setOffersOpen(false);
+                setOffersPinned(false);
+              }}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
           </div>
         </div>
+
+        {/* =====================================================
+            MOBILE MENU
+            ===================================================== */}
+
+        {mobileMenuOpen && (
+          <div className="mobile-menu-panel">
+            <div className="shell mobile-menu-inner">
+              {/* SHOP */}
+
+              <Link href="/shop" onClick={closeMobileMenu}>
+                <span>Shop</span>
+                <span className="mobile-menu-arrow">→</span>
+              </Link>
+
+              {/* CATEGORIES */}
+
+              <Link href="/shop" onClick={closeMobileMenu}>
+                <span>Categories</span>
+                <span className="mobile-menu-arrow">→</span>
+              </Link>
+
+              {/* OFFERS */}
+
+              <Link href="/offers" onClick={closeMobileMenu}>
+                <span>Offers</span>
+                <span className="mobile-menu-arrow">→</span>
+              </Link>
+
+              {/* OUR STORY */}
+
+              <Link href="/about" onClick={closeMobileMenu}>
+                <span>Our story</span>
+                <span className="mobile-menu-arrow">→</span>
+              </Link>
+
+              <div className="mobile-menu-divider" />
+
+              {/* WISHLIST — SAME EXISTING BEHAVIOR */}
+
+              <button
+                type="button"
+                className="mobile-menu-action"
+                onClick={handleWishlist}
+              >
+                <span>Wishlist</span>
+
+                {wishCount > 0 && <i>{wishCount}</i>}
+              </button>
+
+              {/* CART — SAME EXISTING BEHAVIOR */}
+
+              <button
+                type="button"
+                className="mobile-menu-action"
+                onClick={handleCart}
+              >
+                <span>Cart</span>
+
+                <i>{count}</i>
+              </button>
+
+              {/* CHECKOUT — SAME EXISTING BEHAVIOR */}
+
+              <button
+                type="button"
+                className="mobile-menu-action"
+                onClick={handleCheckout}
+              >
+                <span>Checkout</span>
+
+                <span className="mobile-menu-arrow">→</span>
+              </button>
+            </div>
+          </div>
+        )}
       </header>
     </>
   );
