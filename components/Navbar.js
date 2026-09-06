@@ -405,6 +405,17 @@ export default function Navbar() {
               className="icon-btn wishlist-btn"
               aria-label={`Wishlist ${wishCount} items`}
               onClick={async () => {
+                if (user?.publicMetadata?.role === "admin") {
+                  await Swal.fire({
+                    title: "Admin account",
+                    text: "Wishlist is available for customer accounts only.",
+                    icon: "info",
+                    confirmButtonText: "Got it",
+                  });
+
+                  return;
+                }
+
                 if (!isSignedIn) {
                   const result = await Swal.fire({
                     title: "Sign in required",
