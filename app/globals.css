@@ -13742,13 +13742,26 @@ ul.checkout-error {
     color: var(--ink);
     cursor: pointer;
     flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(11, 12, 14, 0.03);
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s var(--e);
+  }
+
+  .mobile-menu-btn:hover {
+    border-color: var(--cobalt);
+    box-shadow: 0 6px 14px -8px rgba(36, 71, 232, 0.3);
+    transform: translateY(-1px);
   }
 
   /* Hamburger → X */
   .mobile-menu-btn span {
     transition:
-      transform 0.25s ease,
-      opacity 0.2s ease;
+      transform 0.25s var(--e),
+      opacity 0.2s ease,
+      background-color 0.2s ease;
   }
 
   .mobile-menu-btn[aria-expanded="true"] span:nth-child(1) {
@@ -13774,11 +13787,24 @@ ul.checkout-error {
     left: 0;
     right: 0;
     z-index: 9999;
-    padding: 10px 0 16px;
-    background: var(--card);
+    padding: 14px 0 18px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(18px) saturate(150%);
     border-top: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
-    box-shadow: var(--shadow-2);
+    box-shadow: var(--sh-m);
+    animation: mobileMenuPanelIn 0.3s var(--e);
+  }
+
+  @keyframes mobileMenuPanelIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .mobile-menu-inner {
@@ -13786,19 +13812,19 @@ ul.checkout-error {
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
   }
 
   .mobile-menu-inner > a,
   .mobile-menu-action {
     width: 100%;
-    min-height: 48px;
+    min-height: 50px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 14px;
+    padding: 12px 16px;
     border: 0;
-    border-radius: 12px;
+    border-radius: 13px;
     background: transparent;
     color: var(--ink);
     font-family: inherit;
@@ -13810,12 +13836,20 @@ ul.checkout-error {
     box-sizing: border-box;
     transition:
       background 0.2s ease,
-      color 0.2s ease;
+      color 0.2s ease,
+      padding-left 0.2s var(--e);
   }
 
   .mobile-menu-inner > a:hover,
   .mobile-menu-action:hover {
-    background: var(--page);
+    background: rgba(36, 71, 232, 0.05);
+    color: var(--cobalt);
+    padding-left: 20px;
+  }
+
+  .mobile-menu-inner > a:active,
+  .mobile-menu-action:active {
+    background: rgba(36, 71, 232, 0.09);
   }
 
   /* Counter badges */
@@ -13827,30 +13861,68 @@ ul.checkout-error {
     justify-content: center;
     padding: 0 6px;
     border-radius: 999px;
-    background: var(--ink);
-    color: var(--card);
+    background: linear-gradient(135deg, var(--cobalt) 0%, #1a35b0 100%);
+    color: #fff;
     font-size: 11px;
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
+    box-shadow: 0 2px 6px -2px rgba(36, 71, 232, 0.6);
   }
 
   /* Arrow */
   .mobile-menu-arrow {
-    color: var(--muted);
+    color: var(--muted-2);
     font-size: 16px;
     line-height: 1;
+    transition:
+      transform 0.2s var(--e),
+      color 0.2s ease;
+  }
+
+  .mobile-menu-inner > a:hover .mobile-menu-arrow {
+    transform: translateX(3px);
+    color: var(--cobalt);
   }
 
   /* Divider */
   .mobile-menu-divider {
     height: 1px;
-    margin: 8px 14px;
-    background: var(--line);
+    margin: 10px 14px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--line) 20%,
+      var(--line) 80%,
+      transparent
+    );
   }
 
   /* Close button state */
   .mobile-menu-btn[aria-expanded="true"] {
-    background: var(--page);
+    background: linear-gradient(135deg, var(--ink) 0%, var(--ink-2) 100%);
+  }
+}
+
+@media (max-width: 900px) {
+  .mobile-menu-action:last-of-type {
+    margin-top: 6px;
+    background: linear-gradient(135deg, var(--ink) 0%, var(--ink-2) 100%);
+    color: #fff;
+    box-shadow: 0 6px 16px -10px rgba(11, 12, 14, 0.5);
+  }
+
+  .mobile-menu-action:last-of-type:hover {
+    background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink) 100%);
+    color: #fff;
+    padding-left: 16px;
+  }
+
+  .mobile-menu-action:last-of-type .mobile-menu-arrow {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .mobile-menu-btn[aria-expanded="true"] span {
+    background: #fff;
   }
 
   /* =================================================
