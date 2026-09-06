@@ -1,14 +1,23 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, clerkClient } from "@clerk/nextjs/server";
 
 export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname;
 
   if (pathname.startsWith("/admin")) {
-    const { userId, sessionClaims } = await auth();
+    const { userId } = await auth();
 
-    const role = sessionClaims?.metadata?.role;
+    if (!userId) {
+      return Response.redirect(new URL("/account", req.url));
+    }
 
-    if (!userId || role !== "admin") {
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+
+    const role = user.publicMetadata?.role;
+
+    console.log("CLERK ROLE:", role);
+
+    if (role !== "admin") {
       return Response.redirect(new URL("/account", req.url));
     }
   }

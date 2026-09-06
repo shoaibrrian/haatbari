@@ -2,19 +2,29 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { SignIn, SignUp, useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { SignIn, SignUp, useUser } from "@clerk/nextjs";
 
 export default function AccountPage() {
-  const router = useRouter();
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn, user } = useUser();
   const [mode, setMode] = useState("login");
 
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      router.replace("/customer/dashboard");
+    if (!isLoaded || !isSignedIn) {
+      return;
     }
-  }, [isLoaded, isSignedIn, router]);
+
+    const role = user?.publicMetadata?.role;
+
+    console.log("IS LOADED:", isLoaded);
+    console.log("IS SIGNED IN:", isSignedIn);
+    console.log("USER ROLE:", role);
+
+    if (role === "admin") {
+      window.location.href = "/admin";
+    } else {
+      window.location.href = "/customer/dashboard";
+    }
+  }, [isLoaded, isSignedIn, user]);
 
   return (
     <main className="account-page page-width">
@@ -95,6 +105,12 @@ export default function AccountPage() {
                   <div className="account-loading-input" />
                   <div className="account-loading-button" />
                 </div>
+              ) : isSignedIn ? (
+                <div className="account-loading">
+                  <div className="account-loading-line account-loading-title" />
+                  <div className="account-loading-line" />
+                  <div className="account-loading-line account-loading-short" />
+                </div>
               ) : mode === "login" ? (
                 <>
                   <div>
@@ -107,7 +123,9 @@ export default function AccountPage() {
 
                   <SignIn
                     key="haatbari-sign-in"
-                    forceRedirectUrl="/customer/dashboard"
+                    routing="path"
+                    path="/account"
+                    fallbackRedirectUrl="/account"
                     appearance={{
                       layout: {
                         socialButtonsPlacement: "top",
@@ -157,7 +175,9 @@ export default function AccountPage() {
 
                   <SignUp
                     key="haatbari-sign-up"
-                    forceRedirectUrl="/customer/dashboard"
+                    routing="path"
+                    path="/account"
+                    fallbackRedirectUrl="/account"
                     appearance={{
                       layout: {
                         socialButtonsPlacement: "top",

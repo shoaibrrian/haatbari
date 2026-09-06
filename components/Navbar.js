@@ -483,17 +483,32 @@ export default function Navbar() {
               {isLoaded && isSignedIn ? (
                 <div className="account-dropdown">
                   <div className="account-dropdown-user">
-                    <strong>{profileName || "Customer"}</strong>
+                    <strong>
+                      {profileName ||
+                        user?.fullName ||
+                        user?.firstName ||
+                        "Customer"}
+                    </strong>
                     <span>{user?.primaryEmailAddress?.emailAddress || ""}</span>
                   </div>
 
                   <div className="account-dropdown-divider" />
 
-                  <Link href="/account/profile">My Account</Link>
-                  <Link href="/customer/dashboard">Customer Dashboard</Link>
-                  <Link href="/orders">My Orders</Link>
-                  <Link href="/wishlist">Wishlist</Link>
-                  <Link href="/cart">Cart</Link>
+                  {user?.publicMetadata?.role === "admin" ? (
+                    <>
+                      <Link href="/admin">Admin Dashboard</Link>
+                      <Link href="/admin/products">Manage Products</Link>
+                      <Link href="/admin/orders">Manage Orders</Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/account/profile">My Account</Link>
+                      <Link href="/customer/dashboard">Customer Dashboard</Link>
+                      <Link href="/orders">My Orders</Link>
+                      <Link href="/wishlist">Wishlist</Link>
+                      <Link href="/cart">Cart</Link>
+                    </>
+                  )}
 
                   <div className="account-dropdown-divider" />
 
