@@ -217,33 +217,16 @@ export default function Navbar() {
    * EXISTING WISHLIST BEHAVIOR
    * Kept exactly the same.
    */
-  const handleWishlist = async () => {
+  const handleWishlist = () => {
     closeMobileMenu();
 
     if (user?.publicMetadata?.role === "admin") {
-      await Swal.fire({
+      Swal.fire({
         title: "Admin account",
         text: "Wishlist is available for customer accounts only.",
         icon: "info",
         confirmButtonText: "Got it",
       });
-
-      return;
-    }
-
-    if (!isSignedIn) {
-      const result = await Swal.fire({
-        title: "Sign in required",
-        text: "Please sign in to view your wishlist.",
-        icon: "info",
-        confirmButtonText: "Sign in",
-        showCancelButton: true,
-        cancelButtonText: "Cancel",
-      });
-
-      if (result.isConfirmed) {
-        window.location.href = "/account";
-      }
 
       return;
     }
@@ -255,33 +238,16 @@ export default function Navbar() {
    * EXISTING CART BEHAVIOR
    * Kept exactly the same.
    */
-  const handleCart = async () => {
+  const handleCart = () => {
     closeMobileMenu();
 
     if (user?.publicMetadata?.role === "admin") {
-      await Swal.fire({
+      Swal.fire({
         title: "Admin account",
         text: "Cart is available for customer accounts only.",
         icon: "info",
         confirmButtonText: "Got it",
       });
-
-      return;
-    }
-
-    if (!isSignedIn) {
-      const result = await Swal.fire({
-        title: "Sign in required",
-        text: "Please sign in to view your cart.",
-        icon: "info",
-        confirmButtonText: "Sign in",
-        showCancelButton: true,
-        cancelButtonText: "Cancel",
-      });
-
-      if (result.isConfirmed) {
-        window.location.href = "/account";
-      }
 
       return;
     }
@@ -303,23 +269,6 @@ export default function Navbar() {
         icon: "info",
         confirmButtonText: "Got it",
       });
-
-      return;
-    }
-
-    if (!isSignedIn) {
-      const result = await Swal.fire({
-        title: "Sign in required",
-        text: "Please sign in to continue to checkout.",
-        icon: "info",
-        confirmButtonText: "Sign in",
-        showCancelButton: true,
-        cancelButtonText: "Cancel",
-      });
-
-      if (result.isConfirmed) {
-        window.location.href = "/account";
-      }
 
       return;
     }
