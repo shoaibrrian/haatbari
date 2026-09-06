@@ -7,10 +7,17 @@ import { EASE, rise } from "@/components/Motion";
 import { addToCart } from "@/lib/cart";
 import { getProducts } from "@/lib/products-cache";
 import { apiFetch } from "@/lib/api-client";
-import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/wishlist";
+import {
+  getWishlist,
+  addToWishlist,
+  removeFromWishlist,
+  getGuestWishlist,
+  addToGuestWishlist,
+  removeFromGuestWishlist,
+  clearGuestWishlist,
+} from "@/lib/wishlist";
 import { useAuth, useUser } from "@clerk/nextjs";
 import Swal from "sweetalert2";
-import { useRouter } from "next/navigation";
 
 const AMBIENTS = [
   "var(--amb-3)",
@@ -61,7 +68,6 @@ export default function ShopPage() {
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
 
-  const router = useRouter();
   const [products, setProducts] = useState([]);
   const [results, setResults] = useState(null);
   const [searchMeta, setSearchMeta] = useState(null);
@@ -110,18 +116,50 @@ export default function ShopPage() {
     if (!isLoaded) return;
 
     async function loadWishlist() {
+      // Guest → localStorage
       if (!isSignedIn) {
-        setSaved([]);
+        setSaved(getGuestWishlist());
         return;
       }
 
       try {
+        // Existing MongoDB wishlist
         const wishlist = await getWishlist();
 
-        setSaved(wishlist.items?.map((item) => String(item.productId)) || []);
+        const mongoIds = (wishlist.items || []).map((item) =>
+          String(item.productId),
+        );
+
+        // Guest wishlist from localStorage
+        const guestIds = getGuestWishlist();
+
+        // Only sync products that are not already in MongoDB
+        const missingGuestIds = guestIds.filter(
+          (id) => !mongoIds.includes(String(id)),
+        );
+
+        if (missingGuestIds.length > 0) {
+          await Promise.all(missingGuestIds.map((id) => addToWishlist(id)));
+        }
+
+        // Mongo + guest items, without duplicates
+        const mergedIds = [
+          ...new Set([...mongoIds, ...missingGuestIds.map(String)]),
+        ];
+
+        setSaved(mergedIds);
+
+        // Sync successful → remove guest wishlist
+        if (guestIds.length > 0) {
+          clearGuestWishlist();
+        }
+
+        window.dispatchEvent(new Event("wishlist-updated"));
       } catch (error) {
         console.error("Wishlist load error:", error);
-        setSaved([]);
+
+        // Don't lose guest wishlist if Mongo sync fails
+        setSaved(getGuestWishlist());
       }
     }
 
@@ -493,9 +531,11 @@ export default function ShopPage() {
   --------------------------------- */
 
   const toggleSave = async (id) => {
-    console.log("WISHLIST PRODUCT ID:", id);
+    const productId = String(id);
 
-    if (!id) {
+    console.log("WISHLIST PRODUCT ID:", productId);
+
+    if (!productId) {
       console.error("Product ID missing");
       return;
     }
@@ -513,32 +553,38 @@ export default function ShopPage() {
       return;
     }
 
-    if (!isSignedIn) {
-      const result = await Swal.fire({
-        title: "Sign in required",
-        text: "Please sign in to save products to your wishlist.",
-        icon: "info",
-        confirmButtonText: "Sign in",
-        showCancelButton: true,
-        cancelButtonText: "Cancel",
-      });
-
-      if (result.isConfirmed) {
-        router.push("/account");
-      }
-
-      return;
-    }
-
-    const alreadySaved = saved.includes(id);
+    const alreadySaved = saved.includes(productId);
 
     try {
+      // ================================
+      // GUEST → LOCAL STORAGE
+      // ================================
+      if (!isSignedIn) {
+        if (alreadySaved) {
+          const updated = removeFromGuestWishlist(productId);
+          setSaved(updated);
+        } else {
+          const updated = addToGuestWishlist(productId);
+          setSaved(updated);
+        }
+
+        window.dispatchEvent(new Event("wishlist-updated"));
+        return;
+      }
+
+      // ================================
+      // CUSTOMER → MONGODB
+      // ================================
       if (alreadySaved) {
-        await removeFromWishlist(id);
-        setSaved((current) => current.filter((item) => item !== id));
+        await removeFromWishlist(productId);
+
+        setSaved((current) => current.filter((item) => item !== productId));
       } else {
-        await addToWishlist(id);
-        setSaved((current) => [...current, id]);
+        await addToWishlist(productId);
+
+        setSaved((current) =>
+          current.includes(productId) ? current : [...current, productId],
+        );
       }
 
       window.dispatchEvent(new Event("wishlist-updated"));

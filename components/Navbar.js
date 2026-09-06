@@ -95,7 +95,17 @@ export default function Navbar() {
       setCount(cartCount(readCart()));
 
       if (!isSignedIn) {
-        setWishCount(0);
+        const guestWishlist = localStorage.getItem("haatbari-wishlist");
+
+        try {
+          const items = guestWishlist ? JSON.parse(guestWishlist) : [];
+
+          setWishCount(Array.isArray(items) ? items.length : 0);
+        } catch (error) {
+          console.error("Guest wishlist count error:", error);
+          setWishCount(0);
+        }
+
         return;
       }
 

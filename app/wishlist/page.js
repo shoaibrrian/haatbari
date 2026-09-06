@@ -9,6 +9,8 @@ import { getProducts } from "@/lib/products-cache";
 import {
   getWishlist,
   removeFromWishlist as removeWishlistItem,
+  getGuestWishlist,
+  removeFromGuestWishlist,
 } from "@/lib/wishlist";
 
 import { useAuth } from "@clerk/nextjs";
@@ -38,12 +40,14 @@ export default function WishlistPage() {
     if (!isLoaded) return;
 
     async function loadWishlist() {
+      // Guest → localStorage
       if (!isSignedIn) {
-        setSaved([]);
+        setSaved(getGuestWishlist());
         return;
       }
 
       try {
+        // Customer → MongoDB
         const wishlist = await getWishlist();
 
         setSaved(wishlist.items?.map((item) => String(item.productId)) || []);
@@ -83,14 +87,28 @@ export default function WishlistPage() {
   }, []);
 
   const wishlistProducts = useMemo(() => {
-    return products.filter((product) => saved.includes(product.id));
+    return products.filter((product) =>
+      saved.includes(String(product.id || product._id)),
+    );
   }, [products, saved]);
 
   const removeFromWishlist = async (id) => {
-    try {
-      await removeWishlistItem(id);
+    const productId = String(id);
 
-      setSaved((current) => current.filter((item) => item !== id));
+    try {
+      // Guest → localStorage
+      if (!isSignedIn) {
+        const updated = removeFromGuestWishlist(productId);
+        setSaved(updated);
+
+        window.dispatchEvent(new Event("wishlist-updated"));
+        return;
+      }
+
+      // Customer → MongoDB
+      await removeWishlistItem(productId);
+
+      setSaved((current) => current.filter((item) => item !== productId));
 
       window.dispatchEvent(new Event("wishlist-updated"));
     } catch (error) {
