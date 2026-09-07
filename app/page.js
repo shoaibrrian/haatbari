@@ -141,18 +141,6 @@ export default function Home() {
   const [saved, setSaved] = useState([]);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [typedTitle, setTypedTitle] = useState("");
-  const [isLargeScreen, setIsLargeScreen] = useState(false);
-
-  useEffect(() => {
-    const checkScreen = () => {
-      setIsLargeScreen(window.innerWidth > 900);
-    };
-
-    checkScreen();
-    window.addEventListener("resize", checkScreen);
-
-    return () => window.removeEventListener("resize", checkScreen);
-  }, []);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -453,26 +441,9 @@ export default function Home() {
               QUALITY FINDS · FAIR PRICES
             </motion.span>
             <motion.h1 {...load(0.08)}>
-              {isLargeScreen ? (
-                <>
-                  {typedTitle.split("|")[0].split(" ")[0]}
-                  <br />
-                  {typedTitle.split("|")[0].split(" ").slice(1).join(" ")}
-                  <br />
-                  <span>
-                    {typedTitle.split("|")[1]?.split(" ")[0] || ""}
-                    <br />
-                    {typedTitle.split("|")[1]?.split(" ").slice(1).join(" ") ||
-                      ""}
-                  </span>
-                </>
-              ) : (
-                <>
-                  {typedTitle.split("|")[0]}
-                  <br />
-                  <span>{typedTitle.split("|")[1] || ""}</span>
-                </>
-              )}
+              {typedTitle.split("|")[0]}
+              <br />
+              <span>{typedTitle.split("|")[1] || ""}</span>
             </motion.h1>
             <motion.p className="hero-lede" {...load(0.16)}>
               Electronics, apparel, footwear and accessories from sellers across
