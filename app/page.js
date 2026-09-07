@@ -129,6 +129,7 @@ export default function Home() {
   const { user } = useUser();
   const router = useRouter();
   const [products, setProducts] = useState([]);
+  const stagePicks = products.slice(0, 5);
   const [results, setResults] = useState(null);
   const [searchMeta, setSearchMeta] = useState(null);
   const [query, setQuery] = useState("");
@@ -137,6 +138,23 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [activeCat, setActiveCat] = useState(null);
   const [stageIndex, setStageIndex] = useState(0);
+  const [stagePaused, setStagePaused] = useState(false);
+
+  const stageCount = stagePicks.length;
+
+  const stageNext = useCallback(() => {
+    setStageIndex((i) => (stageCount ? (i + 1) % stageCount : 0));
+  }, [stageCount]);
+
+  const stagePrev = useCallback(() => {
+    setStageIndex((i) => (stageCount ? (i - 1 + stageCount) % stageCount : 0));
+  }, [stageCount]);
+
+  useEffect(() => {
+    if (stagePaused || stageCount <= 1) return;
+    const timer = setInterval(stageNext, 4200);
+    return () => clearInterval(timer);
+  }, [stagePaused, stageCount, stageNext]);
   const [addedId, setAddedId] = useState(null);
   const [saved, setSaved] = useState([]);
   const [reviewIndex, setReviewIndex] = useState(0);
@@ -336,8 +354,6 @@ export default function Home() {
     : searched;
 
   const featurePicks = products.slice(0, 4);
-  const stagePicks = products.slice(0, 5);
-  const stageItem = stagePicks[stageIndex] ?? null;
   const deal = products.reduce(
     (best, p) => (best && best.price >= p.price ? best : p),
     null,
@@ -465,56 +481,131 @@ export default function Home() {
           </div>
 
           <motion.div className="hero-visual" {...load(0.18)}>
-            <div className="showcase">
-              {stageItem && (
-                <MotionLink
-                  key={`obj-${stageItem.id}`}
-                  className="showcase-card"
-                  href={`/products/${stageItem.slug || stageItem.id}`}
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: EASE }}
+            {stagePicks.length > 0 && (
+              <div
+                className="stage-carousel"
+                onMouseEnter={() => setStagePaused(true)}
+                onMouseLeave={() => setStagePaused(false)}
+              >
+                <div className="stage-backdrop" />
+                <motion.div
+                  className="stage-viewport"
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.12}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x < -60) stageNext();
+                    else if (info.offset.x > 60) stagePrev();
+                  }}
                 >
-                  <span className="showcase-badge">Popular Products</span>
-                  <span
-                    className="showcase-media"
-                    style={{ "--amb": AMBIENTS[stageIndex % AMBIENTS.length] }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={stageItem.image || "/placeholder.png"}
-                      alt={stageItem.title}
-                    />
-                  </span>
-                  <span className="showcase-info">
-                    <span className="showcase-text">
-                      <b>{stageItem.title}</b>
-                      <span>{stageItem.category || "Marketplace"}</span>
-                    </span>
-                    <span className="showcase-price n">
-                      <span className="tk">৳</span>
-                      {taka(stageItem.price)}
-                    </span>
-                  </span>
-                </MotionLink>
-              )}
-            </div>
-            {stagePicks.length > 1 && (
-              <div className="thumbs">
-                {stagePicks.map((p, i) => (
-                  <motion.button
-                    type="button"
-                    key={p.id}
-                    className="thumb"
-                    aria-pressed={i === stageIndex}
-                    aria-label={`Show ${p.title}`}
-                    whileTap={{ scale: 0.92 }}
-                    onClick={() => setStageIndex(i)}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={p.image || "/placeholder.png"} alt="" />
-                  </motion.button>
-                ))}
+                  {stagePicks.map((p, i) => {
+                    const total = stagePicks.length;
+                    let diff = i - stageIndex;
+                    if (diff > total / 2) diff -= total;
+                    if (diff < -total / 2) diff += total;
+                    const absDiff = Math.abs(diff);
+                    const isActive = diff === 0;
+
+                    const cardInner = (
+                      <>
+                        <span className="showcase-badge">Popular Products</span>
+                        <span
+                          className="showcase-media"
+                          style={{ "--amb": AMBIENTS[i % AMBIENTS.length] }}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={p.image || "/placeholder.png"}
+                            alt={p.title}
+                          />
+                        </span>
+                        <span className="showcase-info">
+                          <span className="showcase-text">
+                            <b>{p.title}</b>
+                            <span>{p.category || "Marketplace"}</span>
+                          </span>
+                          <span className="showcase-price n">
+                            <span className="tk">৳</span>
+                            {taka(p.price)}
+                          </span>
+                        </span>
+                      </>
+                    );
+
+                    return (
+                      <motion.div
+                        key={p.id}
+                        className={`stage-item${isActive ? " is-active" : ""}`}
+                        animate={{
+                          x: diff * 210,
+                          scale: absDiff === 0 ? 1 : absDiff === 1 ? 0.84 : 0.7,
+                          opacity: absDiff === 0 ? 1 : absDiff === 1 ? 0.55 : 0,
+                          zIndex: 10 - absDiff,
+                        }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 260,
+                          damping: 28,
+                        }}
+                        style={{
+                          pointerEvents: absDiff <= 1 ? "auto" : "none",
+                        }}
+                      >
+                        {isActive ? (
+                          <Link
+                            href={`/products/${p.slug || p.id}`}
+                            className="showcase-card"
+                          >
+                            {cardInner}
+                          </Link>
+                        ) : (
+                          <button
+                            type="button"
+                            className="showcase-card"
+                            aria-label={`Show ${p.title}`}
+                            onClick={() => setStageIndex(i)}
+                            style={{ border: 0, textAlign: "left" }}
+                          >
+                            {cardInner}
+                          </button>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
+
+                {stagePicks.length > 1 && (
+                  <div className="stage-controls">
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      aria-label="Previous product"
+                      onClick={stagePrev}
+                    >
+                      ←
+                    </button>
+                    <div className="dots">
+                      {stagePicks.map((p, i) => (
+                        <button
+                          type="button"
+                          key={p.id}
+                          className="dot"
+                          aria-pressed={i === stageIndex}
+                          aria-label={`Show ${p.title}`}
+                          onClick={() => setStageIndex(i)}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      aria-label="Next product"
+                      onClick={stageNext}
+                    >
+                      →
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </motion.div>

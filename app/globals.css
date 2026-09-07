@@ -14033,3 +14033,162 @@ ul.checkout-error {
     display: block;
   }
 }
+
+/* =========================================================
+   HERO PRODUCT STAGE — CAROUSEL (v3, compact + aligned)
+   ========================================================= */
+
+.stage-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  margin: 50px auto 0;
+}
+
+.stage-backdrop {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(36, 71, 232, 0.12) 0%,
+    rgba(36, 71, 232, 0.05) 45%,
+    transparent 72%
+  );
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stage-viewport {
+  position: relative;
+  z-index: 1;
+  height: 320px;
+  overflow: visible;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.stage-viewport:active {
+  cursor: grabbing;
+}
+
+.stage-item {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 240px;
+  margin-left: -120px;
+  will-change: transform, opacity, filter;
+}
+
+.stage-item .showcase-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transition: box-shadow 0.4s ease;
+}
+
+.stage-item .showcase-media {
+  aspect-ratio: auto;
+  height: 200px;
+  overflow: hidden;
+}
+
+.stage-item .showcase-info {
+  min-height: 74px;
+  padding: 14px 16px;
+}
+
+.stage-item .showcase-text b {
+  max-width: 13ch;
+  font-size: 14px;
+}
+
+.stage-item .showcase-price {
+  font-size: 16px;
+}
+
+/* depth for side (peeking) cards */
+.stage-item:not(.is-active) {
+  filter: saturate(0.82) brightness(0.98);
+}
+
+.stage-item:not(.is-active) .showcase-card {
+  box-shadow: 0 24px 50px -26px rgba(11, 12, 14, 0.3);
+  cursor: pointer;
+}
+
+.stage-item.is-active .showcase-card {
+  box-shadow:
+    0 50px 90px -34px rgba(11, 12, 14, 0.45),
+    0 6px 16px -6px rgba(11, 12, 14, 0.14);
+}
+
+/* badge — sits inside the card, over the media, like a product flag */
+.stage-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 3;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(11, 12, 14, 0.74);
+  color: var(--on-dark);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 16px -8px rgba(11, 12, 14, 0.5);
+}
+
+.stage-controls {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 2px;
+}
+
+.stage-controls .icon-btn {
+  flex: none;
+  width: 34px;
+  height: 34px;
+}
+
+.stage-controls .dots {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .stage-carousel {
+    max-width: 100%;
+    margin-top: 30px;
+  }
+
+  .stage-backdrop {
+    width: 260px;
+    height: 260px;
+  }
+
+  .stage-viewport {
+    height: 280px;
+  }
+
+  .stage-item {
+    width: 210px;
+    margin-left: -105px;
+  }
+
+  .stage-item .showcase-media {
+    height: 170px;
+  }
+}
