@@ -85,7 +85,7 @@ function taka(value) {
   return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
 }
 
-function Fact({ to, pre = "", post = "", label }) {
+function Fact({ to, pre = "", post = "", label, icon }) {
   const ref = useRef(null);
   const [shown, setShown] = useState(0);
 
@@ -113,7 +113,7 @@ function Fact({ to, pre = "", post = "", label }) {
   }, [to]);
 
   return (
-    <div ref={ref}>
+    <div className="fact-card" ref={ref}>
       <b className="n">
         {pre}
         {shown.toLocaleString("en-US")}
@@ -473,11 +473,6 @@ export default function Home() {
                 How delivery works
               </Link>
             </motion.div>
-            <motion.div className="facts" {...load(0.32)}>
-              <Fact to={products.length} label="Products live" />
-              <Fact to={64} label="Districts covered" />
-              <Fact to={7} label="Day returns" />
-            </motion.div>
           </div>
 
           <motion.div className="hero-visual" {...load(0.18)}>
@@ -610,6 +605,12 @@ export default function Home() {
             )}
           </motion.div>
         </div>
+
+        <motion.div className="shell facts" {...load(0.32)}>
+          <Fact to={products.length} label="Products live" />
+          <Fact to={64} label="Districts covered" />
+          <Fact to={7} label="Day returns" />
+        </motion.div>
       </section>
 
       {categories.length > 0 && (
