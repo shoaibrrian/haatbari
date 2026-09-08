@@ -300,8 +300,6 @@ export default function Navbar() {
 
           <nav>
             <Link href="/cart">Track order</Link>
-            <Link href="/about">Help</Link>
-            <Link href="/about">Sell with us</Link>
           </nav>
         </div>
       </div>
