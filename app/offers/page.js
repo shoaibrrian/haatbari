@@ -71,7 +71,7 @@ export default function OffersPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55 }}
         >
-          <span className="kicker">LIMITED TIME</span>
+          <span className="eyebrow">LIMITED TIME</span>
 
           <h1>
             Good deals.

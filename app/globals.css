@@ -184,6 +184,7 @@ button {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  margin-bottom: 8px;
 }
 
 .util {
@@ -5200,12 +5201,13 @@ ul.checkout-error {
 @media (max-width: 680px) {
   .offers-hero {
     min-height: auto;
-    padding-top: 55px;
+    padding-top: 30px;
     padding-bottom: 60px;
   }
 
   .offers-hero-copy h1 {
     font-size: 48px;
+    margin-top: 10px;
   }
 
   .offers-section {
@@ -5237,9 +5239,17 @@ ul.checkout-error {
     padding: 40px 0;
   }
 
+  .offers-info-inner h2 {
+    line-height: 1.2em;
+  }
+
   .offers-final {
-    padding-top: 55px;
-    padding-bottom: 75px;
+    padding-top: 0px;
+    padding-bottom: 65px;
+  }
+
+  .offers-final h2 {
+    line-height: 1.2em;
   }
 }
 
