@@ -48,7 +48,7 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="about-hero">
         <div className="shell">
-          <span className="kicker">OUR STORY</span>
+          <span className="eyebrow">OUR STORY</span>
 
           <h1>
             Shopping made

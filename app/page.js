@@ -353,7 +353,7 @@ export default function Home() {
     ? searched.filter((p) => p.category === activeCat)
     : searched;
 
-  const featurePicks = products.slice(0, 4);
+  const featurePicks = products.slice(0, 6);
   const deal = products.reduce(
     (best, p) => (best && best.price >= p.price ? best : p),
     null,

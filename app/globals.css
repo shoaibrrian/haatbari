@@ -1086,12 +1086,8 @@ button {
 .pgrid {
   display: grid;
 
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(18px, 2.4vw, 34px);
-}
-
-.pgrid > *:nth-child(even) {
-  margin-top: clamp(16px, 3vw, 44px);
 }
 
 .catalog {
