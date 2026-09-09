@@ -6826,7 +6826,7 @@ ul.checkout-error {
 
 @media (max-width: 700px) {
   .admin-page {
-    padding-top: 35px;
+    padding-top: 0;
     padding-bottom: 55px;
   }
 
@@ -7968,8 +7968,8 @@ ul.checkout-error {
 
 @media (max-width: 700px) {
   .admin-new-product {
-    padding-top: 30px;
-    padding-bottom: 60px;
+    padding-top: 0;
+    padding-bottom: 40px;
   }
 
   .admin-new-product-header h1 {
@@ -8716,8 +8716,8 @@ ul.checkout-error {
 
 @media (max-width: 650px) {
   .admin-product-form {
-    padding-top: 30px;
-    padding-bottom: 60px;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
   .admin-form-header {
@@ -11918,7 +11918,7 @@ ul.checkout-error {
 
 @media (max-width: 700px) {
   .customer-dashboard {
-    padding-top: 35px;
+    padding-top: 0;
     padding-bottom: 55px;
   }
 
@@ -12385,7 +12385,7 @@ ul.checkout-error {
 
 @media (max-width: 700px) {
   .orders-page {
-    padding-top: 35px;
+    padding-top: 0;
     padding-bottom: 55px;
   }
 
@@ -12397,26 +12397,48 @@ ul.checkout-error {
 
   .orders-header h1 {
     font-size: 48px;
+    line-height: 1.2em;
   }
 
   .orders-card {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
-    gap: 22px;
-    padding: 21px 18px;
+    gap: 16px;
+    padding: 20px 18px;
   }
 
   .orders-card:hover {
-    padding-left: 21px;
+    padding-left: 18px;
   }
 
   .orders-card-main {
-    gap: 28px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .orders-card-number {
+    gap: 4px;
+  }
+
+  .orders-card-info {
+    align-items: flex-end;
+    text-align: right;
+    gap: 4px;
   }
 
   .orders-card-right {
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
+    gap: 12px;
+  }
+
+  .orders-card-right > strong {
+    font-size: 18px;
   }
 
   .orders-no-orders {
@@ -12434,10 +12456,11 @@ ul.checkout-error {
   .orders-header h1,
   .orders-empty-state h1 {
     font-size: 42px;
+    line-height: 1.2em;
   }
 
   .orders-card-main {
-    gap: 20px;
+    gap: 10px;
   }
 }
 
@@ -12854,7 +12877,7 @@ ul.checkout-error {
 
 @media (max-width: 700px) {
   .order-details-page {
-    padding-top: 40px;
+    padding-top: 0;
     padding-bottom: 70px;
   }
 
@@ -13254,7 +13277,7 @@ ul.checkout-error {
 
 @media (max-width: 700px) {
   .account-profile-page {
-    padding-top: 40px;
+    padding-top: 0;
     padding-bottom: 70px;
   }
 
