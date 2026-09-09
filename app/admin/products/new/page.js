@@ -447,7 +447,10 @@ export default function NewProductPage() {
         )}
 
         <div className="admin-form-actions">
-          <Link href="/admin/products" className="admin-form-cancel">
+          <Link
+            href="/admin/products"
+            className="admin-form-cancel button button-light"
+          >
             Cancel
           </Link>
 
