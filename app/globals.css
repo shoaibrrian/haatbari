@@ -5303,7 +5303,7 @@ ul.checkout-error {
   position: relative;
   max-width: 850px;
   font-size: clamp(58px, 8vw, 108px);
-  line-height: 0.91;
+  line-height: 1.2;
   letter-spacing: -0.065em;
   font-weight: 600;
 }
@@ -5598,7 +5598,7 @@ ul.checkout-error {
 
 @media (max-width: 900px) {
   .about-hero {
-    padding: 80px 0;
+    padding: 30px 0 40px;
   }
 
   .hero h1 {
@@ -5609,12 +5609,16 @@ ul.checkout-error {
   .about-process,
   .about-values,
   .about-promise {
-    padding: 80px 0;
+    padding: 40px 0;
   }
 
   .about-intro-grid {
     grid-template-columns: 1fr;
     gap: 45px;
+  }
+
+  .about-intro-grid h2 {
+    line-height: 1.2em;
   }
 
   .about-steps {
@@ -5647,6 +5651,7 @@ ul.checkout-error {
 @media (max-width: 600px) {
   .about-hero h1 {
     font-size: 56px;
+    margin-top: 10px;
   }
 
   .about-hero-text {
@@ -5654,9 +5659,10 @@ ul.checkout-error {
   }
 
   .about-hero-actions {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 18px;
+    align-items: center;
+
+    flex-direction: row;
+    gap: 80px;
   }
 
   .about-steps,
