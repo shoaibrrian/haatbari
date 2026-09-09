@@ -557,10 +557,12 @@ export default function AdminProductsPage() {
                   </div>
 
                   <div className="admin-product-category">
+                    <span className="row-label">Category</span>
                     {product.category || "Other"}
                   </div>
 
                   <div className="admin-product-price">
+                    <span className="row-label">Price</span>
                     <span>৳</span>
                     {taka(product.price)}
                   </div>
@@ -574,6 +576,7 @@ export default function AdminProductsPage() {
                           : "admin-product-stock"
                     }
                   >
+                    <span className="row-label">Stock</span>
                     {stock}
 
                     {stock === 0 && <small>Out</small>}
@@ -582,6 +585,7 @@ export default function AdminProductsPage() {
                   </div>
 
                   <div>
+                    <span className="row-label">Status</span>
                     <span
                       className={
                         active
