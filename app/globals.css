@@ -11015,6 +11015,26 @@ ul.checkout-error {
   display: none !important;
 }
 
+.hb-clerk-root {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin-top: 28px !important;
+}
+
+.hb-clerk-root * {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.clerk-account-form {
+  width: 100%;
+  max-width: 100%;
+  padding: 30px 34px;
+  box-sizing: border-box;
+}
+
 /* Mobile */
 
 @media (max-width: 640px) {
