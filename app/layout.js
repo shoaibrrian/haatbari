@@ -26,6 +26,31 @@ export const metadata = {
   },
   description:
     "Electronics, apparel, footwear and accessories from sellers across Bangladesh. Cash on delivery, ৳70 flat.",
+  metadataBase: new URL("https://haatbari.vercel.app"),
+  openGraph: {
+    title: "HaatBari — everyday goods, delivered",
+    description:
+      "Electronics, apparel, footwear and accessories from sellers across Bangladesh. Cash on delivery, ৳70 flat.",
+    url: "https://haatbari.vercel.app",
+    siteName: "HaatBari",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "HaatBari",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "HaatBari — everyday goods, delivered",
+    description:
+      "Electronics, apparel, footwear and accessories from sellers across Bangladesh. Cash on delivery, ৳70 flat.",
+    images: ["/og-image.png"],
+  },
 };
 
 export const viewport = {
@@ -38,11 +63,11 @@ export default function RootLayout({ children }) {
       <body>
         <ClerkProvider>
           <Providers>
-          <MotionRoot>
-          <Navbar />
-          {children}
-          <Footer />
-          </MotionRoot>
+            <MotionRoot>
+              <Navbar />
+              {children}
+              <Footer />
+            </MotionRoot>
           </Providers>
         </ClerkProvider>
       </body>
