@@ -102,12 +102,8 @@ export default function AdminCustomerDetailsPage({ params }) {
 
   return (
     <main className="admin-page page-width">
-      <header className="admin-page-header">
+      <header className="admin-header">
         <div>
-          <Link href="/admin/customers" className="admin-back">
-            ← Customers
-          </Link>
-
           <p className="eyebrow">Customer profile</p>
 
           <h1>
@@ -116,7 +112,7 @@ export default function AdminCustomerDetailsPage({ params }) {
             <em>{customer.lastName}.</em>
           </h1>
 
-          <p className="admin-subtitle">
+          <p className="admin-header-copy">
             Customer profile, activity and order history.
           </p>
         </div>

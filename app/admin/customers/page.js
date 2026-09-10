@@ -93,12 +93,8 @@ export default function AdminCustomersPage() {
 
   return (
     <main className="admin-page page-width">
-      <header className="admin-page-header">
+      <header className="admin-header">
         <div>
-          <Link href="/admin" className="admin-back">
-            ← Dashboard
-          </Link>
-
           <p className="eyebrow">Customer management</p>
 
           <h1>
@@ -107,7 +103,7 @@ export default function AdminCustomersPage() {
             <em>customers.</em>
           </h1>
 
-          <p className="admin-subtitle">
+          <p className="admin-header-copy">
             View registered customers and keep track of their activity.
           </p>
         </div>
