@@ -1,5 +1,11 @@
 import Link from "next/link";
 
+export const metadata = {
+  title: "Terms of Service",
+  description:
+    "Review the terms and conditions for using HaatBari's marketplace.",
+};
+
 const SECTIONS = [
   {
     title: "Using HaatBari",

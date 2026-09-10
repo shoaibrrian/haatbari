@@ -1,5 +1,11 @@
 import Link from "next/link";
 
+export const metadata = {
+  title: "Our Story",
+  description:
+    "Learn about HaatBari's mission to simplify online shopping across Bangladesh.",
+};
+
 const STEPS = [
   {
     number: "01",

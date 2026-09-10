@@ -1,5 +1,11 @@
 import Link from "next/link";
 
+export const metadata = {
+  title: "Privacy Policy",
+  description:
+    "Read how HaatBari collects, uses, and protects your personal information.",
+};
+
 const SECTIONS = [
   {
     title: "Information we collect",
