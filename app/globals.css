@@ -9351,6 +9351,7 @@ ul.checkout-error {
   .admin-orders {
     margin-top: 18px;
     border-radius: 18px;
+    overflow-x: visible;
   }
 
   .admin-orders-topline {
@@ -9360,7 +9361,67 @@ ul.checkout-error {
   }
 
   .admin-orders-list {
-    min-width: 820px;
+    min-width: 0;
+  }
+
+  .admin-orders-head {
+    display: none;
+  }
+
+  .row-label {
+    display: inline-block;
+    margin-bottom: 2px;
+    color: var(--muted-2);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .admin-order-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    gap: 12px;
+    padding: 18px 20px;
+  }
+
+  .admin-order-id,
+  .admin-customer,
+  .admin-order-date,
+  .admin-order-total {
+    gap: 3px;
+  }
+
+  .admin-customer strong,
+  .admin-customer span {
+    white-space: normal;
+    text-overflow: clip;
+  }
+
+  .admin-order-date,
+  .admin-order-status-col {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line-2);
+  }
+
+  .admin-order-total {
+    padding-top: 10px;
+    border-top: 1px solid var(--line-2);
+  }
+
+  .admin-order-action {
+    justify-content: flex-end;
+    padding-top: 4px;
+  }
+
+  .admin-order-action a {
+    width: 100%;
+    justify-content: center;
   }
 }
 

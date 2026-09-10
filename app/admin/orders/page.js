@@ -203,10 +203,12 @@ export default function AdminOrdersPage() {
                 </div>
 
                 <div className="admin-order-date">
+                  <span className="row-label">Date</span>
                   {formatDate(order.createdAt)}
                 </div>
 
                 <div className="admin-order-total">
+                  <span className="row-label">Total</span>
                   <strong>{formatMoney(order.total)}</strong>
                   <span>
                     {order.items.length}{" "}
@@ -214,7 +216,8 @@ export default function AdminOrdersPage() {
                   </span>
                 </div>
 
-                <div>
+                <div className="admin-order-status-col">
+                  <span className="row-label">Status</span>
                   <span className={`order-status status-${order.status}`}>
                     {formatStatus(order.status)}
                   </span>
