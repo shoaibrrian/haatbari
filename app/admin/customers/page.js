@@ -206,14 +206,17 @@ export default function AdminCustomersPage() {
                 </div>
 
                 <div className="admin-customer-contact">
+                  <span className="row-label">Contact</span>
                   <span>{customer.phone || "—"}</span>
                 </div>
 
                 <div className="admin-customer-orders">
+                  <span className="row-label">Orders</span>
                   <strong>{customer.orderCount}</strong>
                 </div>
 
                 <div className="admin-customer-date">
+                  <span className="row-label">Joined</span>
                   {formatDate(customer.createdAt)}
                 </div>
 
