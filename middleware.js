@@ -15,8 +15,6 @@ export default clerkMiddleware(async (auth, req) => {
 
     const role = user.publicMetadata?.role;
 
-    console.log("CLERK ROLE:", role);
-
     if (role !== "admin") {
       return Response.redirect(new URL("/account", req.url));
     }

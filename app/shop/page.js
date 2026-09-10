@@ -533,8 +533,6 @@ export default function ShopPage() {
   const toggleSave = async (id) => {
     const productId = String(id);
 
-    console.log("WISHLIST PRODUCT ID:", productId);
-
     if (!productId) {
       console.error("Product ID missing");
       return;

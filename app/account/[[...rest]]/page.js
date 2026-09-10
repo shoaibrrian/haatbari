@@ -15,10 +15,6 @@ export default function AccountPage() {
 
     const role = user?.publicMetadata?.role;
 
-    console.log("IS LOADED:", isLoaded);
-    console.log("IS SIGNED IN:", isSignedIn);
-    console.log("USER ROLE:", role);
-
     if (role === "admin") {
       window.location.href = "/admin";
     } else {
