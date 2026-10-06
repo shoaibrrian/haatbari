@@ -19,7 +19,6 @@ const wishlistSchema = new mongoose.Schema(
   },
 );
 
-// Same user যেন একই product একাধিকবার wishlist করতে না পারে
 wishlistSchema.index({ clerkUserId: 1, productId: 1 }, { unique: true });
 
 const Wishlist =

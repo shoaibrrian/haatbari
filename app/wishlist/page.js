@@ -96,7 +96,6 @@ export default function WishlistPage() {
     const productId = String(id);
 
     try {
-      // Guest → localStorage
       if (!isSignedIn) {
         const updated = removeFromGuestWishlist(productId);
         setSaved(updated);
@@ -105,7 +104,6 @@ export default function WishlistPage() {
         return;
       }
 
-      // Customer → MongoDB
       await removeWishlistItem(productId);
 
       setSaved((current) => current.filter((item) => item !== productId));

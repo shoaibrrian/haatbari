@@ -68,8 +68,6 @@ export const createOrderSchema = z.object({
     )
     .min(1, "Order must contain at least one item")
     .max(MAX_ITEMS_PER_ORDER, "Too many items in one order")
-    // A cart with the same product twice would decrement stock twice and
-    // produce a confusing invoice. Reject it rather than silently merging.
     .refine(
       (items) =>
         new Set(items.map((item) => item.productId)).size === items.length,

@@ -1,11 +1,5 @@
 import mongoose from "mongoose";
 
-/**
- * Order lifecycle. Free-form strings were the old design, which meant a typo
- * ("shiped") became a permanent, unqueryable status in the database.
- */
-// Constants live in a mongoose-free file so client components can import them.
-// Re-exported here for convenience — repository/service import from either.
 import {
   ORDER_STATUSES,
   PAYMENT_METHODS,
@@ -14,17 +8,8 @@ import {
 
 export { ORDER_STATUSES, PAYMENT_METHODS, ORDER_STATUS_TRANSITIONS };
 
-/**
- * A line item is a *snapshot*, not a live reference. If a product's price
- * changes next month, an order placed today must still show today's price —
- * so title/price/image are copied in. The difference from the old code is
- * *who* writes them: the service reads them from the database, never the client.
- */
 const orderItemSchema = new mongoose.Schema(
   {
-    // ObjectId + ref, not String. A String productId cannot be `populate()`d,
-    // silently accepts garbage, and makes "which orders contain product X"
-    // an unindexable string comparison.
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
@@ -34,7 +19,6 @@ const orderItemSchema = new mongoose.Schema(
     slug: { type: String, trim: true },
     image: { type: String, trim: true },
 
-    // Unit price at the moment of purchase.
     unitPrice: {
       type: Number,
       required: true,
@@ -157,8 +141,6 @@ orderSchema.set("toJSON", {
   },
 });
 
-// "My orders" lookup before auth exists is by phone number; admin lists by
-// status + recency. A userId index gets added when authentication lands.
 orderSchema.index({ "customer.phone": 1, createdAt: -1 });
 orderSchema.index({ status: 1, createdAt: -1 });
 

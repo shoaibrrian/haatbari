@@ -40,11 +40,6 @@ for (const doc of undated) {
     { _id: doc._id },
     { $set: { createdAt: at, updatedAt: at } },
     {
-      // `timestamps: false` stops mongoose stamping updatedAt with "now".
-      // `overwriteImmutable` is the one that matters: timestamps:true marks
-      // createdAt immutable, and mongoose strips immutable fields from updates
-      // silently — no error, and modifiedCount still counts the document. This
-      // is the only way to backdate it.
       timestamps: false,
       overwriteImmutable: true,
     },
@@ -52,8 +47,6 @@ for (const doc of undated) {
 }
 console.log(`timestamps recovered: ${undated.length}`);
 
-// Slugs go one at a time: the index is unique, and two products called
-// "Blue Sneakers" would collide. updateMany cannot resolve that.
 const used = new Set(
   (
     await Product.find({ slug: { $type: "string" } })

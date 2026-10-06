@@ -42,23 +42,11 @@ const productSchema = new mongoose.Schema(
       maxlength: [2000, "Description cannot exceed 2000 characters"],
     },
 
-    /**
-     * Left as a float for now, deliberately. The correct answer is an integer
-     * count of minor units (paisa), because 0.1 + 0.2 !== 0.3 in binary
-     * floating point and money must add up exactly. Switching means renaming
-     * the field everywhere the UI renders a price, so it is scheduled for the
-     * frontend phase when we touch those files anyway. The validator below
-     * blocks the worst case in the meantime.
-     */
     price: {
       type: Number,
       required: [true, "Price is required"],
       min: [0, "Price cannot be negative"],
       validate: {
-        // Not `Number.isInteger(value * 100)`. That fails on 16.99, because
-        // 16.99 * 100 === 1698.9999999999998 — the exact floating point trap
-        // this validator exists to warn about. Round-tripping through
-        // Math.round is the check that actually works.
         validator: (value) =>
           Number.isFinite(value) &&
           Math.abs(value * 100 - Math.round(value * 100)) < 1e-9,
@@ -156,16 +144,12 @@ const productSchema = new mongoose.Schema(
   },
 );
 
-// Auto-slug on create. Runs before validation so the unique index sees a value.
 productSchema.pre("validate", function autoSlug() {
   if (!this.slug && this.title) this.slug = slugify(this.title);
 });
 
-// Storefront listing: filter by category, hide unpublished, newest first.
 productSchema.index({ isActive: 1, category: 1, createdAt: -1 });
-// Price sorting and range filters.
 productSchema.index({ price: 1 });
-// Lexical fallback for when vector search is unavailable (Phase 5).
 productSchema.index({ title: "text", description: "text" });
 
 export default mongoose.models.Product ||
