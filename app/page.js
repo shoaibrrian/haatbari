@@ -301,7 +301,6 @@ export default function Home() {
     const alreadySaved = saved.includes(productId);
 
     try {
-      // GUEST → LOCAL STORAGE
       if (!isSignedIn) {
         if (alreadySaved) {
           const updated = removeFromGuestWishlist(productId);
@@ -315,7 +314,6 @@ export default function Home() {
         return;
       }
 
-      // CUSTOMER → MONGODB
       if (alreadySaved) {
         await removeFromWishlist(productId);
 
