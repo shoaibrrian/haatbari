@@ -47,12 +47,10 @@ export async function GET() {
       previousRevenue,
       pendingOrders,
     ] = await Promise.all([
-      // Total orders
       Order.countDocuments({
         status: { $ne: "cancelled" },
       }),
 
-      // Orders this month
       Order.countDocuments({
         status: { $ne: "cancelled" },
         createdAt: {
@@ -61,7 +59,6 @@ export async function GET() {
         },
       }),
 
-      // Orders previous month
       Order.countDocuments({
         status: { $ne: "cancelled" },
         createdAt: {
@@ -70,15 +67,12 @@ export async function GET() {
         },
       }),
 
-      // Total products
       Product.countDocuments(),
 
-      // Active products
       Product.countDocuments({
         isActive: true,
       }),
 
-      // Active products with low stock
       Product.countDocuments({
         isActive: true,
         stock: {
@@ -87,12 +81,10 @@ export async function GET() {
         },
       }),
 
-      // Total customers
       usersCollection.countDocuments({
         role: { $ne: "admin" },
       }),
 
-      // New customers this month
       usersCollection.countDocuments({
         role: { $ne: "admin" },
         createdAt: {
@@ -101,7 +93,6 @@ export async function GET() {
         },
       }),
 
-      // Revenue this month
       Order.aggregate([
         {
           $match: {
@@ -122,7 +113,6 @@ export async function GET() {
         },
       ]),
 
-      // Revenue previous month
       Order.aggregate([
         {
           $match: {
@@ -143,7 +133,6 @@ export async function GET() {
         },
       ]),
 
-      // Pending orders
       Order.countDocuments({
         status: "pending",
       }),

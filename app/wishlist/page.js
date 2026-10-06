@@ -40,14 +40,12 @@ export default function WishlistPage() {
     if (!isLoaded) return;
 
     async function loadWishlist() {
-      // Guest → localStorage
       if (!isSignedIn) {
         setSaved(getGuestWishlist());
         return;
       }
 
       try {
-        // Customer → MongoDB
         const wishlist = await getWishlist();
 
         setSaved(wishlist.items?.map((item) => String(item.productId)) || []);

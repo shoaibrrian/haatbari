@@ -70,7 +70,6 @@ export const PATCH = withRoute(async (request, { params }) => {
 
   const order = await findOrderById(id);
 
-  // Customer can only modify their own order.
   if (!order || order.clerkUserId !== userId) {
     return new Response(
       JSON.stringify({
@@ -88,7 +87,6 @@ export const PATCH = withRoute(async (request, { params }) => {
     );
   }
 
-  // Customer is only allowed to cancel these statuses.
   const allowedStatuses = ORDER_STATUS_TRANSITIONS[order.status] || [];
 
   if (!allowedStatuses.includes("cancelled")) {
@@ -112,8 +110,6 @@ export const PATCH = withRoute(async (request, { params }) => {
     expectedStatus: order.status,
   });
 
-  // Protect against a race condition where the order changed
-  // between reading and updating it.
   if (!updatedOrder) {
     return new Response(
       JSON.stringify({

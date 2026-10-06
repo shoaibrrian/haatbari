@@ -116,24 +116,20 @@ export default function ShopPage() {
     if (!isLoaded) return;
 
     async function loadWishlist() {
-      // Guest → localStorage
       if (!isSignedIn) {
         setSaved(getGuestWishlist());
         return;
       }
 
       try {
-        // Existing MongoDB wishlist
         const wishlist = await getWishlist();
 
         const mongoIds = (wishlist.items || []).map((item) =>
           String(item.productId),
         );
 
-        // Guest wishlist from localStorage
         const guestIds = getGuestWishlist();
 
-        // Only sync products that are not already in MongoDB
         const missingGuestIds = guestIds.filter(
           (id) => !mongoIds.includes(String(id)),
         );
@@ -142,14 +138,12 @@ export default function ShopPage() {
           await Promise.all(missingGuestIds.map((id) => addToWishlist(id)));
         }
 
-        // Mongo + guest items, without duplicates
         const mergedIds = [
           ...new Set([...mongoIds, ...missingGuestIds.map(String)]),
         ];
 
         setSaved(mergedIds);
 
-        // Sync successful → remove guest wishlist
         if (guestIds.length > 0) {
           clearGuestWishlist();
         }
@@ -158,7 +152,6 @@ export default function ShopPage() {
       } catch (error) {
         console.error("Wishlist load error:", error);
 
-        // Don't lose guest wishlist if Mongo sync fails
         setSaved(getGuestWishlist());
       }
     }
@@ -554,9 +547,6 @@ export default function ShopPage() {
     const alreadySaved = saved.includes(productId);
 
     try {
-      // ================================
-      // GUEST → LOCAL STORAGE
-      // ================================
       if (!isSignedIn) {
         if (alreadySaved) {
           const updated = removeFromGuestWishlist(productId);
@@ -570,9 +560,6 @@ export default function ShopPage() {
         return;
       }
 
-      // ================================
-      // CUSTOMER → MONGODB
-      // ================================
       if (alreadySaved) {
         await removeFromWishlist(productId);
 

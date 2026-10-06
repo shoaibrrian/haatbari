@@ -195,17 +195,13 @@ export default function CheckoutPage() {
         },
       });
 
-      // Clear cart
       writeCart([]);
       setCart([]);
 
-      // Reset delivery form
       form.reset();
 
-      // Update navbar cart count
       window.dispatchEvent(new Event("cart-updated"));
 
-      // Logged-in customer
       if (isSignedIn) {
         const result = await Swal.fire({
           title: "Order placed successfully!",
@@ -244,7 +240,6 @@ export default function CheckoutPage() {
         return;
       }
 
-      // Guest customer
       await Swal.fire({
         title: "Order placed successfully!",
         html: `
